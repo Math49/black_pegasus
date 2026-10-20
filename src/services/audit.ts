@@ -23,4 +23,7 @@ export const LIBELLES_ACTIONS: Record<string, string> = {
   "vehicule.afficher": "Véhicule affiché sur le site",
   "vehicule.masquer": "Véhicule masqué du site",
   "vehicule.supprimer": "Véhicule supprimé",
+  "contrat.creer": "Contrat créé",
+  "contrat.cloturer": "Contrat clôturé",
+  "contrat.annuler": "Contrat annulé",
 };

@@ -1,0 +1,83 @@
+/* Documents imprimés (PDF 30–32) : A4 sans marge, fond papier. */
+@page {
+  size: A4;
+  margin: 0;
+}
+html:has(.pdf-feuille),
+body:has(.pdf-feuille) {
+  background: var(--bp-papier);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.pdf-feuille {
+  position: relative;
+  width: 794px;
+  height: 1122px; /* ≤ 297 mm, sinon Chromium entame une page */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: var(--bp-papier);
+  color: var(--bp-encre);
+  font-family: var(--bp-font-body);
+}
+/* Saut avant chaque feuille suivante (un saut après la dernière ajoute une page blanche). */
+.pdf-feuille + .pdf-feuille {
+  break-before: page;
+}
+.pdf-h {
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 800;
+  color: var(--bp-or-encre);
+}
+.pdf-k {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--bp-encre-attenuee);
+}
+.pdf-v {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--bp-encre);
+  font-variant-numeric: tabular-nums;
+}
+.pdf-boite {
+  border: 1px solid var(--bp-filet-papier);
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.pdf-tableau {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.pdf-tableau th {
+  text-align: left;
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bp-encre-attenuee);
+  font-weight: 800;
+  padding: 8px 10px;
+  border-bottom: 1.5px solid var(--bp-encre);
+}
+.pdf-tableau td {
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--bp-filet-papier);
+  color: var(--bp-encre);
+  vertical-align: top;
+}
+.pdf-tableau .pdf-d {
+  text-align: right;
+  white-space: nowrap;
+}
+.pdf-attenue {
+  color: var(--bp-encre-attenuee);
+}
