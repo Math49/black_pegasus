@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { decisionConnexion } from "@/domaine/permissions";
 import { DUREE_SESSION_S, signIn, signOut } from "@/lib/auth";
+import { maintenant } from "@/lib/horloge";
 import { prisma } from "@/lib/prisma";
 
 export async function connexionDiscord() {
@@ -38,7 +39,7 @@ export async function connexionDeveloppement(formData: FormData) {
   await prisma.$transaction([
     prisma.compte.update({
       where: { id: compte.id },
-      data: { userId, derniereConnexion: new Date() },
+      data: { userId, derniereConnexion: await maintenant() },
     }),
     prisma.session.create({ data: { sessionToken, userId, expires } }),
   ]);

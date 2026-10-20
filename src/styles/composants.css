@@ -905,6 +905,55 @@
     background: linear-gradient(180deg, transparent 45%, var(--bp-noir-85) 100%);
   }
 
+  /* ── Cartes de choix (rôle, maquette 22) : bouton radio habillé ── */
+  .bp-choix {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 16px;
+    border-radius: 14px;
+    border: 1px solid var(--bp-trait-10);
+    background: var(--bp-voile-3);
+    color: var(--bp-text);
+    font: 500 13px/1.5 var(--bp-font-body);
+    cursor: pointer;
+  }
+  .bp-choix:has(input:checked) {
+    border-color: var(--bp-or-70);
+    background: var(--bp-or-8);
+  }
+  .bp-choix:has(input:focus-visible) {
+    outline: 2px solid var(--bp-focus-border);
+    outline-offset: 2px;
+  }
+  .bp-choix input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .bp-choix__point {
+    width: 18px;
+    height: 18px;
+    flex: none;
+    border-radius: 50%;
+    border: 1.5px solid var(--bp-argent-50);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .bp-choix:has(input:checked) .bp-choix__point {
+    border-color: var(--bp-gold-text);
+  }
+  .bp-choix:has(input:checked) .bp-choix__point::after {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--bp-gold-text);
+  }
+
   /* ── Carte « fantôme » du panel ── */
   .bp-fantome {
     background: var(--bp-voile-3);
