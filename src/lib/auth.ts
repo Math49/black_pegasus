@@ -12,7 +12,14 @@ export const DUREE_SESSION_S = 30 * 24 * 3600;
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: adaptateurPrisma(prisma),
   session: { strategy: "database", maxAge: DUREE_SESSION_S },
-  providers: [Discord({ authorization: { params: { scope: "identify" } } })],
+  providers: [
+    Discord({
+      authorization: { params: { scope: "identify" } },
+      // Discord renvoie désormais « iss=https://discord.com » au retour (RFC 9207) ; sans
+      // émetteur déclaré, Auth.js le compare à « https://authjs.dev » et refuse la réponse.
+      issuer: "https://discord.com",
+    }),
+  ],
   pages: { signIn: "/admin/connexion", error: "/admin/connexion" },
   callbacks: {
     async signIn({ account }) {
