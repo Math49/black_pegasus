@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Black Pégasus — La flotte</title>
+<link rel="stylesheet" href="../../assets/fonts/fonts.css">
+<style>
+body{margin:0;background:#0A0A0C}
+*{box-sizing:border-box}
+a{color:#E8C877;text-decoration:none}a:hover{color:#EDEDF0}
+.display{font-family:'Montserrat','Manrope',system-ui,sans-serif;font-weight:600;letter-spacing:-.01em}
+.gold{background:linear-gradient(100deg,#A67C2E 0%,#E8C877 48%,#C9A24A 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.silver{background:linear-gradient(180deg,#EDEDF0,#C8C8CC);-webkit-background-clip:text;background-clip:text;color:transparent}
+.label{font-size:11px;line-height:16px;letter-spacing:.24em;text-transform:uppercase;font-weight:700;color:#8E8E96}
+.glass{background:rgba(255,255,255,.06);-webkit-backdrop-filter:blur(26px) saturate(140%);backdrop-filter:blur(26px) saturate(140%);border:1px solid rgba(255,255,255,.10);border-radius:20px;box-shadow:inset 0 1px 0 rgba(232,200,119,.32),0 30px 60px -24px rgba(0,0,0,.7)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:0 26px;border-radius:999px;font:700 15px/1 'Manrope',system-ui,sans-serif;letter-spacing:.01em;cursor:pointer;white-space:nowrap}
+.btn-gold{background:linear-gradient(100deg,#A67C2E 0%,#E8C877 50%,#C9A24A 100%);color:#0A0A0C;border:0;box-shadow:0 12px 32px -12px rgba(232,200,119,.55),inset 0 1px 0 rgba(255,255,255,.55)}
+.btn-gold:hover{color:#0A0A0C;filter:brightness(1.07)}
+.btn-glass{background:rgba(255,255,255,.05);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border:1px solid rgba(200,200,204,.5);color:#EDEDF0}
+.btn-glass:hover{color:#EDEDF0;border-color:#EDEDF0}
+.chip{display:inline-flex;align-items:center;gap:7px;height:30px;padding:0 12px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);font-size:12.5px;font-weight:600;color:#C8C8CC;white-space:nowrap}
+.badge{display:inline-flex;align-items:center;gap:7px;height:26px;padding:0 11px;border-radius:999px;font-size:10.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap}
+.badge-on{background:rgba(20,16,8,.55);border:1px solid rgba(232,200,119,.6);color:#E8C877}
+.badge-off{background:rgba(10,10,12,.55);border:1px solid rgba(142,142,150,.45);color:#A4A4AC}
+.dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+.ico{width:20px;height:20px;fill:none;stroke:#D6B467;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.ico-s{width:15px;height:15px;fill:none;stroke:#C8C8CC;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.wrap{width:100%;max-width:1360px;margin:0 auto;padding-inline:clamp(20px,4vw,56px)}
+.nav-a{color:#C8C8CC;font-size:14px;font-weight:600;padding:12px 4px}
+.nav-a:hover{color:#EDEDF0}
+.nav-on{color:#EDEDF0;box-shadow:inset 0 -1px 0 #E8C877}
+.vcard{display:flex;flex-direction:column;position:relative;color:#EDEDF0;background:rgba(255,255,255,.05);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.10);border-radius:22px;box-shadow:inset 0 1px 0 rgba(232,200,119,.28),0 30px 60px -28px rgba(0,0,0,.8)}
+.vcard:hover{color:#EDEDF0;border-color:rgba(232,200,119,.45)}
+.vcard-off{opacity:.7}
+.vcard-off .media img{filter:grayscale(1) brightness(.7)}
+.media{position:relative;overflow:hidden;border-radius:21px 21px 0 0;background:#131316}
+.media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.media-fade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,12,0) 45%,rgba(10,10,12,.85) 100%)}
+.rule{height:1px;background:linear-gradient(90deg,rgba(232,200,119,0),rgba(232,200,119,.55),rgba(232,200,119,0))}
+.seg{display:inline-flex;align-items:center;gap:10px;min-height:48px;padding:0 22px;border-radius:999px;border:0;background:transparent;color:#C8C8CC;font:700 15px/1 'Manrope',system-ui,sans-serif;cursor:pointer}
+.seg:hover{color:#EDEDF0}
+.seg-on{background:linear-gradient(100deg,#A67C2E 0%,#E8C877 50%,#C9A24A 100%);color:#0A0A0C;box-shadow:inset 0 1px 0 rgba(255,255,255,.5)}
+.seg-on:hover{color:#0A0A0C}
+.seg-on .ico{stroke:#0A0A0C}
+.opt{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:40px;font-size:14px;color:#EDEDF0;cursor:pointer}
+.opt input{width:18px;height:18px;accent-color:#C9A24A;margin:0}
+.pill{min-height:40px;padding:0 14px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:#C8C8CC;font:600 13px/1 'Manrope',system-ui,sans-serif;cursor:pointer}
+.pill-on{border-color:rgba(232,200,119,.7);color:#E8C877;background:rgba(232,200,119,.10)}
+.switch{position:relative;width:52px;height:30px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);cursor:pointer;padding:0;flex:none}
+.switch-on{background:linear-gradient(100deg,#A67C2E,#E8C877 50%,#C9A24A);border-color:transparent}
+.knob{position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#C8C8CC;box-shadow:0 2px 6px rgba(0,0,0,.4)}
+.switch-on .knob{left:25px;background:#0A0A0C}
+.bar{flex:1;border-radius:2px;background:rgba(200,200,204,.22)}
+.bar-in{background:linear-gradient(180deg,#E8C877,#A67C2E)}
+.foot-a{color:#8E8E96;font-size:14px}.foot-a:hover{color:#EDEDF0}
+.bg-runway{background:#0A0A0C url(../../assets/images/bg-piste-de-nuit.jpg) center 40%/cover no-repeat}
+.bg-sea{background:#0A0A0C url(../../assets/images/bg-mer.jpg) center/cover no-repeat}
+.bg-skyline{background:#0A0A0C url(../../assets/images/bg-skyline.jpg) center 70%/cover no-repeat}
+select.field{appearance:none;-webkit-appearance:none;height:44px;padding:0 40px 0 16px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:#EDEDF0;font:600 14px 'Manrope',system-ui,sans-serif}
+select.field option{background:#131316;color:#EDEDF0}
+</style>
+</head>
+<body>
+<div style="position: relative; font-family: 'Manrope', system-ui, sans-serif; color: #EDEDF0; background: #0A0A0C; -webkit-font-smoothing: antialiased; overflow: hidden">
+
+  <!-- ambiance -->
+  <div class="bg-sea" style="position: absolute; left: 0; right: 0; top: 0; height: 760px"></div>
+  <div style="position: absolute; left: 0; right: 0; top: 0; height: 760px; background: linear-gradient(180deg, rgba(10,10,12,.55) 0%, rgba(10,10,12,.55) 40%, #0A0A0C 100%)"></div>
+  <div style="position: absolute; left: -200px; top: 1100px; width: 900px; height: 900px; background: radial-gradient(50% 50% at 50% 50%, rgba(201,162,74,.08), rgba(201,162,74,0))"></div>
+
+  <header class="wrap" style="position: relative; z-index: 3; padding-top: 24px">
+    <div class="glass" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 28px; padding: 10px 12px 10px 18px; border-radius: 999px">
+      <a href="01-site-accueil.html" style="display: flex; align-items: center; gap: 12px; color: #EDEDF0">
+        <img src="../../assets/images/bp-logo.png" alt="Black Pégasus" style="width: 46px; height: 46px; object-fit: contain">
+        <span style="display: flex; flex-direction: column; gap: 2px">
+          <span class="display gold" style="font-size: 17px; font-weight: 700; letter-spacing: .06em">BLACK PÉGASUS</span>
+          <span style="font-size: 9px; letter-spacing: .32em; color: #8E8E96; font-weight: 700">AMERICAN TRANSPORTS</span>
+        </span>
+      </a>
+      <nav aria-label="Navigation principale" style="display: flex; flex-wrap: wrap; gap: 8px 30px">
+        <a class="nav-a" href="01-site-accueil.html">Accueil</a>
+        <a class="nav-a nav-on" href="02-site-flotte.html">La flotte</a>
+        <a class="nav-a" href="04-site-reglement.html">Règlement</a>
+        <a class="nav-a" href="01-site-accueil.html#maison">La maison</a>
+      </nav>
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+        <a class="btn btn-glass" href="10-admin-connexion.html" style="min-height: 46px; padding: 0 18px; font-size: 14px">
+          <svg class="ico" viewBox="0 0 24 24" style="stroke: #C8C8CC; width: 18px; height: 18px" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+          Espace admin
+        </a>
+        <a class="btn btn-gold" href="#appel" style="min-height: 46px; padding: 0 20px">
+          <svg class="ico" viewBox="0 0 24 24" style="stroke: #0A0A0C" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>
+          555-XXXX
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- title -->
+  <section class="wrap" style="position: relative; z-index: 2; padding-top: 72px; padding-bottom: 40px; display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 28px">
+    <div style="display: flex; flex-direction: column; gap: 16px; max-width: 640px">
+      <nav aria-label="Fil d’Ariane" style="display: flex; gap: 10px; font-size: 13px; color: #8E8E96"><a href="01-site-accueil.html" style="color: #8E8E96">Accueil</a><span>/</span><span style="color: #EDEDF0">La flotte</span></nav>
+      <h1 class="display" style="margin: 0; font-size: clamp(40px, 4.4vw, 62px); line-height: 1.05">Choisissez votre <span class="gold" style="font-weight: 600">appareil</span></h1>
+      <p style="margin: 0; color: #C8C8CC; font-size: 17px; line-height: 1.6">Tarifs à l’heure ou à la journée, disponibilités mises à jour par l’agence.</p>
+    </div>
+    <div id="appel" class="glass" style="display: flex; align-items: center; gap: 16px; padding: 16px 22px">
+      <span style="width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(232,200,119,.5); display: flex; align-items: center; justify-content: center">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>
+      </span>
+      <span style="display: flex; flex-direction: column; gap: 4px">
+        <span class="label">Réservez par téléphone en jeu</span>
+        <span style="display: flex; align-items: baseline; gap: 12px"><span class="gold" style="font-size: 24px; font-weight: 800">555-XXXX</span><span style="font-size: 13px; color: #C8C8CC">Tous les jours · 14h – 02h</span></span>
+      </span>
+    </div>
+  </section>
+
+  <!-- segments -->
+  <section class="wrap" style="position: relative; z-index: 2; padding-bottom: 40px">
+    <div class="glass" role="tablist" aria-label="Type de véhicule" style="display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 6px; border-radius: 999px">
+      
+        <button type="button" role="tab" class="seg seg-on" aria-selected="true">
+          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="2"/><path d="M12 7v14M5 12H3a9 9 0 0 0 18 0h-2M8 10h8"/></svg>
+          
+          
+          Bateaux
+          <span style="font-size: 12px; opacity: .7">4</span>
+        </button>
+      
+        <button type="button" role="tab" class="seg" aria-selected="false">
+          
+          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg>
+          
+          Avions
+          <span style="font-size: 12px; opacity: .7">3</span>
+        </button>
+      
+        <button type="button" role="tab" class="seg" aria-selected="false">
+          
+          
+          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h16M11 4v3"/><path d="M6 11a4 4 0 0 1 4-4h5a4 4 0 0 1 4 4v2a2 2 0 0 1-2 2H9a3 3 0 0 1-3-3z"/><path d="M6 12H2M9 19h10M12 15v4M16 15v4"/></svg>
+          Hélicoptères
+          <span style="font-size: 12px; opacity: .7">2</span>
+        </button>
+      
+    </div>
+  </section>
+
+  <!-- body -->
+  <section class="wrap" style="position: relative; z-index: 2; padding-bottom: 100px; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 32px">
+
+    <!-- filters -->
+    <aside class="glass" aria-label="Filtres" style="flex: 1 1 280px; max-width: 300px; padding: 26px 24px; display: flex; flex-direction: column; gap: 26px; border-radius: 24px">
+      <div style="display: flex; align-items: center; justify-content: space-between">
+        <span class="display" style="font-size: 24px">Filtres</span>
+        <a href="#" style="font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase">Effacer</a>
+      </div>
+
+      <fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px">
+        <legend class="label" style="padding: 0; margin-bottom: 10px; color: #C8C8CC">Catégorie</legend>
+        
+          <label class="opt">
+            <span style="display: flex; align-items: center; gap: 12px"><input type="checkbox" checked>Jet-ski</span>
+            <span style="color: #8E8E96; font-size: 13px">1</span>
+          </label>
+        
+          <label class="opt">
+            <span style="display: flex; align-items: center; gap: 12px"><input type="checkbox" checked>Semi-rigide</span>
+            <span style="color: #8E8E96; font-size: 13px">1</span>
+          </label>
+        
+          <label class="opt">
+            <span style="display: flex; align-items: center; gap: 12px"><input type="checkbox" checked>Vedette</span>
+            <span style="color: #8E8E96; font-size: 13px">1</span>
+          </label>
+        
+          <label class="opt">
+            <span style="display: flex; align-items: center; gap: 12px"><input type="checkbox" checked>Remorqueur</span>
+            <span style="color: #8E8E96; font-size: 13px">1</span>
+          </label>
+        
+      </fieldset>
+
+      <div style="height: 1px; background: rgba(255,255,255,.08)"></div>
+
+      <fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px">
+        <legend class="label" style="padding: 0; margin-bottom: 10px; color: #C8C8CC">Nombre de places</legend>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px">
+          
+            <button type="button" class="pill pill-on" aria-pressed="true">Tous</button>
+          
+            <button type="button" class="pill" aria-pressed="false">1 – 2</button>
+          
+            <button type="button" class="pill" aria-pressed="false">3 – 6</button>
+          
+            <button type="button" class="pill" aria-pressed="false">7 +</button>
+          
+        </div>
+      </fieldset>
+
+      <fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px">
+        <legend class="label" style="padding: 0; margin-bottom: 10px; color: #C8C8CC">Contenance</legend>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px">
+          
+            <button type="button" class="pill pill-on" aria-pressed="true">Toutes</button>
+          
+            <button type="button" class="pill" aria-pressed="false">< 100 kg</button>
+          
+            <button type="button" class="pill" aria-pressed="false">100 – 500 kg</button>
+          
+            <button type="button" class="pill" aria-pressed="false">500 kg +</button>
+          
+        </div>
+      </fieldset>
+
+      <div style="height: 1px; background: rgba(255,255,255,.08)"></div>
+
+      <div style="display: flex; flex-direction: column; gap: 14px">
+        <div style="display: flex; align-items: center; justify-content: space-between">
+          <span class="label" style="color: #C8C8CC">Prix à l’heure</span>
+          <span style="font-size: 13px; color: #EDEDF0; font-weight: 700">$150 – $4 500</span>
+        </div>
+        <div aria-hidden="true" style="display: flex; align-items: flex-end; gap: 4px; height: 56px; padding: 0 2px">
+          <span class="bar" style="height: 30%"></span><span class="bar bar-in" style="height: 55%"></span><span class="bar bar-in" style="height: 80%"></span><span class="bar bar-in" style="height: 100%"></span><span class="bar bar-in" style="height: 70%"></span><span class="bar bar-in" style="height: 60%"></span><span class="bar bar-in" style="height: 85%"></span><span class="bar bar-in" style="height: 45%"></span><span class="bar bar-in" style="height: 50%"></span><span class="bar bar-in" style="height: 35%"></span><span class="bar bar-in" style="height: 40%"></span><span class="bar" style="height: 25%"></span><span class="bar" style="height: 30%"></span><span class="bar" style="height: 15%"></span><span class="bar" style="height: 20%"></span>
+        </div>
+        <div style="position: relative; height: 22px">
+          <div style="position: absolute; left: 0; right: 0; top: 10px; height: 2px; border-radius: 2px; background: rgba(200,200,204,.2)"></div>
+          <div style="position: absolute; left: 7%; right: 22%; top: 10px; height: 2px; background: linear-gradient(90deg,#A67C2E,#E8C877,#C9A24A)"></div>
+          <button type="button" aria-label="Prix minimum" style="position: absolute; left: calc(7% - 11px); top: 0; width: 22px; height: 22px; border-radius: 50%; border: 2px solid #E8C877; background: #0A0A0C; padding: 0; cursor: pointer"></button>
+          <button type="button" aria-label="Prix maximum" style="position: absolute; left: calc(78% - 11px); top: 0; width: 22px; height: 22px; border-radius: 50%; border: 2px solid #E8C877; background: #0A0A0C; padding: 0; cursor: pointer"></button>
+        </div>
+      </div>
+
+      <div style="height: 1px; background: rgba(255,255,255,.08)"></div>
+
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px">
+        <span id="dispo-lbl" style="font-size: 14px; font-weight: 600">Disponible uniquement</span>
+        <button type="button" role="switch" aria-checked="false" aria-labelledby="dispo-lbl" class="switch"><span class="knob"></span></button>
+      </div>
+    </aside>
+
+    <!-- grid -->
+    <div style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 28px">
+      <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px">
+        <span style="font-size: 15px; color: #C8C8CC"><strong style="color: #EDEDF0; font-size: 18px">4</strong> modèles · Bateaux</span>
+        <label style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: #8E8E96">Trier par
+          <span style="position: relative; display: inline-flex">
+            <select class="field">
+              <option>Recommandés</option>
+              <option>Prix croissant</option>
+              <option>Prix décroissant</option>
+              <option>Nombre de places</option>
+            </select>
+            <svg class="ico-s" viewBox="0 0 24 24" aria-hidden="true" style="position: absolute; right: 14px; top: 14px; pointer-events: none"><path d="M6 9l6 6 6-6"/></svg>
+          </span>
+        </label>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(262px, 100%), 1fr)); gap: 24px 22px">
+        
+          <a class="vcard" href="03-site-fiche-vehicule.html">
+            <div class="media" style="height: 180px">
+              <img src="../../assets/images/vehicule-placeholder.jpg" alt="Seashark2">
+              <div class="media-fade"></div>
+              <span class="badge badge-on" style="position: absolute; left: 18px; bottom: 14px"><span class="dot"></span>3 / 4 disponibles</span>
+            </div>
+            <div style="padding: 16px 20px 22px; display: flex; flex-direction: column; gap: 16px">
+              <div style="display: flex; flex-direction: column; gap: 5px">
+                <span class="label">Bateaux · Jet-ski</span>
+                <span class="display" style="font-size: 23px">Seashark2</span>
+              </div>
+              <div class="rule"></div>
+              <div style="display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 12px">
+                <span style="display: flex; align-items: baseline; gap: 5px"><span class="gold" style="font-size: 30px; font-weight: 800; letter-spacing: -.01em">$150</span><span style="color: #8E8E96; font-size: 12.5px">/ h</span></span>
+                <span style="display: flex; align-items: baseline; gap: 5px"><span class="silver" style="font-size: 18px; font-weight: 700">$900</span><span style="color: #8E8E96; font-size: 12.5px">/ jour</span></span>
+              </div>
+              <div style="display: flex; flex-wrap: wrap; gap: 8px">
+                <span class="chip"><svg class="ico-s" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 20v-1.5A3.5 3.5 0 0 0 12.5 15h-5A3.5 3.5 0 0 0 4 18.5V20"/><circle cx="10" cy="8" r="3.5"/></svg>2 places</span>
+                <span class="chip"><svg class="ico-s" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8l-9-5-9 5v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg>20 kg</span>
+              </div>
+            </div>
+          </a>
+        
+          <a class="vcard" href="03-site-fiche-vehicule.html">
+            <div class="media" style="height: 180px">
+              <img src="../../assets/images/vehicule-placeholder.jpg" alt="Dinghy4">
+              <div class="media-fade"></div>
+              <span class="badge badge-on" style="position: absolute; left: 18px; bottom: 14px"><span class="dot"></span>1 / 1 disponible</span>
+            </div>
+            <div style="padding: 16px 20px 22px; display: flex; flex-direction: column; gap: 16px">
+              <div style="display: flex; flex-direction: column; gap: 5px">
+                <span class="label">Bateaux · Semi-rigide</span>
+                <span class="display" style="font-size: 23px">Dinghy4</span>
+              </div>
+              <div class="rule"></div>
+              <div style="display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 12px">
+                <span style="display: flex; align-items: baseline; gap: 5px"><span class="gold" style="font-size: 30px; font-weight: 800; letter-spacing: -.01em">$300</span><span style="color: #8E8E96; font-size: 12.5px">/ h</span></span>
+                <span style="display: flex; align-items: baseline; gap: 5px"><span class="silver" style="font-size: 18px; font-weight: 700">$1 800</span><span style="color: #8E8E96; font-size: 12.5px">/ jour</span></span>
+              </div>
+              <div style="display: flex; flex-wrap: wrap; gap: 8px">
+                <span class="chip"><svg class="ico-s" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 20v-1.5A3.5 3.5 0 0 0 12.5 15h-5A3.5 3.5 0 0 0 4 18.5V20"/><circle cx="10" cy="8" r="3.5"/></svg>4 places</span>
+                <span class="chip"><svg class="ico-s" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8l-9-5-9 5v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg>100 kg</span>
+              </div>
+            </div>
+          </a>
+        
+          <a class="vcard" href="03-site-fiche-vehicule.html">
+            <div class="media" style="height: 180px">
+              <img src="../../assets/images/vehicule-placeholder.jpg" alt="Toro2">
+              <div class="media-fade"></div>
+              <span class="badge badge-on" style="position: absolute; left: 18px; bottom: 14px"><span class="dot"></span>1 / 1 disponible</span>
+            </div>
+            <div style="padding: 16px 20px 22px; display: flex; flex-direction: column; gap: 16px">
+              <div style="display: flex; flex-direction: column; gap: 5px">
+                <span class="label">Bateaux · Vedette</span>
+                <span class="display" style="font-size: 23px">Toro2</span>
+              </div>
+              <div class="rule"></div>
+              <div style="display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 12px">
+                <span style="display: flex; align-items: baseline; gap: 5px"><span class="gold" style="font-size: 30px; font-weight: 800; letter-spacing: -.01em">$600</span><span style="color: #8E8E96; font-size: 12.5px">/ h</span></span>
+                <span style="display: flex; align-items: baseline; gap: 5px"><span class="silver" style="font-size: 18px; font-weight: 700">$3 600</span><span style="color: #8E8E96; font-size: 12.5px">/ jour</span></span>
+              </div>
+              <div style="display: flex; flex-wrap: wrap; gap: 8px">
+                <span class="chip"><svg class="ico-s" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 20v-1.5A3.5 3.5 0 0 0 12.5 15h-5A3.5 3.5 0 0 0 4 18.5V20"/><circle cx="10" cy="8" r="3.5"/></svg>6 places</span>
+                <span class="chip"><svg class="ico-s" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8l-9-5-9 5v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg>150 kg</span>
+              </div>
+            </div>
+          </a>
+        
+          <a class="vcard vcard-off" href="03-site-fiche-vehicule.html">
+            <div class="media" style="height: 180px">
+              <img src="../../assets/images/vehicule-placeholder.jpg" alt="Remorqueur">
+              <div class="media-fade"></div>
+              <span class="badge badge-off" style="position: absolute; left: 18px; bottom: 14px"><span class="dot"></span>Complet</span>
+            </div>
+            <div style="padding: 16px 20px 22px; display: flex; flex-direction: column; gap: 16px">
+              <div style="display: flex; flex-direction: column; gap: 5px">
+                <span class="label">Bateaux · Remorqueur</span>
+                <span class="display" style="font-size: 23px">Remorqueur</span>
+              </div>
+              <div class="rule"></div>
+              <div style="display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 12px">
+                <span style="display: flex; align-items: baseline; gap: 5px"><span class="gold" style="font-size: 30px; font-weight: 800; letter-spacing: -.01em">$800</span><span style="color: #8E8E96; font-size: 12.5px">/ h</span></span>
+                <span style="display: flex; align-items: baseline; gap: 5px"><span class="silver" style="font-size: 18px; font-weight: 700">$4 800</span><span style="color: #8E8E96; font-size: 12.5px">/ jour</span></span>
+              </div>
+              <div style="display: flex; flex-wrap: wrap; gap: 8px">
+                <span class="chip"><svg class="ico-s" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 20v-1.5A3.5 3.5 0 0 0 12.5 15h-5A3.5 3.5 0 0 0 4 18.5V20"/><circle cx="10" cy="8" r="3.5"/></svg>4 places</span>
+                <span class="chip"><svg class="ico-s" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8l-9-5-9 5v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg>2 t</span>
+              </div>
+            </div>
+          </a>
+        
+      </div>
+
+      
+
+      <div class="glass" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 18px 28px; padding: 22px 26px; margin-top: 16px">
+        <div style="display: flex; align-items: center; gap: 14px; max-width: 560px">
+          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+          <span style="font-size: 14px; color: #C8C8CC; line-height: 1.55">Le tarif journalier s’applique automatiquement s’il est plus avantageux. Aucune réservation en ligne.</span>
+        </div>
+        <a class="btn btn-gold" href="#appel">
+          <svg class="ico" viewBox="0 0 24 24" style="stroke: #0A0A0C" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>
+          Appeler le 555-XXXX
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- footer -->
+  <footer style="position: relative; border-top: 1px solid rgba(232,200,119,.22); background: #0A0A0C">
+    <div class="wrap" style="padding-top: 56px; padding-bottom: 32px; display: flex; flex-direction: column; gap: 40px">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 40px">
+        <div style="display: flex; flex-direction: column; gap: 16px">
+          <img src="../../assets/images/bp-logo.png" alt="Black Pégasus – American Transports" style="width: 100px; height: 100px; object-fit: contain">
+          <span style="color: #8E8E96; font-size: 14px; line-height: 1.6">Location de bateaux, d’avions et d’hélicoptères.</span>
+        </div>
+        <nav aria-label="Pied de page" style="display: flex; flex-direction: column; gap: 12px">
+          <span class="label" style="color: #C8C8CC; margin-bottom: 6px">Navigation</span>
+          <a class="foot-a" href="01-site-accueil.html">Accueil</a>
+          <a class="foot-a" href="02-site-flotte.html">La flotte</a>
+          <a class="foot-a" href="04-site-reglement.html">Règlement des locations</a>
+        </nav>
+        <div style="display: flex; flex-direction: column; gap: 12px">
+          <span class="label" style="color: #C8C8CC; margin-bottom: 6px">La flotte</span>
+          <a class="foot-a" href="02-site-flotte.html">Bateaux</a>
+          <a class="foot-a" href="02-site-flotte.html">Avions</a>
+          <a class="foot-a" href="02-site-flotte.html">Hélicoptères</a>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 12px">
+          <span class="label" style="color: #C8C8CC; margin-bottom: 6px">Contact</span>
+          <span class="gold" style="font-size: 24px; font-weight: 800">555-XXXX</span>
+          <span style="color: #8E8E96; font-size: 14px">Tous les jours · 14h – 02h</span>
+        </div>
+      </div>
+      <div class="rule"></div>
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; color: #8E8E96; font-size: 12.5px">
+        <span>© Black Pégasus – American Transports</span>
+        <span>Entreprise fictive d’un serveur de jeu de rôle GTA V (FiveM)</span>
+      </div>
+    </div>
+  </footer>
+</div>
+</body>
+</html>

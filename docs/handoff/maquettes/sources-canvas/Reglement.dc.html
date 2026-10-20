@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Black Pégasus — Règlement des locations</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0A0A0C}
+*{box-sizing:border-box}
+a{color:#E8C877;text-decoration:none}a:hover{color:#EDEDF0}
+.display{font-family:'Montserrat','Manrope',system-ui,sans-serif;font-weight:600;letter-spacing:-.01em}
+.gold{background:linear-gradient(100deg,#A67C2E 0%,#E8C877 48%,#C9A24A 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.label{font-size:11px;line-height:16px;letter-spacing:.24em;text-transform:uppercase;font-weight:700;color:#8E8E96}
+.glass{background:rgba(255,255,255,.06);-webkit-backdrop-filter:blur(26px) saturate(140%);backdrop-filter:blur(26px) saturate(140%);border:1px solid rgba(255,255,255,.10);border-radius:20px;box-shadow:inset 0 1px 0 rgba(232,200,119,.32),0 30px 60px -24px rgba(0,0,0,.7)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:0 26px;border-radius:999px;font:700 15px/1 'Manrope',system-ui,sans-serif;letter-spacing:.01em;cursor:pointer;white-space:nowrap}
+.btn-gold{background:linear-gradient(100deg,#A67C2E 0%,#E8C877 50%,#C9A24A 100%);color:#0A0A0C;border:0;box-shadow:0 12px 32px -12px rgba(232,200,119,.55),inset 0 1px 0 rgba(255,255,255,.55)}
+.btn-gold:hover{color:#0A0A0C;filter:brightness(1.07)}
+.btn-glass{background:rgba(255,255,255,.05);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border:1px solid rgba(200,200,204,.5);color:#EDEDF0}
+.btn-glass:hover{color:#EDEDF0;border-color:#EDEDF0}
+.ico{width:20px;height:20px;fill:none;stroke:#D6B467;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.ico-s{width:15px;height:15px;fill:none;stroke:#C8C8CC;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.wrap{width:100%;max-width:1280px;margin:0 auto;padding-inline:clamp(20px,4vw,56px)}
+.nav-a{color:#C8C8CC;font-size:14px;font-weight:600;padding:12px 4px}
+.nav-a:hover{color:#EDEDF0}
+.nav-on{color:#EDEDF0;box-shadow:inset 0 -1px 0 #E8C877}
+.rule{height:1px;background:linear-gradient(90deg,rgba(232,200,119,0),rgba(232,200,119,.55),rgba(232,200,119,0))}
+.toc{display:flex;align-items:center;gap:14px;min-height:44px;padding:0 12px;border-radius:12px;color:#C8C8CC;font-size:14.5px;font-weight:600}
+.toc:hover{color:#EDEDF0;background:rgba(255,255,255,.04)}
+.toc-n{font-size:12px;font-weight:800;color:#8E8E96;letter-spacing:.06em;width:22px}
+.toc-on{background:rgba(232,200,119,.10);color:#EDEDF0}
+.toc-on .toc-n{color:#E8C877}
+.art{display:flex;flex-direction:column;gap:22px;padding:44px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+.art-head{display:flex;align-items:baseline;gap:20px}
+.clause{display:grid;grid-template-columns:52px minmax(0,1fr);gap:12px;font-size:16px;line-height:1.75;color:#C8C8CC}
+.clause-n{font-weight:800;color:#E8C877;font-size:14px;padding-top:2px}
+.tbl{width:100%;border-collapse:collapse;font-size:15px}
+.tbl th{text-align:left;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#8E8E96;font-weight:700;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.1)}
+.tbl td{padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.06);color:#EDEDF0;vertical-align:top}
+.tbl tr:last-child td{border-bottom:0}
+.foot-a{color:#8E8E96;font-size:14px}.foot-a:hover{color:#EDEDF0}
+.bg-runway{background:#0A0A0C url(../../assets/images/bg-piste-de-nuit.jpg) center 45%/cover no-repeat}
+</style>
+</helmet>
+<div style="position: relative; font-family: 'Manrope', system-ui, sans-serif; color: #EDEDF0; background: #0A0A0C; -webkit-font-smoothing: antialiased">
+
+  <div class="bg-runway" style="position: absolute; left: 0; right: 0; top: 0; height: 620px"></div>
+  <div style="position: absolute; left: 0; right: 0; top: 0; height: 620px; background: linear-gradient(180deg, rgba(10,10,12,.5) 0%, rgba(10,10,12,.6) 50%, #0A0A0C 100%)"></div>
+
+  <header class="wrap" style="position: relative; z-index: 3; padding-top: 24px">
+    <div class="glass" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 28px; padding: 10px 12px 10px 18px; border-radius: 999px">
+      <a href="Main.dc.html" style="display: flex; align-items: center; gap: 12px; color: #EDEDF0">
+        <img src="../../assets/images/bp-logo.png" alt="Black Pégasus" style="width: 46px; height: 46px; object-fit: contain">
+        <span style="display: flex; flex-direction: column; gap: 3px">
+          <span class="display gold" style="font-size: 16px; font-weight: 700; letter-spacing: .14em">BLACK PÉGASUS</span>
+          <span style="font-size: 9px; letter-spacing: .32em; color: #8E8E96; font-weight: 700">AMERICAN TRANSPORTS</span>
+        </span>
+      </a>
+      <nav aria-label="Navigation principale" style="display: flex; flex-wrap: wrap; gap: 8px 30px">
+        <a class="nav-a" href="Main.dc.html">Accueil</a>
+        <a class="nav-a" href="Flotte.dc.html">La flotte</a>
+        <a class="nav-a nav-on" href="Reglement.dc.html">Règlement</a>
+        <a class="nav-a" href="Main.dc.html#maison">La maison</a>
+      </nav>
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+        <a class="btn btn-glass" href="Admin-Connexion.dc.html" style="min-height: 46px; padding: 0 18px; font-size: 14px">
+          <svg class="ico" viewBox="0 0 24 24" style="stroke: #C8C8CC; width: 18px; height: 18px" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>
+          Espace admin
+        </a>
+        <a class="btn btn-gold" href="#contact" style="min-height: 46px; padding: 0 20px">
+          <svg class="ico" viewBox="0 0 24 24" style="stroke: #0A0A0C" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"></path></svg>
+          555-XXXX
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <section class="wrap" style="position: relative; z-index: 2; padding-top: 80px; padding-bottom: 64px; display: flex; flex-direction: column; gap: 18px; max-width: 1280px">
+    <nav aria-label="Fil d’Ariane" style="display: flex; gap: 10px; font-size: 13px; color: #8E8E96"><a href="Main.dc.html" style="color: #8E8E96">Accueil</a><span>/</span><span style="color: #EDEDF0">Règlement</span></nav>
+    <h1 class="display" style="margin: 0; font-size: clamp(38px, 4.4vw, 60px); line-height: 1.06">Règlement des <span class="gold" style="font-weight: 700">locations</span></h1>
+    <p style="margin: 0; color: #C8C8CC; font-size: 17px; line-height: 1.6; max-width: 620px">Les conditions qui s’appliquent à chaque contrat signé avec Black Pégasus – American Transports. En signant à l’agence, le locataire les accepte sans réserve.</p>
+    <span style="display: inline-flex; align-items: center; gap: 10px; font-size: 13px; color: #8E8E96"><svg class="ico-s" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg>Dernière mise à jour : [DATE]</span>
+  </section>
+
+  <section class="wrap" style="position: relative; z-index: 2; padding-bottom: 120px; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 56px">
+
+    <aside class="glass" aria-label="Sommaire" style="flex: 1 1 260px; max-width: 300px; position: sticky; top: 24px; padding: 22px 14px; border-radius: 22px; display: flex; flex-direction: column; gap: 4px">
+      <span class="label" style="padding: 0 12px 12px; color: #C8C8CC">Sommaire</span>
+      <a class="toc toc-on" href="#art-1"><span class="toc-n">01</span>Conditions de location</a>
+      <a class="toc" href="#art-2"><span class="toc-n">02</span>Tarification</a>
+      <a class="toc" href="#art-3"><span class="toc-n">03</span>Caution</a>
+      <a class="toc" href="#art-4"><span class="toc-n">04</span>Retards</a>
+      <a class="toc" href="#art-5"><span class="toc-n">05</span>Dégâts et pénalités</a>
+      <a class="toc" href="#art-6"><span class="toc-n">06</span>Restitution</a>
+      <div style="height: 1px; background: rgba(255,255,255,.08); margin: 14px 12px"></div>
+      <div style="display: flex; flex-direction: column; gap: 6px; padding: 0 12px">
+        <span class="label">Une question ?</span>
+        <span class="gold" style="font-size: 22px; font-weight: 800">555-XXXX</span>
+        <span style="font-size: 13px; color: #8E8E96">Tous les jours · 14h – 02h</span>
+      </div>
+    </aside>
+
+    <article style="flex: 999 1 560px; min-width: 0; max-width: 820px; display: flex; flex-direction: column">
+
+      <section id="art-1" class="art" style="padding-top: 0">
+        <div class="art-head"><span class="display gold" style="font-size: 44px; font-weight: 700; line-height: 1">01</span><h2 class="display" style="margin: 0; font-size: 28px">Conditions de location</h2></div>
+        <div class="clause"><span class="clause-n">1.1</span><p style="margin: 0">La location est ouverte à toute personne présentant une pièce d’identité valide lors de la signature du contrat à l’agence.</p></div>
+        <div class="clause"><span class="clause-n">1.2</span><p style="margin: 0">Le pilotage d’un avion ou d’un hélicoptère exige une licence de pilote en cours de validité ; la conduite d’un bateau, un permis bateau.</p></div>
+        <div class="clause"><span class="clause-n">1.3</span><p style="margin: 0">Aucune réservation en ligne : chaque location se prépare par téléphone en jeu au <strong style="color: #E8C877">555-XXXX</strong>, puis se conclut à l’agence par la signature du contrat.</p></div>
+        <div class="clause"><span class="clause-n">1.4</span><p style="margin: 0">Le locataire est seul responsable du véhicule et de ses passagers pendant toute la durée de la location.</p></div>
+      </section>
+
+      <section id="art-2" class="art">
+        <div class="art-head"><span class="display gold" style="font-size: 44px; font-weight: 700; line-height: 1">02</span><h2 class="display" style="margin: 0; font-size: 28px">Tarification</h2></div>
+        <div class="clause"><span class="clause-n">2.1</span><p style="margin: 0">Les tarifs sont exprimés en dollars ($), à l’heure ou à la journée, et figurent sur la fiche de chaque véhicule.</p></div>
+        <div class="clause"><span class="clause-n">2.2</span><p style="margin: 0">Toute heure entamée est due.</p></div>
+        <div class="clause"><span class="clause-n">2.3</span><p style="margin: 0">Le règlement s’effectue à l’agence, au moment de la signature.</p></div>
+        <div class="glass" style="display: flex; align-items: flex-start; gap: 16px; padding: 20px 22px; border-radius: 18px; border-color: rgba(232,200,119,.35)">
+          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true" style="width: 24px; height: 24px"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v5M12 16h.01"></path></svg>
+          <span style="font-size: 15.5px; line-height: 1.6; color: #EDEDF0">Le tarif journalier s’applique automatiquement dès qu’il est plus avantageux que le cumul des heures.</span>
+        </div>
+      </section>
+
+      <section id="art-3" class="art">
+        <div class="art-head"><span class="display gold" style="font-size: 44px; font-weight: 700; line-height: 1">03</span><h2 class="display" style="margin: 0; font-size: 28px">Caution</h2></div>
+        <div class="clause"><span class="clause-n">3.1</span><p style="margin: 0">Une caution est exigée pour chaque location. Son montant figure sur la fiche du véhicule.</p></div>
+        <div class="clause"><span class="clause-n">3.2</span><p style="margin: 0">Elle est versée à la signature et restituée au retour si le véhicule est rendu intact, à l’heure et au point convenu.</p></div>
+        <div class="clause"><span class="clause-n">3.3</span><p style="margin: 0">Tout ou partie de la caution peut être retenu pour couvrir un retard, des dégâts ou une pénalité.</p></div>
+      </section>
+
+      <section id="art-4" class="art">
+        <div class="art-head"><span class="display gold" style="font-size: 44px; font-weight: 700; line-height: 1">04</span><h2 class="display" style="margin: 0; font-size: 28px">Retards</h2></div>
+        <div class="clause"><span class="clause-n">4.1</span><p style="margin: 0">Le véhicule est rendu à l’heure fixée au contrat. Une tolérance de [15] minutes est accordée.</p></div>
+        <div class="clause"><span class="clause-n">4.2</span><p style="margin: 0">Au-delà, chaque heure entamée est facturée au tarif horaire majoré de [50] %.</p></div>
+        <div class="clause"><span class="clause-n">4.3</span><p style="margin: 0">Un retard de plus de [3] heures sans nouvelles du locataire est traité comme un défaut de restitution (article 6).</p></div>
+      </section>
+
+      <section id="art-5" class="art">
+        <div class="art-head"><span class="display gold" style="font-size: 44px; font-weight: 700; line-height: 1">05</span><h2 class="display" style="margin: 0; font-size: 28px">Dégâts et pénalités</h2></div>
+        <div class="clause"><span class="clause-n">5.1</span><p style="margin: 0">Un état des lieux est réalisé au départ et au retour. Tout dégât constaté au retour est à la charge du locataire.</p></div>
+        <div class="glass" style="border-radius: 18px; overflow-x: auto">
+          <table class="tbl">
+            <thead><tr><th scope="col">Constat</th><th scope="col">Pénalité</th></tr></thead>
+            <tbody>
+              <tr><td>Rayures, éraflures légères</td><td style="font-weight: 700">[$ MONTANT]</td></tr>
+              <tr><td>Dégât important (coque, fuselage, rotor)</td><td style="font-weight: 700">Frais de réparation, dans la limite de la caution</td></tr>
+              <tr><td>Réservoir non refait</td><td style="font-weight: 700">[$ MONTANT]</td></tr>
+              <tr><td>Véhicule détruit</td><td style="font-weight: 700"><span class="gold">Caution retenue en totalité</span> + [$ MONTANT]</td></tr>
+              <tr><td>Usage lors d’une activité illégale</td><td style="font-weight: 700">Caution retenue + exclusion de la clientèle</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="art-6" class="art" style="border-bottom: 0">
+        <div class="art-head"><span class="display gold" style="font-size: 44px; font-weight: 700; line-height: 1">06</span><h2 class="display" style="margin: 0; font-size: 28px">Restitution</h2></div>
+        <div class="clause"><span class="clause-n">6.1</span><p style="margin: 0">Le véhicule est restitué au point de remise indiqué au contrat, en présence d’un agent Black Pégasus.</p></div>
+        <div class="clause"><span class="clause-n">6.2</span><p style="margin: 0">Il est rendu propre, réservoir plein, sans objet laissé à bord.</p></div>
+        <div class="clause"><span class="clause-n">6.3</span><p style="margin: 0">En cas de non-restitution, la caution est conservée et l’agence se réserve le droit de signaler le véhicule aux autorités.</p></div>
+      </section>
+
+      <div id="contact" class="glass" style="margin-top: 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px 28px; padding: 28px 30px; border-radius: 24px">
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <span class="display" style="font-size: 22px">Une question sur le règlement ?</span>
+          <span style="color: #C8C8CC; font-size: 15px">Un conseiller vous répond tous les jours, de 14h à 02h.</span>
+        </div>
+        <a class="btn btn-gold" href="#contact">
+          <svg class="ico" viewBox="0 0 24 24" style="stroke: #0A0A0C" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"></path></svg>
+          Appeler le 555-XXXX
+        </a>
+      </div>
+    </article>
+  </section>
+
+  <footer style="position: relative; border-top: 1px solid rgba(232,200,119,.22); background: #0A0A0C">
+    <div class="wrap" style="padding-top: 56px; padding-bottom: 32px; display: flex; flex-direction: column; gap: 40px">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 40px">
+        <div style="display: flex; flex-direction: column; gap: 16px">
+          <img src="../../assets/images/bp-logo.png" alt="Black Pégasus – American Transports" style="width: 100px; height: 100px; object-fit: contain">
+          <span style="color: #8E8E96; font-size: 14px; line-height: 1.6">Location de bateaux, d’avions et d’hélicoptères.</span>
+        </div>
+        <nav aria-label="Pied de page" style="display: flex; flex-direction: column; gap: 12px">
+          <span class="label" style="color: #C8C8CC; margin-bottom: 6px">Navigation</span>
+          <a class="foot-a" href="Main.dc.html">Accueil</a>
+          <a class="foot-a" href="Flotte.dc.html">La flotte</a>
+          <a class="foot-a" href="Reglement.dc.html">Règlement des locations</a>
+        </nav>
+        <div style="display: flex; flex-direction: column; gap: 12px">
+          <span class="label" style="color: #C8C8CC; margin-bottom: 6px">La flotte</span>
+          <a class="foot-a" href="Flotte.dc.html">Bateaux</a>
+          <a class="foot-a" href="Flotte.dc.html">Avions</a>
+          <a class="foot-a" href="Flotte.dc.html">Hélicoptères</a>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 12px">
+          <span class="label" style="color: #C8C8CC; margin-bottom: 6px">Contact</span>
+          <span class="gold" style="font-size: 24px; font-weight: 800">555-XXXX</span>
+          <span style="color: #8E8E96; font-size: 14px">Tous les jours · 14h – 02h</span>
+        </div>
+      </div>
+      <div class="rule"></div>
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; color: #8E8E96; font-size: 12.5px">
+        <span>© Black Pégasus – American Transports</span>
+        <span>Entreprise fictive d’un serveur de jeu de rôle GTA V (FiveM)</span>
+      </div>
+    </div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":3370}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

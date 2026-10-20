@@ -1,0 +1,188 @@
+{
+  "_note": "Tarifs, places, contenances et cautions : valeurs d'exemple à remplacer. Montants en dollars entiers. Photo provisoire commune : assets/images/vehicule-placeholder.jpg",
+  "vehicules": [
+    {
+      "slug": "seashark2",
+      "nom": "Seashark2",
+      "type": "BATEAU",
+      "categorie": "Jet-ski",
+      "places": 2,
+      "contenanceKg": 20,
+      "prixHeure": 150,
+      "prixJour": 900,
+      "caution": 1000,
+      "visibleSurSite": true,
+      "photo": "assets/images/vehicule-placeholder.jpg",
+      "exemplaires": [
+        {
+          "immatriculation": "BP SH 01",
+          "statut": "LOUE"
+        },
+        {
+          "immatriculation": "BP SH 02",
+          "statut": "DISPONIBLE"
+        },
+        {
+          "immatriculation": "BP SH 03",
+          "statut": "LOUE"
+        },
+        {
+          "immatriculation": "BP SH 04",
+          "statut": "DISPONIBLE"
+        }
+      ]
+    },
+    {
+      "slug": "dinghy4",
+      "nom": "Dinghy4",
+      "type": "BATEAU",
+      "categorie": "Semi-rigide",
+      "places": 4,
+      "contenanceKg": 100,
+      "prixHeure": 300,
+      "prixJour": 1800,
+      "caution": 2000,
+      "visibleSurSite": true,
+      "photo": "assets/images/vehicule-placeholder.jpg",
+      "exemplaires": [
+        {
+          "immatriculation": "BP DG 01",
+          "statut": "DISPONIBLE"
+        }
+      ]
+    },
+    {
+      "slug": "toro2",
+      "nom": "Toro2",
+      "type": "BATEAU",
+      "categorie": "Vedette",
+      "places": 6,
+      "contenanceKg": 150,
+      "prixHeure": 600,
+      "prixJour": 3600,
+      "caution": 5000,
+      "visibleSurSite": true,
+      "photo": "assets/images/vehicule-placeholder.jpg",
+      "exemplaires": [
+        {
+          "immatriculation": "BP TR 01",
+          "statut": "DISPONIBLE"
+        }
+      ]
+    },
+    {
+      "slug": "remorqueur",
+      "nom": "Remorqueur",
+      "type": "BATEAU",
+      "categorie": "Remorqueur",
+      "places": 4,
+      "contenanceKg": 2000,
+      "prixHeure": 800,
+      "prixJour": 4800,
+      "caution": 6000,
+      "visibleSurSite": false,
+      "photo": "assets/images/vehicule-placeholder.jpg",
+      "exemplaires": [
+        {
+          "immatriculation": "BP RM 01",
+          "statut": "MAINTENANCE"
+        }
+      ]
+    },
+    {
+      "slug": "dodo",
+      "nom": "Dodo",
+      "type": "AVION",
+      "categorie": "Hydravion",
+      "places": 4,
+      "contenanceKg": 200,
+      "prixHeure": 1200,
+      "prixJour": 7200,
+      "caution": 8000,
+      "visibleSurSite": true,
+      "photo": "assets/images/vehicule-placeholder.jpg",
+      "exemplaires": [
+        {
+          "immatriculation": "BP DD 01",
+          "statut": "DISPONIBLE"
+        }
+      ]
+    },
+    {
+      "slug": "luxor",
+      "nom": "Luxor",
+      "type": "AVION",
+      "categorie": "Jet privé",
+      "places": 10,
+      "contenanceKg": 300,
+      "prixHeure": 4500,
+      "prixJour": 28000,
+      "caution": 15000,
+      "visibleSurSite": true,
+      "photo": "assets/images/vehicule-placeholder.jpg",
+      "exemplaires": [
+        {
+          "immatriculation": "BP LX 01",
+          "statut": "LOUE"
+        }
+      ]
+    },
+    {
+      "slug": "streamer-2026",
+      "nom": "Streamer 2026",
+      "type": "AVION",
+      "categorie": "Sport",
+      "places": 2,
+      "contenanceKg": 50,
+      "prixHeure": 1500,
+      "prixJour": 9000,
+      "caution": 8000,
+      "visibleSurSite": true,
+      "photo": "assets/images/vehicule-placeholder.jpg",
+      "exemplaires": [
+        {
+          "immatriculation": "BP ST 01",
+          "statut": "LOUE"
+        }
+      ]
+    },
+    {
+      "slug": "supervolito-carbon",
+      "nom": "SuperVolito Carbon",
+      "type": "HELICOPTERE",
+      "categorie": "Affaires",
+      "places": 4,
+      "contenanceKg": 200,
+      "prixHeure": 2400,
+      "prixJour": 15000,
+      "caution": 10000,
+      "visibleSurSite": true,
+      "photo": "assets/images/vehicule-placeholder.jpg",
+      "exemplaires": [
+        {
+          "immatriculation": "BP SV 01",
+          "statut": "DISPONIBLE"
+        }
+      ]
+    },
+    {
+      "slug": "swift",
+      "nom": "Swift",
+      "type": "HELICOPTERE",
+      "categorie": "Affaires",
+      "places": 4,
+      "contenanceKg": 150,
+      "prixHeure": 2200,
+      "prixJour": 13500,
+      "caution": 10000,
+      "visibleSurSite": true,
+      "photo": "assets/images/vehicule-placeholder.jpg",
+      "exemplaires": [
+        {
+          "immatriculation": "BP SW 01",
+          "statut": "LOUE"
+        }
+      ]
+    }
+  ]
+}

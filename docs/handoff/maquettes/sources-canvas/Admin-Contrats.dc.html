@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Black Pégasus Admin — Contrats</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0A0A0C}
+*{box-sizing:border-box}
+a{color:#E8C877;text-decoration:none}a:hover{color:#EDEDF0}
+.display{font-family:'Montserrat','Manrope',system-ui,sans-serif;font-weight:600;letter-spacing:-.01em}
+.gold{background:linear-gradient(100deg,#A67C2E 0%,#E8C877 48%,#C9A24A 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.label{font-size:10.5px;line-height:16px;letter-spacing:.2em;text-transform:uppercase;font-weight:700;color:#8E8E96}
+.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.glass{background:rgba(255,255,255,.055);-webkit-backdrop-filter:blur(24px) saturate(130%);backdrop-filter:blur(24px) saturate(130%);border:1px solid rgba(255,255,255,.09);border-radius:20px;box-shadow:inset 0 1px 0 rgba(232,200,119,.24),0 24px 50px -24px rgba(0,0,0,.7)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:44px;padding:0 18px;border-radius:12px;font:700 14px/1 'Manrope',system-ui,sans-serif;cursor:pointer;white-space:nowrap;border:0}
+.btn-gold{background:linear-gradient(100deg,#A67C2E 0%,#E8C877 50%,#C9A24A 100%);color:#0A0A0C;box-shadow:0 10px 26px -12px rgba(232,200,119,.55),inset 0 1px 0 rgba(255,255,255,.5)}
+.btn-gold:hover{color:#0A0A0C;filter:brightness(1.07)}
+.btn-glass{background:rgba(255,255,255,.05);border:1px solid rgba(200,200,204,.35);color:#EDEDF0}
+.btn-glass:hover{color:#EDEDF0;border-color:rgba(237,237,240,.7)}
+.btn-sm{min-height:36px;padding:0 12px;font-size:13px;border-radius:10px}
+.ibtn{width:44px;height:44px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);cursor:pointer;padding:0;position:relative}
+.ibtn-sm{width:36px;height:36px;border-radius:10px}
+.ico{width:18px;height:18px;fill:none;stroke:#C8C8CC;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.ico-g{stroke:#D6B467}.ico-k{stroke:#0A0A0C}.ico-w{stroke:#F2A99D}
+.nv{display:flex;align-items:center;gap:12px;min-height:44px;padding:0 12px;border-radius:12px;color:#A9A9B1;font-size:14px;font-weight:600}
+.nv:hover{color:#EDEDF0;background:rgba(255,255,255,.04)}
+.nv-on{color:#EDEDF0;background:rgba(255,255,255,.08);box-shadow:inset 0 1px 0 rgba(232,200,119,.22)}
+.nv-on .ico{stroke:#E8C877}
+.cnt{margin-left:auto;font-size:11px;font-weight:800;min-width:22px;height:20px;padding:0 6px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,.08);color:#C8C8CC}
+.cnt-warn{background:rgba(224,122,107,.18);color:#F2A99D}
+.mut{color:#8E8E96}
+.r{text-align:right;justify-self:end}
+.st{display:inline-flex;align-items:center;gap:7px;height:24px;padding:0 10px;border-radius:999px;font-size:11.5px;font-weight:700;white-space:nowrap}
+.st-ok{background:rgba(237,237,240,.07);border:1px solid rgba(237,237,240,.32);color:#EDEDF0}
+.st-mute{background:rgba(142,142,150,.08);border:1px solid rgba(142,142,150,.28);color:#A4A4AC}
+.st-warn{background:rgba(224,122,107,.13);border:1px solid rgba(224,122,107,.55);color:#F2A99D}
+.st-gold{background:rgba(232,200,119,.08);border:1px solid rgba(232,200,119,.45);color:#E8C877}
+.av{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:linear-gradient(145deg,#4a4a52,#1b1b20);color:#EDEDF0;font-weight:800;flex:none}
+.av-ring{box-shadow:0 0 0 1.5px rgba(232,200,119,.7)}
+.fld{width:100%;height:44px;padding:0 14px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(10,10,12,.4);color:#EDEDF0;font:500 14px 'Manrope',system-ui,sans-serif}
+.fld::placeholder{color:#8E8E96}
+.seg{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 16px;border-radius:10px;border:0;background:transparent;color:#A9A9B1;font:700 13.5px/1 'Manrope',system-ui,sans-serif;cursor:pointer}
+.seg:hover{color:#EDEDF0}
+.seg-on{background:rgba(255,255,255,.1);color:#EDEDF0;box-shadow:inset 0 1px 0 rgba(232,200,119,.3)}
+.gr{display:grid;grid-template-columns:112px minmax(150px,1.2fr) minmax(120px,1fr) 152px 76px 76px 128px 124px;align-items:center;column-gap:12px;padding:0 14px}
+.gh{min-height:42px;border-bottom:1px solid rgba(255,255,255,.1);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#8E8E96;font-weight:700}
+.gd{min-height:70px;border-bottom:1px solid rgba(255,255,255,.06);font-size:14px}
+.gd:hover{background:rgba(255,255,255,.03)}
+.gd-warn{background:rgba(224,122,107,.07)}
+.bg-app{background:#0A0A0C url(../../assets/images/bg-skyline.jpg) center 70%/cover no-repeat}
+</style>
+</helmet>
+<div style="position: relative; min-height: 100vh; font-family: 'Manrope', system-ui, sans-serif; color: #EDEDF0; background: #0A0A0C; overflow: hidden; -webkit-font-smoothing: antialiased">
+  <div class="bg-app" style="position: absolute; inset: -60px; filter: blur(30px) brightness(.34) saturate(.9)"></div>
+  <div style="position: absolute; inset: 0; background: radial-gradient(70% 50% at 75% 0%, rgba(201,162,74,.10), rgba(10,10,12,0) 60%), linear-gradient(180deg, rgba(10,10,12,.3), rgba(10,10,12,.75))"></div>
+
+  <div style="position: relative; display: flex; flex-wrap: wrap; align-items: stretch; gap: 20px; padding: 20px">
+
+    <aside class="glass" aria-label="Navigation du panel" style="flex: 1 1 236px; max-width: 256px; padding: 22px 12px 16px; display: flex; flex-direction: column; gap: 28px; border-radius: 24px">
+      <a href="Admin-Dashboard.dc.html" style="display: flex; align-items: center; gap: 12px; padding: 0 8px; color: #EDEDF0">
+        <img src="../../assets/images/bp-logo.png" alt="Black Pégasus" style="width: 42px; height: 42px; object-fit: contain">
+        <span style="display: flex; flex-direction: column; gap: 3px">
+          <span class="display gold" style="font-size: 13px; font-weight: 700; letter-spacing: .14em">BLACK PÉGASUS</span>
+          <span class="label" style="font-size: 9.5px">Administration</span>
+        </span>
+      </a>
+      <nav style="display: flex; flex-direction: column; gap: 4px">
+        <span class="label" style="padding: 0 12px 8px">Gestion</span>
+        <a class="nv" href="Admin-Dashboard.dc.html"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="8" rx="1.5"></rect><rect x="14" y="3" width="7" height="5" rx="1.5"></rect><rect x="14" y="12" width="7" height="9" rx="1.5"></rect><rect x="3" y="15" width="7" height="6" rx="1.5"></rect></svg>Tableau de bord</a>
+        <a class="nv" href="Admin-Solde.dc.html"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3"></path><path d="M21 9h-6a3 3 0 0 0 0 6h6z"></path></svg>Solde</a>
+        <a class="nv" href="Admin-Vehicules.dc.html"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"></path></svg>Véhicules<span class="cnt">9</span></a>
+        <a class="nv nv-on" href="Admin-Contrats.dc.html" aria-current="page"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><path d="M14 3v6h6M8 13h8M8 17h5"></path></svg>Contrats<span class="cnt cnt-warn">1 retard</span></a>
+        <a class="nv" href="Admin-Compta.dc.html"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M7 21h10M5 7h14"></path><path d="M5 7l-3 6a3 3 0 0 0 6 0zM19 7l-3 6a3 3 0 0 0 6 0z"></path></svg>Comptabilité</a>
+        <a class="nv" href="Admin-Comptes.dc.html"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 20v-1.5A3.5 3.5 0 0 0 12.5 15h-5A3.5 3.5 0 0 0 4 18.5V20"></path><circle cx="10" cy="8" r="3.5"></circle><path d="M20 20v-1.5a3.5 3.5 0 0 0-2.5-3.3M15.5 4.7a3.5 3.5 0 0 1 0 6.6"></path></svg>Comptes</a>
+      </nav>
+      <div style="margin-top: auto; display: flex; flex-direction: column; gap: 10px">
+        <a href="Admin-Compta.dc.html" style="display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 14px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); color: #EDEDF0">
+          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 7.5-2"></path></svg>
+          <span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 13px; font-weight: 700">Semaine 43 · ouverte</span><span class="mut" style="font-size: 12px">Clôture dimanche 25/10</span></span>
+        </a>
+        <a class="nv" href="Main.dc.html"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"></path></svg>Voir le site public</a>
+        <a class="nv" href="Admin-Connexion.dc.html"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H4"></path></svg>Déconnexion</a>
+      </div>
+    </aside>
+
+    <main style="flex: 999 1 640px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+      <header class="glass" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 16px 14px 24px">
+        <div style="display: flex; flex-direction: column; gap: 4px">
+          <span class="label">Gestion · Contrats</span>
+          <h1 class="display" style="margin: 0; font-size: 24px">Contrats</h1>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px">
+          <button type="button" class="ibtn" aria-label="Notifications, 1 alerte"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8"></path><path d="M10 20a2 2 0 0 0 4 0"></path></svg><span style="position: absolute; top: 10px; right: 11px; width: 8px; height: 8px; border-radius: 50%; background: #E07A6B; box-shadow: 0 0 0 2px #1a1a1e"></span></button>
+          <div style="display: flex; align-items: center; gap: 12px; padding: 6px 14px 6px 6px; border-radius: 999px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08)">
+            <span class="av av-ring" style="width: 40px; height: 40px; font-size: 14px">VM</span>
+            <span style="display: flex; flex-direction: column; gap: 3px">
+              <span style="font-size: 14px; font-weight: 700">Vincent Moretti <span class="mut" style="font-weight: 500">@vmoretti</span></span>
+              <span class="st st-gold" style="height: 20px; font-size: 10.5px; align-self: flex-start">Administrateur</span>
+            </span>
+          </div>
+        </div>
+      </header>
+
+      <section class="glass" style="padding: 18px 8px 10px; display: flex; flex-direction: column; gap: 14px">
+        <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; padding: 0 12px">
+          <div role="tablist" aria-label="État des contrats" style="display: inline-flex; gap: 4px; padding: 4px; border-radius: 14px; background: rgba(10,10,12,.35); border: 1px solid rgba(255,255,255,.08)">
+            <button type="button" role="tab" class="{{ tabOnCls }}" aria-selected="{{ onSel }}" onClick="{{ showOn }}">En cours <span class="mut" style="font-size: 12px">5</span></button>
+            <button type="button" role="tab" class="{{ tabDoneCls }}" aria-selected="{{ doneSel }}" onClick="{{ showDone }}">Terminés <span class="mut" style="font-size: 12px">6 cette semaine</span></button>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+            <label style="position: relative; display: block; width: 280px">
+              <span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Rechercher un contrat</span>
+              <svg class="ico" viewBox="0 0 24 24" aria-hidden="true" style="position: absolute; left: 13px; top: 13px"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>
+              <input class="fld" type="search" placeholder="N°, client, téléphone, véhicule…" style="padding-left: 40px">
+            </label>
+            <a class="btn btn-gold" href="Admin-Contrat-Nouveau.dc.html"><svg class="ico ico-k" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Nouveau contrat</a>
+          </div>
+        </div>
+
+        <div style="overflow-x: auto">
+          <div role="table" aria-label="Contrats" style="min-width: 1040px">
+            <div role="row" class="gr gh"><span role="columnheader">N° contrat</span><span role="columnheader">Client</span><span role="columnheader">Véhicule</span><span role="columnheader">{{ endHead }}</span><span role="columnheader" class="r">Location</span><span role="columnheader" class="r">Caution</span><span role="columnheader">Statut</span><span role="columnheader"><span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Actions</span></span></div>
+            <sc-for list="{{ rows }}" as="c" hint-placeholder-count="5">
+              <div role="row" class="{{ c.rowCls }}">
+                <span role="cell" class="num" style="font-weight: 700; font-size: 13px">{{ c.n }}</span>
+                <span role="cell" style="display: flex; align-items: center; gap: 10px"><span class="av" style="width: 34px; height: 34px; font-size: 11px">{{ c.ini }}</span><span style="display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 700">{{ c.client }}</span><span class="mut num" style="font-size: 12px">{{ c.tel }}</span></span></span>
+                <span role="cell" style="display: flex; flex-direction: column; gap: 2px"><span>{{ c.veh }}</span><span class="mut" style="font-size: 12px">{{ c.plate }}</span></span>
+                <span role="cell" style="display: flex; flex-direction: column; gap: 3px"><span class="num mut" style="font-size: 12.5px">{{ c.start }}</span><span class="num" style="font-weight: 700; font-size: 13px">→ {{ c.end }}</span></span>
+                <span role="cell" class="r num" style="font-weight: 700">{{ c.price }}</span>
+                <span role="cell" class="r num" style="color: #C8C8CC">{{ c.dep }}</span>
+                <span role="cell"><span class="{{ c.stCls }}">{{ c.st }}</span></span>
+                <span role="cell" class="r" style="display: flex; gap: 8px; justify-content: flex-end">
+                  <a class="ibtn ibtn-sm" href="PDF-Contrat.dc.html" aria-label="{{ c.pdfLabel }}"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><path d="M14 3v6h6M12 12v6M9 15l3 3 3-3"></path></svg></a>
+                  <a class="btn btn-glass btn-sm" href="{{ c.href }}">{{ c.action }}</a>
+                </span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 4px 14px 6px">
+          <span class="mut" style="font-size: 13px">{{ footer }}</span>
+          <span class="mut" style="font-size: 13px">Heure du serveur : sam. 24/10 · 21:40</span>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+const ON = [
+  { n: 'CTR-2026-0039', ini: 'CW', client: 'Chen Wu', tel: '555-0164', veh: 'Seashark2', plate: 'BP SH 01', start: 'Sam. 24/10 · 19:00', end: 'Sam. 24/10 · 21:00', price: '$300', dep: '$1 000', st: 'Retard · 40 min', k: 'warn' },
+  { n: 'CTR-2026-0038', ini: 'KM', client: 'Kenji Mori', tel: '555-0129', veh: 'Streamer 2026', plate: 'BP ST 01', start: 'Sam. 24/10 · 17:00', end: 'Sam. 24/10 · 22:00', price: '$7 500', dep: '$8 000', st: 'Dans 20 min', k: 'ok' },
+  { n: 'CTR-2026-0041', ini: 'MV', client: 'Marisol Vega', tel: '555-0193', veh: 'Seashark2', plate: 'BP SH 03', start: 'Sam. 24/10 · 21:00', end: 'Sam. 24/10 · 23:00', price: '$300', dep: '$1 000', st: 'Dans 1 h 20', k: 'mute' },
+  { n: 'CTR-2026-0040', ini: 'LH', client: 'Luis Herrera', tel: '555-0158', veh: 'Swift', plate: 'BP SW 01', start: 'Sam. 24/10 · 20:00', end: 'Dim. 25/10 · 00:00', price: '$8 800', dep: '$10 000', st: 'Dans 2 h 20', k: 'mute' },
+  { n: 'CTR-2026-0037', ini: 'DV', client: 'Dmitri Volkov', tel: '555-0112', veh: 'Luxor', plate: 'BP LX 01', start: 'Sam. 24/10 · 08:00', end: 'Dim. 25/10 · 08:00', price: '$28 000', dep: '$15 000', st: 'Dans 10 h 20', k: 'mute' }
+];
+const DONE = [
+  { n: 'CTR-2026-0036', ini: 'AO', client: 'Amara Okafor', tel: '555-0176', veh: 'Dodo', plate: 'BP DD 01', start: 'Ven. 23/10 · 10:00', end: 'Ven. 23/10 · 15:10', price: '$6 000', dep: 'Rendue', st: 'À l’heure', k: 'ok' },
+  { n: 'CTR-2026-0035', ini: 'TV', client: 'Tony Varga', tel: '555-0141', veh: 'Dinghy4', plate: 'BP DG 01', start: 'Jeu. 22/10 · 15:00', end: 'Jeu. 22/10 · 19:00', price: '$1 200', dep: 'Rendue', st: 'À l’heure', k: 'ok' },
+  { n: 'CTR-2026-0034', ini: 'IC', client: 'Isabella Cruz', tel: '555-0187', veh: 'SuperVolito Carbon', plate: 'BP SV 01', start: 'Mer. 21/10 · 20:00', end: 'Mer. 21/10 · 23:15', price: '$7 200', dep: 'Rendue', st: 'Dégâts · $500', k: 'gold' },
+  { n: 'CTR-2026-0033', ini: 'DV', client: 'Dmitri Volkov', tel: '555-0112', veh: 'Luxor', plate: 'BP LX 01', start: 'Mar. 20/10 · 12:00', end: 'Mer. 21/10 · 12:05', price: '$28 000', dep: 'Rendue', st: 'À l’heure', k: 'ok' },
+  { n: 'CTR-2026-0032', ini: 'RD', client: 'Rosa Delgado', tel: '555-0135', veh: 'Toro2', plate: 'BP TR 01', start: 'Lun. 19/10 · 18:00', end: 'Lun. 19/10 · 23:10', price: '$2 400', dep: 'Rendue', st: 'Retard · $900', k: 'gold' },
+  { n: 'CTR-2026-0031', ini: 'JC', client: 'Jimmy Calloway', tel: '555-0102', veh: 'Seashark2', plate: 'BP SH 02', start: 'Lun. 19/10 · 14:00', end: 'Lun. 19/10 · 16:05', price: '$300', dep: 'Rendue', st: 'À l’heure', k: 'ok' }
+];
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { tab: 'on' }; }
+  renderVals() {
+    const on = this.state.tab === 'on';
+    const src = on ? ON : DONE;
+    return {
+      tabOnCls: on ? 'seg seg-on' : 'seg', tabDoneCls: on ? 'seg' : 'seg seg-on',
+      onSel: on ? 'true' : 'false', doneSel: on ? 'false' : 'true',
+      showOn: () => this.setState({ tab: 'on' }), showDone: () => this.setState({ tab: 'done' }),
+      endHead: on ? 'Début → retour prévu' : 'Début → retour réel',
+      footer: on ? '5 contrats en cours · $35 000 de cautions détenues' : '6 contrats terminés en semaine 43 · $45 100 de locations',
+      rows: src.map((c) => Object.assign({}, c, {
+        rowCls: c.k === 'warn' ? 'gr gd gd-warn' : 'gr gd',
+        stCls: 'st st-' + c.k,
+        pdfLabel: 'Contrat ' + c.n + ' en PDF',
+        action: on ? 'Clôturer' : 'Détails',
+        href: on ? 'Admin-Contrat-Cloture.dc.html' : 'PDF-Contrat.dc.html'
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>

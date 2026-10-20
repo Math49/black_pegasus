@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Black Pégasus — Accueil</title>
+<link rel="stylesheet" href="../../assets/fonts/fonts.css">
+<style>
+body{margin:0;background:#0A0A0C}
+*{box-sizing:border-box}
+a{color:#E8C877;text-decoration:none}a:hover{color:#EDEDF0}
+.display{font-family:'Montserrat','Manrope',system-ui,sans-serif;font-weight:600;letter-spacing:-.01em}
+.gold{background:linear-gradient(100deg,#A67C2E 0%,#E8C877 48%,#C9A24A 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.silver{background:linear-gradient(180deg,#EDEDF0,#C8C8CC);-webkit-background-clip:text;background-clip:text;color:transparent}
+.label{font-size:11px;line-height:16px;letter-spacing:.24em;text-transform:uppercase;font-weight:700;color:#8E8E96}
+.glass{background:rgba(255,255,255,.06);-webkit-backdrop-filter:blur(26px) saturate(140%);backdrop-filter:blur(26px) saturate(140%);border:1px solid rgba(255,255,255,.10);border-radius:20px;box-shadow:inset 0 1px 0 rgba(232,200,119,.32),0 30px 60px -24px rgba(0,0,0,.7)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:0 26px;border-radius:999px;font:700 15px/1 'Manrope',system-ui,sans-serif;letter-spacing:.01em;cursor:pointer;white-space:nowrap}
+.btn-gold{background:linear-gradient(100deg,#A67C2E 0%,#E8C877 50%,#C9A24A 100%);color:#0A0A0C;border:0;box-shadow:0 12px 32px -12px rgba(232,200,119,.55),inset 0 1px 0 rgba(255,255,255,.55)}
+.btn-gold:hover{color:#0A0A0C;filter:brightness(1.07)}
+.btn-glass{background:rgba(255,255,255,.05);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border:1px solid rgba(200,200,204,.5);color:#EDEDF0}
+.btn-glass:hover{color:#EDEDF0;border-color:#EDEDF0}
+.chip{display:inline-flex;align-items:center;gap:7px;height:30px;padding:0 12px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);font-size:12.5px;font-weight:600;color:#C8C8CC;white-space:nowrap}
+.badge{display:inline-flex;align-items:center;gap:7px;height:26px;padding:0 11px;border-radius:999px;font-size:10.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap}
+.badge-on{background:rgba(20,16,8,.55);border:1px solid rgba(232,200,119,.6);color:#E8C877}
+.badge-off{background:rgba(10,10,12,.55);border:1px solid rgba(142,142,150,.45);color:#A4A4AC}
+.dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+.ico{width:20px;height:20px;fill:none;stroke:#D6B467;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.ico-s{width:15px;height:15px;fill:none;stroke:#C8C8CC;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.wrap{width:100%;max-width:1280px;margin:0 auto;padding-inline:clamp(20px,4vw,56px)}
+.nav-a{color:#C8C8CC;font-size:14px;font-weight:600;padding:12px 4px}
+.nav-a:hover{color:#EDEDF0}
+.nav-on{color:#EDEDF0;box-shadow:inset 0 -1px 0 #E8C877}
+.vcard{display:flex;flex-direction:column;position:relative;color:#EDEDF0;background:rgba(255,255,255,.05);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.10);border-radius:22px;box-shadow:inset 0 1px 0 rgba(232,200,119,.28),0 30px 60px -28px rgba(0,0,0,.8)}
+.vcard:hover{color:#EDEDF0;border-color:rgba(232,200,119,.45)}
+.media{position:relative;overflow:hidden;border-radius:21px 21px 0 0;background:#131316}
+.media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.media-fade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,12,0) 45%,rgba(10,10,12,.85) 100%)}
+.rule{height:1px;background:linear-gradient(90deg,rgba(232,200,119,0),rgba(232,200,119,.55),rgba(232,200,119,0))}
+.foot-a{color:#8E8E96;font-size:14px}.foot-a:hover{color:#EDEDF0}
+.bg-sunset{background:#0A0A0C url(../../assets/images/bg-coucher-de-soleil.jpg) center 60%/cover no-repeat}
+.bg-sea{background:#0A0A0C url(../../assets/images/bg-mer.jpg) center/cover no-repeat}
+.bg-runway{background:#0A0A0C url(../../assets/images/bg-piste-de-nuit.jpg) center/cover no-repeat}
+.bg-skyline{background:#0A0A0C url(../../assets/images/bg-skyline.jpg) center 70%/cover no-repeat}
+</style>
+</head>
+<body>
+<div style="font-family: 'Manrope', system-ui, sans-serif; color: #EDEDF0; background: #0A0A0C; -webkit-font-smoothing: antialiased; overflow: hidden">
+
+<!-- ============ HERO ============ -->
+<section style="position: relative; min-height: 880px; display: flex; flex-direction: column">
+  <div class="bg-sunset" style="position: absolute; inset: 0"></div>
+  <div style="position: absolute; inset: 0; background: linear-gradient(90deg, rgba(10,10,12,.94) 0%, rgba(10,10,12,.7) 38%, rgba(10,10,12,.2) 72%, rgba(10,10,12,.35) 100%)"></div>
+  <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 260px; background: linear-gradient(180deg, rgba(10,10,12,0), #0A0A0C)"></div>
+
+  <header class="wrap" style="position: relative; z-index: 3; padding-top: 24px">
+    <div class="glass" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 28px; padding: 10px 12px 10px 18px; border-radius: 999px">
+      <a href="01-site-accueil.html" style="display: flex; align-items: center; gap: 12px; color: #EDEDF0">
+        <img src="../../assets/images/bp-logo.png" alt="Black Pégasus" style="width: 46px; height: 46px; object-fit: contain">
+        <span style="display: flex; flex-direction: column; gap: 3px">
+          <span class="display gold" style="font-size: 16px; font-weight: 700; letter-spacing: .14em">BLACK PÉGASUS</span>
+          <span style="font-size: 9px; letter-spacing: .32em; color: #8E8E96; font-weight: 700">AMERICAN TRANSPORTS</span>
+        </span>
+      </a>
+      <nav aria-label="Navigation principale" style="display: flex; flex-wrap: wrap; gap: 8px 30px">
+        <a class="nav-a nav-on" href="01-site-accueil.html">Accueil</a>
+        <a class="nav-a" href="02-site-flotte.html">La flotte</a>
+        <a class="nav-a" href="04-site-reglement.html">Règlement</a>
+        <a class="nav-a" href="#maison">La maison</a>
+      </nav>
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+        <a class="btn btn-glass" href="10-admin-connexion.html" style="min-height: 46px; padding: 0 18px; font-size: 14px">
+          <svg class="ico" viewBox="0 0 24 24" style="stroke: #C8C8CC; width: 18px; height: 18px" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+          Espace admin
+        </a>
+        <a class="btn btn-gold" href="#contact" style="min-height: 46px; padding: 0 20px">
+          <svg class="ico" viewBox="0 0 24 24" style="stroke: #0A0A0C" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>
+          555-XXXX
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap" style="position: relative; z-index: 2; flex: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(500px, 100%), 1fr)); align-items: center; gap: 40px; padding-top: 40px; padding-bottom: 80px">
+    <div style="display: flex; flex-direction: column; gap: 28px; max-width: 600px">
+      <div style="display: flex; align-items: center; gap: 14px">
+        <span style="width: 40px; height: 1px; background: #E8C877"></span>
+        <span class="label" style="color: #E8C877">Location de prestige · Los Santos</span>
+      </div>
+      <h1 class="display" style="margin: 0; font-size: clamp(42px, 5vw, 70px); line-height: 1.06; font-weight: 600; text-wrap: balance">Le ciel et l’océan, <span class="gold" style="font-weight: 700">à votre mesure</span></h1>
+      <p style="margin: 0; font-size: 18px; line-height: 1.65; color: #C8C8CC; max-width: 500px; text-wrap: pretty">Bateaux, avions et hélicoptères d’exception, préparés pour vous et remis en main propre. Choisissez votre appareil, appelez l’agence, signez sur place.</p>
+      <div style="display: flex; flex-wrap: wrap; gap: 14px">
+        <a class="btn btn-gold" href="02-site-flotte.html">Découvrir la flotte
+          <svg class="ico" viewBox="0 0 24 24" style="stroke: #0A0A0C" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+        <a class="btn btn-glass" href="04-site-reglement.html">Lire le règlement</a>
+      </div>
+    </div>
+
+    <div style="position: relative; height: 560px; min-width: 0">
+      <svg viewBox="0 0 600 600" aria-hidden="true" style="position: absolute; width: 560px; height: 560px; right: 0; top: -20px">
+        <defs><linearGradient id="arcHero" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#A67C2E" stop-opacity="0"/><stop offset=".3" stop-color="#C9A24A" stop-opacity=".8"/><stop offset=".55" stop-color="#E8C877"/><stop offset="1" stop-color="#A67C2E" stop-opacity="0"/></linearGradient></defs>
+        <path d="M30 400 A 280 280 0 1 1 570 400" fill="none" stroke="url(#arcHero)" stroke-width="1.4"/>
+        <path d="M80 380 A 228 228 0 1 1 520 380" fill="none" stroke="url(#arcHero)" stroke-width=".8" opacity=".45"/>
+      </svg>
+      <a href="03-site-fiche-vehicule.html" class="glass" style="position: absolute; right: 0; top: 60px; width: min(600px, 100%); padding: 10px; border-radius: 28px; transform: rotate(-2deg); color: #EDEDF0">
+        <img src="../../assets/images/vehicule-placeholder.jpg" alt="Luxor, jet privé de la flotte" style="display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 20px">
+        <span class="glass" style="position: absolute; right: 24px; top: 24px; padding: 10px 16px; border-radius: 14px; display: flex; flex-direction: column; gap: 3px; background: rgba(10,10,12,.45)">
+          <span class="label" style="color: #C8C8CC">Avion · Jet privé</span>
+          <span class="display" style="font-size: 18px">Luxor</span>
+        </span>
+      </a>
+      <div class="glass" style="position: absolute; left: 0; bottom: 0; width: 340px; padding: 22px 24px; display: flex; flex-direction: column; gap: 14px; background: rgba(19,19,22,.55)">
+        <span class="label">Réservez par téléphone en jeu</span>
+        <div style="display: flex; align-items: center; gap: 14px">
+          <span style="width: 46px; height: 46px; border-radius: 50%; border: 1px solid rgba(232,200,119,.5); display: flex; align-items: center; justify-content: center">
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>
+          </span>
+          <span class="gold" style="font-size: 34px; font-weight: 800; letter-spacing: .02em">555-XXXX</span>
+        </div>
+        <div style="height: 1px; background: rgba(255,255,255,.1)"></div>
+        <div style="display: flex; align-items: center; gap: 10px; font-size: 14px; color: #C8C8CC">
+          <svg class="ico-s" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          Tous les jours · 14h – 02h
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ LES TROIS ÉLÉMENTS ============ -->
+<section class="wrap" style="position: relative; padding-top: 40px; padding-bottom: 120px">
+  <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 48px">
+    <div style="display: flex; flex-direction: column; gap: 14px">
+      <span class="label" style="color: #E8C877">La flotte</span>
+      <h2 class="display" style="margin: 0; font-size: clamp(30px, 3.2vw, 44px); line-height: 1.12">Trois éléments, une seule exigence</h2>
+    </div>
+    <a href="02-site-flotte.html" style="display: inline-flex; align-items: center; gap: 10px; font-weight: 700; font-size: 15px">Toute la flotte
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </a>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr)); gap: 24px">
+    <a href="02-site-flotte.html" style="position: relative; display: block; height: 460px; color: #EDEDF0">
+      <div class="bg-sea" style="position: absolute; inset: 0; border-radius: 24px; overflow: hidden; border: 1px solid rgba(255,255,255,.08)">
+        <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10,10,12,.05) 0%, rgba(10,10,12,.3) 45%, rgba(10,10,12,.85) 100%)"></div>
+      </div>
+      <div class="glass" style="position: absolute; left: 16px; right: 16px; bottom: 16px; padding: 22px 22px 20px; display: flex; flex-direction: column; gap: 16px">
+        <div style="display: flex; align-items: center; justify-content: space-between">
+          <div style="display: flex; align-items: center; gap: 12px">
+            <svg class="ico" viewBox="0 0 24 24" style="width: 26px; height: 26px" aria-hidden="true"><circle cx="12" cy="5" r="2"/><path d="M12 7v14M5 12H3a9 9 0 0 0 18 0h-2M8 10h8"/></svg>
+            <span class="display" style="font-size: 28px">Bateaux</span>
+          </div>
+          <span class="label" style="color: #C8C8CC">4 modèles</span>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px">
+          <div style="display: flex; flex-wrap: wrap; gap: 6px">
+            <span class="chip">Jet-ski</span><span class="chip">Semi-rigide</span><span class="chip">Vedette</span><span class="chip">Remorqueur</span>
+          </div>
+          <span style="width: 44px; height: 44px; flex: none; border-radius: 50%; background: linear-gradient(100deg,#A67C2E,#E8C877 50%,#C9A24A); display: flex; align-items: center; justify-content: center">
+            <svg class="ico" viewBox="0 0 24 24" style="stroke: #0A0A0C" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </span>
+        </div>
+      </div>
+    </a>
+    <a href="02-site-flotte.html" style="position: relative; display: block; height: 460px; color: #EDEDF0">
+      <div class="bg-runway" style="position: absolute; inset: 0; border-radius: 24px; overflow: hidden; border: 1px solid rgba(255,255,255,.08)">
+        <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10,10,12,0) 0%, rgba(10,10,12,.25) 45%, rgba(10,10,12,.85) 100%)"></div>
+      </div>
+      <div class="glass" style="position: absolute; left: 16px; right: 16px; bottom: 16px; padding: 22px 22px 20px; display: flex; flex-direction: column; gap: 16px">
+        <div style="display: flex; align-items: center; justify-content: space-between">
+          <div style="display: flex; align-items: center; gap: 12px">
+            <svg class="ico" viewBox="0 0 24 24" style="width: 26px; height: 26px" aria-hidden="true"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg>
+            <span class="display" style="font-size: 28px">Avions</span>
+          </div>
+          <span class="label" style="color: #C8C8CC">3 modèles</span>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px">
+          <div style="display: flex; flex-wrap: wrap; gap: 6px">
+            <span class="chip">Jet privé</span><span class="chip">Hydravion</span><span class="chip">Sport</span>
+          </div>
+          <span style="width: 44px; height: 44px; flex: none; border-radius: 50%; background: linear-gradient(100deg,#A67C2E,#E8C877 50%,#C9A24A); display: flex; align-items: center; justify-content: center">
+            <svg class="ico" viewBox="0 0 24 24" style="stroke: #0A0A0C" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </span>
+        </div>
+      </div>
+    </a>
+    <a href="02-site-flotte.html" style="position: relative; display: block; height: 460px; color: #EDEDF0">
+      <div class="bg-skyline" style="position: absolute; inset: 0; border-radius: 24px; overflow: hidden; border: 1px solid rgba(255,255,255,.08)">
+        <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10,10,12,0) 0%, rgba(10,10,12,.2) 45%, rgba(10,10,12,.85) 100%)"></div>
+      </div>
+      <div class="glass" style="position: absolute; left: 16px; right: 16px; bottom: 16px; padding: 22px 22px 20px; display: flex; flex-direction: column; gap: 16px">
+        <div style="display: flex; align-items: center; justify-content: space-between">
+          <div style="display: flex; align-items: center; gap: 12px">
+            <svg class="ico" viewBox="0 0 24 24" style="width: 26px; height: 26px" aria-hidden="true"><path d="M3 4h16M11 4v3"/><path d="M6 11a4 4 0 0 1 4-4h5a4 4 0 0 1 4 4v2a2 2 0 0 1-2 2H9a3 3 0 0 1-3-3z"/><path d="M6 12H2M9 19h10M12 15v4M16 15v4"/></svg>
+            <span class="display" style="font-size: 28px">Hélicoptères</span>
+          </div>
+          <span class="label" style="color: #C8C8CC">2 modèles</span>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px">
+          <div style="display: flex; flex-wrap: wrap; gap: 6px">
+            <span class="chip">Affaires</span>
+          </div>
+          <span style="width: 44px; height: 44px; flex: none; border-radius: 50%; background: linear-gradient(100deg,#A67C2E,#E8C877 50%,#C9A24A); display: flex; align-items: center; justify-content: center">
+            <svg class="ico" viewBox="0 0 24 24" style="stroke: #0A0A0C" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </span>
+        </div>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- ============ SÉLECTION D'EXCEPTION ============ -->
+<section style="position: relative; padding-top: 20px; padding-bottom: 130px">
+  <div style="position: absolute; left: 50%; top: 0; width: 1100px; height: 700px; transform: translateX(-50%); background: radial-gradient(50% 50% at 50% 50%, rgba(201,162,74,.10), rgba(201,162,74,0))"></div>
+  <div class="wrap" style="position: relative">
+    <div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px; margin-bottom: 56px">
+      <span class="label" style="color: #E8C877">Sélection d’exception</span>
+      <h2 class="display" style="margin: 0; font-size: clamp(30px, 3.2vw, 44px); line-height: 1.12">Les appareils de la maison</h2>
+      <p style="margin: 0; max-width: 520px; color: #8E8E96; font-size: 16px; line-height: 1.6">Nos pièces maîtresses, disponibles à l’heure ou à la journée.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr)); gap: 24px">
+      <a class="vcard" href="03-site-fiche-vehicule.html">
+        <div class="media" style="height: 220px">
+          <img src="../../assets/images/vehicule-placeholder.jpg" alt="Luxor">
+          <div class="media-fade"></div>
+          <span class="badge badge-on" style="position: absolute; left: 20px; bottom: 16px"><span class="dot"></span>1 / 1 disponible</span>
+        </div>
+        <div style="padding: 18px 24px 24px; display: flex; flex-direction: column; gap: 18px">
+          <div style="display: flex; flex-direction: column; gap: 6px">
+            <span class="label">Avion · Jet privé</span>
+            <span class="display" style="font-size: 24px">Luxor</span>
+          </div>
+          <div class="rule"></div>
+          <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px">
+            <span style="display: flex; align-items: baseline; gap: 6px"><span class="gold" style="font-size: 34px; font-weight: 800; letter-spacing: -.01em">$4 500</span><span style="color: #8E8E96; font-size: 13px">/ heure</span></span>
+            <span style="display: flex; align-items: baseline; gap: 6px"><span class="silver" style="font-size: 21px; font-weight: 700">$28 000</span><span style="color: #8E8E96; font-size: 13px">/ jour</span></span>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px">
+            <span class="chip"><svg class="ico-s" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 20v-1.5A3.5 3.5 0 0 0 12.5 15h-5A3.5 3.5 0 0 0 4 18.5V20"/><circle cx="10" cy="8" r="3.5"/></svg>10 places</span>
+            <span class="chip"><svg class="ico-s" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8l-9-5-9 5v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg>300 kg</span>
+          </div>
+        </div>
+      </a>
+      <a class="vcard" href="03-site-fiche-vehicule.html">
+        <div class="media" style="height: 220px">
+          <img src="../../assets/images/vehicule-placeholder.jpg" alt="Toro2">
+          <div class="media-fade"></div>
+          <span class="badge badge-on" style="position: absolute; left: 20px; bottom: 16px"><span class="dot"></span>1 / 1 disponible</span>
+        </div>
+        <div style="padding: 18px 24px 24px; display: flex; flex-direction: column; gap: 18px">
+          <div style="display: flex; flex-direction: column; gap: 6px">
+            <span class="label">Bateau · Vedette</span>
+            <span class="display" style="font-size: 24px">Toro2</span>
+          </div>
+          <div class="rule"></div>
+          <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px">
+            <span style="display: flex; align-items: baseline; gap: 6px"><span class="gold" style="font-size: 34px; font-weight: 800; letter-spacing: -.01em">$600</span><span style="color: #8E8E96; font-size: 13px">/ heure</span></span>
+            <span style="display: flex; align-items: baseline; gap: 6px"><span class="silver" style="font-size: 21px; font-weight: 700">$3 600</span><span style="color: #8E8E96; font-size: 13px">/ jour</span></span>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px">
+            <span class="chip"><svg class="ico-s" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 20v-1.5A3.5 3.5 0 0 0 12.5 15h-5A3.5 3.5 0 0 0 4 18.5V20"/><circle cx="10" cy="8" r="3.5"/></svg>6 places</span>
+            <span class="chip"><svg class="ico-s" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8l-9-5-9 5v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg>150 kg</span>
+          </div>
+        </div>
+      </a>
+      <a class="vcard" href="03-site-fiche-vehicule.html">
+        <div class="media" style="height: 220px">
+          <img src="../../assets/images/vehicule-placeholder.jpg" alt="SuperVolito Carbon">
+          <div class="media-fade"></div>
+          <span class="badge badge-on" style="position: absolute; left: 20px; bottom: 16px"><span class="dot"></span>1 / 1 disponible</span>
+        </div>
+        <div style="padding: 18px 24px 24px; display: flex; flex-direction: column; gap: 18px">
+          <div style="display: flex; flex-direction: column; gap: 6px">
+            <span class="label">Hélicoptère · Affaires</span>
+            <span class="display" style="font-size: 24px">SuperVolito Carbon</span>
+          </div>
+          <div class="rule"></div>
+          <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px">
+            <span style="display: flex; align-items: baseline; gap: 6px"><span class="gold" style="font-size: 34px; font-weight: 800; letter-spacing: -.01em">$2 400</span><span style="color: #8E8E96; font-size: 13px">/ heure</span></span>
+            <span style="display: flex; align-items: baseline; gap: 6px"><span class="silver" style="font-size: 21px; font-weight: 700">$15 000</span><span style="color: #8E8E96; font-size: 13px">/ jour</span></span>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px">
+            <span class="chip"><svg class="ico-s" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 20v-1.5A3.5 3.5 0 0 0 12.5 15h-5A3.5 3.5 0 0 0 4 18.5V20"/><circle cx="10" cy="8" r="3.5"/></svg>4 places</span>
+            <span class="chip"><svg class="ico-s" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8l-9-5-9 5v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg>200 kg</span>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ COMMENT LOUER ============ -->
+<section id="contact" style="position: relative; padding-top: 130px; padding-bottom: 130px">
+  <div class="bg-sea" style="position: absolute; inset: 0"></div>
+  <div style="position: absolute; inset: 0; background: linear-gradient(180deg, #0A0A0C 0%, rgba(10,10,12,.45) 22%, rgba(10,10,12,.45) 78%, #0A0A0C 100%)"></div>
+  <div class="wrap" style="position: relative; display: flex; flex-direction: column; gap: 64px">
+    <div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px">
+      <span class="label" style="color: #E8C877">Comment louer</span>
+      <h2 class="display" style="margin: 0; font-size: clamp(30px, 3.2vw, 44px); line-height: 1.12">Trois étapes jusqu’au départ</h2>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 24px">
+      <div class="glass" style="padding: 34px 30px; display: flex; flex-direction: column; gap: 22px; border-radius: 24px">
+        <div style="display: flex; align-items: center; justify-content: space-between">
+          <span class="display gold" style="font-size: 60px; line-height: 1; font-weight: 700">01</span>
+          <span style="width: 56px; height: 56px; border-radius: 50%; border: 1px solid rgba(232,200,119,.45); display: flex; align-items: center; justify-content: center">
+            <svg class="ico" viewBox="0 0 24 24" style="width: 24px; height: 24px" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+          </span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <span class="display" style="font-size: 22px">Choisissez votre véhicule</span>
+          <p style="margin: 0; color: #C8C8CC; font-size: 15px; line-height: 1.65">Parcourez la flotte, comparez les tarifs et vérifiez les exemplaires disponibles.</p>
+        </div>
+      </div>
+      <div class="glass" style="padding: 34px 30px; display: flex; flex-direction: column; gap: 22px; border-radius: 24px; border-color: rgba(232,200,119,.35)">
+        <div style="display: flex; align-items: center; justify-content: space-between">
+          <span class="display gold" style="font-size: 60px; line-height: 1; font-weight: 700">02</span>
+          <span style="width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(100deg,#A67C2E,#E8C877 50%,#C9A24A); display: flex; align-items: center; justify-content: center">
+            <svg class="ico" viewBox="0 0 24 24" style="width: 24px; height: 24px; stroke: #0A0A0C" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>
+          </span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <span class="display" style="font-size: 22px">Appelez l’agence</span>
+          <p style="margin: 0; color: #C8C8CC; font-size: 15px; line-height: 1.65">Depuis votre téléphone en jeu, composez le <strong style="color: #E8C877">555-XXXX</strong>. Nous confirmons le créneau et le lieu de remise.</p>
+        </div>
+      </div>
+      <div class="glass" style="padding: 34px 30px; display: flex; flex-direction: column; gap: 22px; border-radius: 24px">
+        <div style="display: flex; align-items: center; justify-content: space-between">
+          <span class="display gold" style="font-size: 60px; line-height: 1; font-weight: 700">03</span>
+          <span style="width: 56px; height: 56px; border-radius: 50%; border: 1px solid rgba(232,200,119,.45); display: flex; align-items: center; justify-content: center">
+            <svg class="ico" viewBox="0 0 24 24" style="width: 24px; height: 24px" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg>
+          </span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <span class="display" style="font-size: 22px">Signez sur place</span>
+          <p style="margin: 0; color: #C8C8CC; font-size: 15px; line-height: 1.65">Le contrat et la caution se règlent à l’agence, puis les clés vous sont remises.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass" style="align-self: center; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 14px 26px; padding: 14px 16px 14px 28px; border-radius: 999px">
+      <span class="label" style="color: #C8C8CC">Aucune réservation en ligne</span>
+      <span style="width: 1px; height: 22px; background: rgba(255,255,255,.15)"></span>
+      <span style="font-size: 15px; color: #EDEDF0">Tous les jours · 14h – 02h</span>
+      <a class="btn btn-gold" href="#contact" style="min-height: 46px">
+        <svg class="ico" viewBox="0 0 24 24" style="stroke: #0A0A0C" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>
+        Appeler le 555-XXXX
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ LA MAISON ============ -->
+<section id="maison" class="wrap" style="padding-top: 120px; padding-bottom: 120px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(460px, 100%), 1fr)); align-items: center; gap: 64px">
+  <div style="position: relative; height: 460px; display: flex; align-items: center; justify-content: center">
+    <svg viewBox="0 0 460 460" aria-hidden="true" style="position: absolute; width: 460px; height: 460px">
+      <defs><linearGradient id="arcM" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E8C877"/><stop offset=".5" stop-color="#A67C2E" stop-opacity=".2"/><stop offset="1" stop-color="#C9A24A"/></linearGradient></defs>
+      <circle cx="230" cy="230" r="226" fill="none" stroke="url(#arcM)" stroke-width="1"/>
+      <circle cx="230" cy="230" r="196" fill="none" stroke="rgba(200,200,204,.14)" stroke-width="1"/>
+    </svg>
+    <div style="position: absolute; width: 320px; height: 320px; border-radius: 50%; background: radial-gradient(50% 50% at 50% 50%, rgba(201,162,74,.16), rgba(201,162,74,0))"></div>
+    <img src="../../assets/images/bp-logo.png" alt="Logo Black Pégasus – American Transports" style="position: relative; width: 330px; height: 330px; object-fit: contain">
+  </div>
+  <div style="display: flex; flex-direction: column; gap: 26px; max-width: 560px">
+    <span class="label" style="color: #E8C877">La maison</span>
+    <h2 class="display" style="margin: 0; font-size: clamp(30px, 3.2vw, 44px); line-height: 1.12">Black Pégasus, l’art du départ</h2>
+    <p style="margin: 0; color: #C8C8CC; font-size: 17px; line-height: 1.75; text-wrap: pretty">Née de la passion du voyage, la maison Black Pégasus met à la disposition des habitants de San Andreas une flotte choisie de bateaux, d’avions et d’hélicoptères. Chaque location se prépare au téléphone et se conclut en personne, à l’agence.</p>
+    <div class="rule" style="max-width: 420px"></div>
+    <div style="display: flex; flex-direction: column; gap: 16px">
+      <div style="display: flex; align-items: center; gap: 14px; font-size: 15px"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>Chaque appareil contrôlé avant sa remise</div>
+      <div style="display: flex; align-items: center; gap: 14px; font-size: 15px"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>Un conseiller au bout du fil pour vous orienter</div>
+      <div style="display: flex; align-items: center; gap: 14px; font-size: 15px"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>Un contrat clair, signé sur place</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CTA ============ -->
+<section class="wrap" style="padding-bottom: 120px">
+  <div style="position: relative; border-radius: 28px; overflow: hidden; border: 1px solid rgba(255,255,255,.08)">
+    <div class="bg-skyline" style="position: absolute; inset: 0"></div>
+    <div style="position: absolute; inset: 0; background: linear-gradient(90deg, rgba(10,10,12,.85), rgba(10,10,12,.35))"></div>
+    <div style="position: relative; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 32px; padding: clamp(32px, 5vw, 64px)">
+      <div style="display: flex; flex-direction: column; gap: 14px; max-width: 520px">
+        <span class="label" style="color: #E8C877">Réservation</span>
+        <h2 class="display" style="margin: 0; font-size: clamp(26px, 2.8vw, 38px); line-height: 1.18">Votre prochain départ commence par un appel</h2>
+      </div>
+      <div class="glass" style="padding: 26px 28px; display: flex; flex-direction: column; gap: 16px; min-width: 300px">
+        <span class="label">Téléphone en jeu</span>
+        <span class="gold" style="font-size: 42px; font-weight: 800; line-height: 1">555-XXXX</span>
+        <span style="display: flex; align-items: center; gap: 10px; color: #C8C8CC; font-size: 14px"><svg class="ico-s" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Tous les jours · 14h – 02h</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer style="border-top: 1px solid rgba(232,200,119,.22); background: #0A0A0C">
+  <div class="wrap" style="padding-top: 64px; padding-bottom: 32px; display: flex; flex-direction: column; gap: 48px">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 40px">
+      <div style="display: flex; flex-direction: column; gap: 16px">
+        <img src="../../assets/images/bp-logo.png" alt="Black Pégasus – American Transports" style="width: 110px; height: 110px; object-fit: contain">
+        <span style="color: #8E8E96; font-size: 14px; line-height: 1.6">Location de bateaux, d’avions et d’hélicoptères.</span>
+      </div>
+      <nav aria-label="Pied de page" style="display: flex; flex-direction: column; gap: 12px">
+        <span class="label" style="color: #C8C8CC; margin-bottom: 6px">Navigation</span>
+        <a class="foot-a" href="01-site-accueil.html">Accueil</a>
+        <a class="foot-a" href="02-site-flotte.html">La flotte</a>
+        <a class="foot-a" href="04-site-reglement.html">Règlement des locations</a>
+        <a class="foot-a" href="#maison">La maison</a>
+      </nav>
+      <div style="display: flex; flex-direction: column; gap: 12px">
+        <span class="label" style="color: #C8C8CC; margin-bottom: 6px">La flotte</span>
+        <a class="foot-a" href="02-site-flotte.html">Bateaux</a>
+        <a class="foot-a" href="02-site-flotte.html">Avions</a>
+        <a class="foot-a" href="02-site-flotte.html">Hélicoptères</a>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 12px">
+        <span class="label" style="color: #C8C8CC; margin-bottom: 6px">Contact</span>
+        <span class="gold" style="font-size: 24px; font-weight: 800">555-XXXX</span>
+        <span style="color: #8E8E96; font-size: 14px">Tous les jours · 14h – 02h</span>
+        <span style="color: #8E8E96; font-size: 14px">Réservation uniquement par téléphone en jeu</span>
+      </div>
+    </div>
+    <div class="rule"></div>
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; color: #8E8E96; font-size: 12.5px">
+      <span>© Black Pégasus – American Transports</span>
+      <span>Entreprise fictive d’un serveur de jeu de rôle GTA V (FiveM)</span>
+    </div>
+  </div>
+</footer>
+</div>
+</body>
+</html>

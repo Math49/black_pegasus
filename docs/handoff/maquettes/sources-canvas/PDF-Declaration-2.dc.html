@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Déclaration hebdomadaire S43 — page 2</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#FFFFFF}
+*{box-sizing:border-box}
+.display{font-family:'Montserrat','Manrope',system-ui,sans-serif;font-weight:700;letter-spacing:-.01em}
+.num{font-variant-numeric:tabular-nums}
+.h{font-size:11px;letter-spacing:.18em;text-transform:uppercase;font-weight:800;color:#1A1A1E;padding-bottom:6px;border-bottom:1.5px solid #1A1A1E}
+.rg{display:grid;grid-template-columns:30px 86px 104px minmax(0,1fr) 92px 58px 58px 62px;column-gap:8px;align-items:baseline;padding:1.5px 0;border-bottom:1px solid #E2E2E6;font-size:12px;line-height:1.2}
+.rg-h{font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-weight:800;color:#55555C;border-bottom:1.5px solid #1A1A1E;padding:4px 0}
+.rg-t{font-weight:800;border-bottom:0;border-top:1.5px solid #1A1A1E;padding-top:5px}
+.r{text-align:right}
+.ell{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+</style>
+</helmet>
+<div style="width: 794px; height: 1123px; overflow: hidden; background: #FFFFFF; font-family: 'Manrope', system-ui, sans-serif; color: #1A1A1E; padding: 40px 44px 28px; display: flex; flex-direction: column; gap: 14px">
+
+  <header style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-bottom: 10px; border-bottom: 3px double #1A1A1E">
+    <span style="display: flex; align-items: center; gap: 10px"><img src="../../assets/images/bp-logo.png" alt="" style="width: 34px; height: 34px; object-fit: contain"><span class="display" style="font-size: 12.5px; letter-spacing: .12em; white-space: nowrap">BLACK PÉGASUS – AMERICAN TRANSPORTS</span></span>
+    <span class="num" style="font-size: 12px; color: #55555C; white-space: nowrap">DEC-2026-S43 · semaine du 19 au 25/10/2026</span>
+  </header>
+
+  <section style="display: flex; flex-direction: column" aria-label="Registre des opérations">
+    <span class="h" style="margin-bottom: 4px">3. Registre complet des opérations (montants en $)</span>
+    <div class="rg rg-h"><span>N°</span><span>Date</span><span>Catégorie</span><span>Libellé</span><span>Pièce</span><span class="r">Recette</span><span class="r">Dépense</span><span class="r">Caution</span></div>
+    <sc-for list="{{ ops }}" as="o" hint-placeholder-count="35">
+      <div class="rg"><span class="num" style="font-weight: 700">{{ o.n }}</span><span class="num">{{ o.date }}</span><span class="ell">{{ o.cat }}</span><span class="ell">{{ o.label }}</span><span class="num ell" style="color: #3C3C42">{{ o.piece }}</span><span class="num r" style="font-weight: 700">{{ o.rec }}</span><span class="num r" style="font-weight: 700">{{ o.dep }}</span><span class="num r" style="color: #3C3C42">{{ o.cau }}</span></div>
+    </sc-for>
+    <div class="rg rg-t"><span></span><span></span><span></span><span>Totaux · 35 opérations</span><span></span><span class="num r">91 400</span><span class="num r">24 150</span><span class="num r">+35 000</span></div>
+    <span style="font-size: 12px; color: #55555C; margin-top: 6px">Pièces : CTR = contrat signé · JUST = justificatif joint (capture d’écran en jeu), disponibles sur demande du FISC.</span>
+  </section>
+
+  <section style="margin-top: auto; display: grid; grid-template-columns: 1.3fr 1fr; gap: 20px; align-items: stretch" aria-label="Attestation et signature">
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <span class="h">4. Attestation</span>
+      <p style="margin: 0; font-size: 12.5px; line-height: 1.55">Je soussigné, Vincent Moretti, gérant de Black Pégasus – American Transports, certifie l’exactitude des informations de la présente déclaration et de son registre pour la semaine 43.</p>
+      <span class="num" style="font-size: 12.5px">Fait à Los Santos, le dimanche 25/10/2026.</span>
+    </div>
+    <div style="border: 1.5px solid #1A1A1E; border-radius: 4px; padding: 10px 14px; display: flex; flex-direction: column; justify-content: space-between; min-height: 132px; position: relative; overflow: hidden">
+      <img src="../../assets/images/bp-logo.png" alt="" style="position: absolute; right: -10px; bottom: -14px; width: 104px; height: 104px; object-fit: contain; opacity: .12">
+      <span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; font-weight: 800; color: #55555C">Signature du gérant</span><span style="font-size: 13px; font-weight: 700">Vincent Moretti</span></span>
+      <span style="height: 1px; background: #1A1A1E"></span>
+    </div>
+  </section>
+
+  <footer style="display: flex; justify-content: space-between; gap: 12px; padding-top: 8px; border-top: 1px solid #DCDCE0; font-size: 11px; color: #55555C">
+    <span>Black Pégasus – American Transports · Déclaration DEC-2026-S43</span>
+    <span>Page 2 / 2</span>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":794,"height":1123}}'>
+// [n, date, catégorie, libellé, pièce, colonne, montant]
+const OPS = [
+  ['001', '19/10 09:15', 'Impôts', 'Impôt hebdomadaire S42', 'JUST-43-01', 'dep', 12600],
+  ['002', '19/10 14:00', 'Caution encaissée', 'Seashark2 · J. Calloway', 'CTR-0031', 'cau', 1000],
+  ['003', '19/10 14:00', 'Location', 'Seashark2 · 2 h', 'CTR-0031', 'rec', 300],
+  ['004', '19/10 16:05', 'Caution rendue', 'Seashark2 restitué', 'CTR-0031', 'cau', -1000],
+  ['005', '19/10 18:00', 'Caution encaissée', 'Toro2 · R. Delgado', 'CTR-0032', 'cau', 5000],
+  ['006', '19/10 18:00', 'Location', 'Toro2 · 4 h', 'CTR-0032', 'rec', 2400],
+  ['007', '19/10 23:10', 'Pénalité', 'Retard 1 h 10 (1 h facturée)', 'CTR-0032', 'rec', 900],
+  ['008', '19/10 23:10', 'Caution rendue', 'Toro2 restitué', 'CTR-0032', 'cau', -5000],
+  ['009', '20/10 11:30', 'Entretien', 'Vidange et révision Toro2', 'JUST-43-02', 'dep', 1200],
+  ['010', '20/10 12:00', 'Caution encaissée', 'Luxor · D. Volkov', 'CTR-0033', 'cau', 15000],
+  ['011', '20/10 12:00', 'Location', 'Luxor · 24 h (journalier)', 'CTR-0033', 'rec', 28000],
+  ['012', '21/10 12:05', 'Caution rendue', 'Luxor restitué', 'CTR-0033', 'cau', -15000],
+  ['013', '21/10 20:00', 'Caution encaissée', 'SuperVolito C. · I. Cruz', 'CTR-0034', 'cau', 10000],
+  ['014', '21/10 20:00', 'Location', 'SuperVolito Carbon · 3 h', 'CTR-0034', 'rec', 7200],
+  ['015', '21/10 23:15', 'Pénalité', 'Rayures légères', 'CTR-0034', 'rec', 500],
+  ['016', '21/10 23:15', 'Caution rendue', 'SuperVolito C. restitué', 'CTR-0034', 'cau', -10000],
+  ['017', '22/10 10:40', 'Entretien', 'Réparation coque Remorqueur', 'JUST-43-03', 'dep', 3500],
+  ['018', '22/10 15:00', 'Caution encaissée', 'Dinghy4 · T. Varga', 'CTR-0035', 'cau', 2000],
+  ['019', '22/10 15:00', 'Location', 'Dinghy4 · 4 h', 'CTR-0035', 'rec', 1200],
+  ['020', '22/10 19:00', 'Caution rendue', 'Dinghy4 restitué', 'CTR-0035', 'cau', -2000],
+  ['021', '23/10 09:20', 'Divers', 'Plein de kérosène Luxor', 'JUST-43-04', 'dep', 850],
+  ['022', '23/10 10:00', 'Caution encaissée', 'Dodo · A. Okafor', 'CTR-0036', 'cau', 8000],
+  ['023', '23/10 10:00', 'Location', 'Dodo · 5 h', 'CTR-0036', 'rec', 6000],
+  ['024', '23/10 15:10', 'Caution rendue', 'Dodo restitué', 'CTR-0036', 'cau', -8000],
+  ['025', '24/10 08:00', 'Caution encaissée', 'Luxor · D. Volkov', 'CTR-0037', 'cau', 15000],
+  ['026', '24/10 08:00', 'Location', 'Luxor · 24 h (journalier)', 'CTR-0037', 'rec', 28000],
+  ['027', '24/10 12:30', 'Divers', 'Primes hebdomadaires', 'JUST-43-05', 'dep', 6000],
+  ['028', '24/10 17:00', 'Caution encaissée', 'Streamer 2026 · K. Mori', 'CTR-0038', 'cau', 8000],
+  ['029', '24/10 17:00', 'Location', 'Streamer 2026 · 5 h', 'CTR-0038', 'rec', 7500],
+  ['030', '24/10 19:00', 'Caution encaissée', 'Seashark2 · C. Wu', 'CTR-0039', 'cau', 1000],
+  ['031', '24/10 19:00', 'Location', 'Seashark2 · 2 h', 'CTR-0039', 'rec', 300],
+  ['032', '24/10 20:00', 'Caution encaissée', 'Swift · L. Herrera', 'CTR-0040', 'cau', 10000],
+  ['033', '24/10 20:00', 'Location', 'Swift · 4 h', 'CTR-0040', 'rec', 8800],
+  ['034', '24/10 21:00', 'Caution encaissée', 'Seashark2 · M. Vega', 'CTR-0041', 'cau', 1000],
+  ['035', '24/10 21:00', 'Location', 'Seashark2 · 2 h', 'CTR-0041', 'rec', 300]
+];
+function n(v) { return String(Math.abs(v)).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      ops: OPS.map((o) => ({
+        n: o[0], date: o[1], cat: o[2], label: o[3], piece: o[4],
+        rec: o[5] === 'rec' ? n(o[6]) : '', dep: o[5] === 'dep' ? n(o[6]) : '',
+        cau: o[5] === 'cau' ? (o[6] > 0 ? '+' : '−') + n(o[6]) : ''
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>

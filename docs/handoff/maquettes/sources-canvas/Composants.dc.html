@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Black Pégasus — Système de composants</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0A0A0C}
+*{box-sizing:border-box}
+a{color:#E8C877;text-decoration:none}a:hover{color:#EDEDF0}
+.display{font-family:'Montserrat','Manrope',system-ui,sans-serif;font-weight:600;letter-spacing:-.01em}
+.gold{background:linear-gradient(100deg,#A67C2E 0%,#E8C877 48%,#C9A24A 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.silver{background:linear-gradient(180deg,#EDEDF0,#C8C8CC);-webkit-background-clip:text;background-clip:text;color:transparent}
+.label{font-size:11px;line-height:16px;letter-spacing:.24em;text-transform:uppercase;font-weight:700;color:#8E8E96}
+.glass{background:rgba(255,255,255,.06);-webkit-backdrop-filter:blur(26px) saturate(140%);backdrop-filter:blur(26px) saturate(140%);border:1px solid rgba(255,255,255,.10);border-radius:20px;box-shadow:inset 0 1px 0 rgba(232,200,119,.32),0 30px 60px -24px rgba(0,0,0,.7)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:0 26px;border-radius:999px;font:700 15px/1 'Manrope',system-ui,sans-serif;letter-spacing:.01em;cursor:pointer;white-space:nowrap}
+.btn-gold{background:linear-gradient(100deg,#A67C2E 0%,#E8C877 50%,#C9A24A 100%);color:#0A0A0C;border:0;box-shadow:0 12px 32px -12px rgba(232,200,119,.55),inset 0 1px 0 rgba(255,255,255,.55)}
+.btn-gold:hover{color:#0A0A0C;filter:brightness(1.07)}
+.btn-glass{background:rgba(255,255,255,.05);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border:1px solid rgba(200,200,204,.5);color:#EDEDF0}
+.btn-glass:hover{color:#EDEDF0;border-color:#EDEDF0}
+.chip{display:inline-flex;align-items:center;gap:7px;height:30px;padding:0 12px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);font-size:12.5px;font-weight:600;color:#C8C8CC;white-space:nowrap}
+.badge{display:inline-flex;align-items:center;gap:7px;height:26px;padding:0 11px;border-radius:999px;font-size:10.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap}
+.badge-on{background:rgba(20,16,8,.55);border:1px solid rgba(232,200,119,.6);color:#E8C877}
+.badge-off{background:rgba(10,10,12,.55);border:1px solid rgba(142,142,150,.45);color:#A4A4AC}
+.dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+.ico{width:20px;height:20px;fill:none;stroke:#D6B467;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.ico-s{width:15px;height:15px;fill:none;stroke:#C8C8CC;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.vcard{display:flex;flex-direction:column;position:relative;color:#EDEDF0;background:rgba(255,255,255,.05);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.10);border-radius:22px;box-shadow:inset 0 1px 0 rgba(232,200,119,.28),0 30px 60px -28px rgba(0,0,0,.8)}
+.media{position:relative;overflow:hidden;border-radius:21px 21px 0 0;background:#131316}
+.media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.media-fade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,12,0) 45%,rgba(10,10,12,.85) 100%)}
+.rule{height:1px;background:linear-gradient(90deg,rgba(232,200,119,0),rgba(232,200,119,.55),rgba(232,200,119,0))}
+.seg{display:inline-flex;align-items:center;gap:10px;min-height:48px;padding:0 22px;border-radius:999px;border:0;background:transparent;color:#C8C8CC;font:700 15px/1 'Manrope',system-ui,sans-serif;cursor:pointer}
+.seg-on{background:linear-gradient(100deg,#A67C2E 0%,#E8C877 50%,#C9A24A 100%);color:#0A0A0C;box-shadow:inset 0 1px 0 rgba(255,255,255,.5)}
+.pill{min-height:40px;padding:0 14px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:#C8C8CC;font:600 13px/1 'Manrope',system-ui,sans-serif;cursor:pointer}
+.pill-on{border-color:rgba(232,200,119,.7);color:#E8C877;background:rgba(232,200,119,.10)}
+.switch{position:relative;width:52px;height:30px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);cursor:pointer;padding:0;flex:none}
+.switch-on{background:linear-gradient(100deg,#A67C2E,#E8C877 50%,#C9A24A);border-color:transparent}
+.knob{position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#C8C8CC;box-shadow:0 2px 6px rgba(0,0,0,.4)}
+.switch-on .knob{left:25px;background:#0A0A0C}
+.field{width:100%;height:48px;padding:0 16px 0 44px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:#EDEDF0;font:500 15px 'Manrope',system-ui,sans-serif}
+.field::placeholder{color:#8E8E96}
+.field-focus{border-color:rgba(232,200,119,.7);box-shadow:0 0 0 3px rgba(232,200,119,.15)}
+.panel{display:flex;flex-direction:column;gap:22px;padding:30px;border-radius:24px}
+.sw{display:flex;flex-direction:column;gap:10px}
+.sw-c{height:72px;border-radius:14px;border:1px solid rgba(255,255,255,.1)}
+.nav-a{color:#C8C8CC;font-size:14px;font-weight:600;padding:12px 4px}
+.nav-on{color:#EDEDF0;box-shadow:inset 0 -1px 0 #E8C877}
+.bg-sea{background:#0A0A0C url(../../assets/images/bg-mer.jpg) center/cover no-repeat}
+</style>
+</helmet>
+<div style="position: relative; width: 1440px; height: 1940px; overflow: hidden; font-family: 'Manrope', system-ui, sans-serif; color: #EDEDF0; background: #0A0A0C; -webkit-font-smoothing: antialiased">
+  <div class="bg-sea" style="position: absolute; inset: 0"></div>
+  <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10,10,12,.82), rgba(10,10,12,.62) 40%, rgba(10,10,12,.85))"></div>
+
+  <div style="position: relative; padding: 64px 72px; display: flex; flex-direction: column; gap: 36px">
+    <div style="display: flex; align-items: center; justify-content: space-between">
+      <div style="display: flex; align-items: center; gap: 18px">
+        <img src="../../assets/images/bp-logo.png" alt="Black Pégasus" style="width: 72px; height: 72px; object-fit: contain">
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <span class="label" style="color: #E8C877">Black Pégasus – American Transports</span>
+          <h1 class="display" style="margin: 0; font-size: 40px">Système de composants</h1>
+        </div>
+      </div>
+      <span style="font-size: 14px; color: #8E8E96">Montserrat · Manrope · Glassmorphism noir &amp; or</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px">
+
+      <!-- Couleurs -->
+      <section class="glass panel">
+        <span class="label" style="color: #C8C8CC">Couleurs</span>
+        <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px">
+          <div class="sw"><div class="sw-c" style="background: #0A0A0C"></div><span style="font-size: 13px; font-weight: 700">Noir</span><span style="font-size: 12px; color: #8E8E96">#0A0A0C</span></div>
+          <div class="sw"><div class="sw-c" style="background: #131316"></div><span style="font-size: 13px; font-weight: 700">Surface</span><span style="font-size: 12px; color: #8E8E96">#131316</span></div>
+          <div class="sw"><div class="sw-c" style="background: #EDEDF0"></div><span style="font-size: 13px; font-weight: 700">Texte</span><span style="font-size: 12px; color: #8E8E96">#EDEDF0</span></div>
+          <div class="sw"><div class="sw-c" style="background: #8E8E96"></div><span style="font-size: 13px; font-weight: 700">Atténué</span><span style="font-size: 12px; color: #8E8E96">#8E8E96</span></div>
+        </div>
+        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 14px">
+          <div class="sw"><div class="sw-c" style="background: linear-gradient(100deg, #A67C2E, #E8C877 50%, #C9A24A)"></div><span style="font-size: 13px; font-weight: 700">Or métallique</span><span style="font-size: 12px; color: #8E8E96">#A67C2E → #E8C877 → #C9A24A</span></div>
+          <div class="sw"><div class="sw-c" style="background: linear-gradient(180deg, #EDEDF0, #C8C8CC)"></div><span style="font-size: 13px; font-weight: 700">Argent</span><span style="font-size: 12px; color: #8E8E96">#C8C8CC → #EDEDF0</span></div>
+          <div class="sw"><div class="sw-c glass" style="border-radius: 14px"></div><span style="font-size: 13px; font-weight: 700">Verre</span><span style="font-size: 12px; color: #8E8E96">blanc 6 % · flou 26 px</span></div>
+        </div>
+      </section>
+
+      <!-- Typographie -->
+      <section class="glass panel">
+        <span class="label" style="color: #C8C8CC">Typographie</span>
+        <div style="display: flex; flex-direction: column; gap: 14px">
+          <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 16px"><span class="display" style="font-size: 52px; line-height: 1">Le ciel <span class="gold" style="font-weight: 700">à votre mesure</span></span><span style="font-size: 12px; color: #8E8E96; white-space: nowrap">Titre 1 · Montserrat 600</span></div>
+          <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 16px"><span class="display" style="font-size: 34px">Trois éléments</span><span style="font-size: 12px; color: #8E8E96">Titre 2 · 34 px</span></div>
+          <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 16px"><span class="display" style="font-size: 22px">Choisissez votre véhicule</span><span style="font-size: 12px; color: #8E8E96">Titre 3 · 22 px</span></div>
+          <div class="rule"></div>
+          <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 16px"><span style="font-size: 16px; color: #C8C8CC; line-height: 1.7; max-width: 360px">Texte courant en Manrope, 16 px, interligne 1,7.</span><span style="font-size: 12px; color: #8E8E96">Manrope 400</span></div>
+          <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 16px"><span class="label" style="color: #E8C877">Libellé en capitales espacées</span><span style="font-size: 12px; color: #8E8E96">11 px · 0,24 em</span></div>
+          <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 16px"><span style="display: flex; align-items: baseline; gap: 14px"><span class="gold" style="font-size: 36px; font-weight: 800">$4 500</span><span class="silver" style="font-size: 22px; font-weight: 700">$28 000</span></span><span style="font-size: 12px; color: #8E8E96">Prix · Manrope 800</span></div>
+        </div>
+      </section>
+
+      <!-- Boutons -->
+      <section class="glass panel">
+        <span class="label" style="color: #C8C8CC">Boutons</span>
+        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 14px">
+          <a class="btn btn-gold" href="#">
+            <svg class="ico" viewBox="0 0 24 24" style="stroke: #0A0A0C" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"></path></svg>
+            Appeler le 555-XXXX
+          </a>
+          <a class="btn btn-gold" href="#">Découvrir la flotte
+            <svg class="ico" viewBox="0 0 24 24" style="stroke: #0A0A0C" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+          </a>
+          <a class="btn btn-glass" href="#">Lire le règlement</a>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 14px">
+          <a class="btn btn-gold" href="#" style="min-height: 44px; padding: 0 18px; font-size: 14px">Petit primaire</a>
+          <a class="btn btn-glass" href="#" style="min-height: 44px; padding: 0 18px; font-size: 14px">Petit secondaire</a>
+          <a href="#" aria-label="Voir" style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(100deg,#A67C2E,#E8C877 50%,#C9A24A); display: flex; align-items: center; justify-content: center">
+            <svg class="ico" viewBox="0 0 24 24" style="stroke: #0A0A0C" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+          </a>
+          <a href="#" aria-label="Retour" class="btn-glass" style="width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center">
+            <svg class="ico" viewBox="0 0 24 24" style="stroke: #C8C8CC" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"></path></svg>
+          </a>
+          <a href="#" style="display: inline-flex; align-items: center; gap: 10px; font-weight: 700; font-size: 15px">Lien texte
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+          </a>
+        </div>
+      </section>
+
+      <!-- Badges & pastilles -->
+      <section class="glass panel">
+        <span class="label" style="color: #C8C8CC">Badges &amp; pastilles</span>
+        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px">
+          <span class="badge badge-on"><span class="dot"></span>3 / 4 disponibles</span>
+          <span class="badge badge-on"><span class="dot"></span>1 / 1 disponible</span>
+          <span class="badge badge-off"><span class="dot"></span>Complet</span>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+          <span class="chip"><svg class="ico-s" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 20v-1.5A3.5 3.5 0 0 0 12.5 15h-5A3.5 3.5 0 0 0 4 18.5V20"></path><circle cx="10" cy="8" r="3.5"></circle></svg>4 places</span>
+          <span class="chip"><svg class="ico-s" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8l-9-5-9 5v8l9 5 9-5z"></path><path d="M3 8l9 5 9-5M12 13v8"></path></svg>200 kg</span>
+          <span class="chip">Jet-ski</span><span class="chip">Vedette</span><span class="chip">Jet privé</span>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 14px">
+          <span style="width: 48px; height: 48px; border-radius: 14px; border: 1px solid rgba(232,200,119,.4); display: flex; align-items: center; justify-content: center"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="2"></circle><path d="M12 7v14M5 12H3a9 9 0 0 0 18 0h-2M8 10h8"></path></svg></span>
+          <span style="width: 48px; height: 48px; border-radius: 14px; border: 1px solid rgba(232,200,119,.4); display: flex; align-items: center; justify-content: center"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"></path></svg></span>
+          <span style="width: 48px; height: 48px; border-radius: 14px; border: 1px solid rgba(232,200,119,.4); display: flex; align-items: center; justify-content: center"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h16M11 4v3"></path><path d="M6 11a4 4 0 0 1 4-4h5a4 4 0 0 1 4 4v2a2 2 0 0 1-2 2H9a3 3 0 0 1-3-3z"></path><path d="M6 12H2M9 19h10M12 15v4M16 15v4"></path></svg></span>
+          <span style="width: 48px; height: 48px; border-radius: 14px; border: 1px solid rgba(232,200,119,.4); display: flex; align-items: center; justify-content: center"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"></path></svg></span>
+          <span style="width: 48px; height: 48px; border-radius: 14px; border: 1px solid rgba(232,200,119,.4); display: flex; align-items: center; justify-content: center"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"></path><path d="M9 12l2 2 4-4"></path></svg></span>
+          <span style="width: 48px; height: 48px; border-radius: 14px; border: 1px solid rgba(232,200,119,.4); display: flex; align-items: center; justify-content: center"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></span>
+        </div>
+      </section>
+
+      <!-- Champs -->
+      <section class="glass panel">
+        <span class="label" style="color: #C8C8CC">Champs</span>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px">
+          <label style="display: flex; flex-direction: column; gap: 8px; font-size: 13px; font-weight: 600; color: #C8C8CC">Rechercher
+            <span style="position: relative; display: block">
+              <svg class="ico-s" viewBox="0 0 24 24" aria-hidden="true" style="position: absolute; left: 16px; top: 16px"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>
+              <input class="field" type="text" placeholder="Nom du véhicule">
+            </span>
+          </label>
+          <label style="display: flex; flex-direction: column; gap: 8px; font-size: 13px; font-weight: 600; color: #C8C8CC">État actif
+            <span style="position: relative; display: block">
+              <svg class="ico-s" viewBox="0 0 24 24" aria-hidden="true" style="position: absolute; left: 16px; top: 16px; stroke: #E8C877"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>
+              <input class="field field-focus" type="text" value="Luxor">
+            </span>
+          </label>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 28px">
+          <label style="display: flex; align-items: center; gap: 12px; font-size: 14px"><input type="checkbox" checked style="width: 18px; height: 18px; accent-color: #C9A24A; margin: 0">Jet privé</label>
+          <label style="display: flex; align-items: center; gap: 12px; font-size: 14px"><input type="checkbox" style="width: 18px; height: 18px; accent-color: #C9A24A; margin: 0">Hydravion</label>
+          <span style="display: flex; align-items: center; gap: 12px; font-size: 14px"><button type="button" role="switch" aria-checked="true" aria-label="Disponible uniquement" class="switch switch-on"><span class="knob"></span></button>Disponible uniquement</span>
+          <span style="display: flex; align-items: center; gap: 12px; font-size: 14px"><button type="button" role="switch" aria-checked="false" aria-label="Désactivé" class="switch"><span class="knob"></span></button>Désactivé</span>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px">
+          <button type="button" class="pill pill-on" aria-pressed="true">Tous</button>
+          <button type="button" class="pill" aria-pressed="false">1 – 2</button>
+          <button type="button" class="pill" aria-pressed="false">3 – 6</button>
+          <button type="button" class="pill" aria-pressed="false">7 +</button>
+        </div>
+      </section>
+
+      <!-- Onglets -->
+      <section class="glass panel">
+        <span class="label" style="color: #C8C8CC">Onglets</span>
+        <div class="glass" role="tablist" aria-label="Type de véhicule" style="display: inline-flex; align-self: flex-start; gap: 4px; padding: 6px; border-radius: 999px">
+          <button type="button" role="tab" aria-selected="true" class="seg seg-on">Bateaux <span style="font-size: 12px; opacity: .7">4</span></button>
+          <button type="button" role="tab" aria-selected="false" class="seg">Avions <span style="font-size: 12px; opacity: .7">3</span></button>
+          <button type="button" role="tab" aria-selected="false" class="seg">Hélicoptères <span style="font-size: 12px; opacity: .7">2</span></button>
+        </div>
+        <nav aria-label="Exemple de navigation" style="display: flex; gap: 30px; border-bottom: 1px solid rgba(255,255,255,.08)">
+          <a class="nav-a nav-on" href="#">Accueil</a>
+          <a class="nav-a" href="#">La flotte</a>
+          <a class="nav-a" href="#">Règlement</a>
+          <a class="nav-a" href="#">La maison</a>
+        </nav>
+        <div style="display: flex; flex-direction: column; gap: 4px; max-width: 300px">
+          <a href="#" style="display: flex; align-items: center; gap: 14px; min-height: 44px; padding: 0 12px; border-radius: 12px; background: rgba(232,200,119,.10); color: #EDEDF0; font-size: 14.5px; font-weight: 600"><span style="font-size: 12px; font-weight: 800; color: #E8C877; width: 22px">01</span>Conditions de location</a>
+          <a href="#" style="display: flex; align-items: center; gap: 14px; min-height: 44px; padding: 0 12px; border-radius: 12px; color: #C8C8CC; font-size: 14.5px; font-weight: 600"><span style="font-size: 12px; font-weight: 800; color: #8E8E96; width: 22px">02</span>Tarification</a>
+        </div>
+      </section>
+
+      <!-- Cartes -->
+      <section class="glass panel" style="grid-column: 1 / -1">
+        <span class="label" style="color: #C8C8CC">Cartes</span>
+        <div style="display: grid; grid-template-columns: 1.1fr 1.1fr 0.8fr; gap: 24px; align-items: start">
+          <div class="vcard">
+            <div class="media" style="height: 190px">
+              <img src="../../assets/images/vehicule-placeholder.jpg" alt="Seashark2">
+              <div class="media-fade"></div>
+              <span class="badge badge-on" style="position: absolute; left: 18px; bottom: 14px"><span class="dot"></span>3 / 4 disponibles</span>
+            </div>
+            <div style="padding: 16px 22px 22px; display: flex; flex-direction: column; gap: 16px">
+              <div style="display: flex; flex-direction: column; gap: 5px"><span class="label">Bateau · Jet-ski</span><span class="display" style="font-size: 22px">Seashark2</span></div>
+              <div class="rule"></div>
+              <div style="display: flex; align-items: baseline; justify-content: space-between">
+                <span style="display: flex; align-items: baseline; gap: 5px"><span class="gold" style="font-size: 30px; font-weight: 800">$150</span><span style="color: #8E8E96; font-size: 12.5px">/ h</span></span>
+                <span style="display: flex; align-items: baseline; gap: 5px"><span class="silver" style="font-size: 19px; font-weight: 700">$900</span><span style="color: #8E8E96; font-size: 12.5px">/ jour</span></span>
+              </div>
+              <div style="display: flex; gap: 8px"><span class="chip">2 places</span><span class="chip">20 kg</span></div>
+            </div>
+          </div>
+          <div class="vcard" style="opacity: .7">
+            <div class="media" style="height: 190px">
+              <img src="../../assets/images/vehicule-placeholder.jpg" alt="Remorqueur" style="filter: grayscale(1) brightness(.7)">
+              <div class="media-fade"></div>
+              <span class="badge badge-off" style="position: absolute; left: 18px; bottom: 14px"><span class="dot"></span>Complet</span>
+            </div>
+            <div style="padding: 16px 22px 22px; display: flex; flex-direction: column; gap: 16px">
+              <div style="display: flex; flex-direction: column; gap: 5px"><span class="label">Bateau · Remorqueur</span><span class="display" style="font-size: 22px">Remorqueur</span></div>
+              <div class="rule"></div>
+              <div style="display: flex; align-items: baseline; justify-content: space-between">
+                <span style="display: flex; align-items: baseline; gap: 5px"><span class="gold" style="font-size: 30px; font-weight: 800">$800</span><span style="color: #8E8E96; font-size: 12.5px">/ h</span></span>
+                <span style="display: flex; align-items: baseline; gap: 5px"><span class="silver" style="font-size: 19px; font-weight: 700">$4 800</span><span style="color: #8E8E96; font-size: 12.5px">/ jour</span></span>
+              </div>
+              <div style="display: flex; gap: 8px"><span class="chip">4 places</span><span class="chip">2 t</span></div>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 18px">
+            <div class="glass" style="aspect-ratio: 1 / 1; max-width: 190px; padding: 20px; border-radius: 22px; display: flex; flex-direction: column; justify-content: space-between">
+              <span style="width: 44px; height: 44px; border-radius: 14px; border: 1px solid rgba(232,200,119,.4); display: flex; align-items: center; justify-content: center"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 20v-1.5A3.5 3.5 0 0 0 12.5 15h-5A3.5 3.5 0 0 0 4 18.5V20"></path><circle cx="10" cy="8" r="3.5"></circle></svg></span>
+              <span style="display: flex; flex-direction: column; gap: 6px"><span style="font-size: 40px; font-weight: 800; line-height: 1">10</span><span class="label">Places</span></span>
+            </div>
+            <div class="glass" style="padding: 18px 20px; display: flex; flex-direction: column; gap: 10px; background: rgba(19,19,22,.55)">
+              <span class="label">Réservez par téléphone en jeu</span>
+              <span class="gold" style="font-size: 28px; font-weight: 800">555-XXXX</span>
+              <span style="font-size: 13px; color: #C8C8CC">Tous les jours · 14h – 02h</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1940}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

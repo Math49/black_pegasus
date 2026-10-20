@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Black Pégasus — Luxor</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0A0A0C}
+*{box-sizing:border-box}
+a{color:#E8C877;text-decoration:none}a:hover{color:#EDEDF0}
+.display{font-family:'Montserrat','Manrope',system-ui,sans-serif;font-weight:600;letter-spacing:-.01em}
+.gold{background:linear-gradient(100deg,#A67C2E 0%,#E8C877 48%,#C9A24A 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.silver{background:linear-gradient(180deg,#EDEDF0,#C8C8CC);-webkit-background-clip:text;background-clip:text;color:transparent}
+.label{font-size:11px;line-height:16px;letter-spacing:.24em;text-transform:uppercase;font-weight:700;color:#8E8E96}
+.glass{background:rgba(255,255,255,.06);-webkit-backdrop-filter:blur(26px) saturate(140%);backdrop-filter:blur(26px) saturate(140%);border:1px solid rgba(255,255,255,.10);border-radius:20px;box-shadow:inset 0 1px 0 rgba(232,200,119,.32),0 30px 60px -24px rgba(0,0,0,.7)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:0 26px;border-radius:999px;font:700 15px/1 'Manrope',system-ui,sans-serif;letter-spacing:.01em;cursor:pointer;white-space:nowrap}
+.btn-gold{background:linear-gradient(100deg,#A67C2E 0%,#E8C877 50%,#C9A24A 100%);color:#0A0A0C;border:0;box-shadow:0 12px 32px -12px rgba(232,200,119,.55),inset 0 1px 0 rgba(255,255,255,.55)}
+.btn-gold:hover{color:#0A0A0C;filter:brightness(1.07)}
+.btn-glass{background:rgba(255,255,255,.05);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border:1px solid rgba(200,200,204,.5);color:#EDEDF0}
+.btn-glass:hover{color:#EDEDF0;border-color:#EDEDF0}
+.chip{display:inline-flex;align-items:center;gap:7px;height:30px;padding:0 12px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);font-size:12.5px;font-weight:600;color:#C8C8CC;white-space:nowrap}
+.badge{display:inline-flex;align-items:center;gap:7px;height:26px;padding:0 11px;border-radius:999px;font-size:10.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap}
+.badge-on{background:rgba(20,16,8,.55);border:1px solid rgba(232,200,119,.6);color:#E8C877}
+.badge-off{background:rgba(10,10,12,.55);border:1px solid rgba(142,142,150,.45);color:#A4A4AC}
+.dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+.ico{width:20px;height:20px;fill:none;stroke:#D6B467;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.ico-s{width:15px;height:15px;fill:none;stroke:#C8C8CC;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.wrap{width:100%;max-width:1280px;margin:0 auto;padding-inline:clamp(20px,4vw,56px)}
+.nav-a{color:#C8C8CC;font-size:14px;font-weight:600;padding:12px 4px}
+.nav-a:hover{color:#EDEDF0}
+.nav-on{color:#EDEDF0;box-shadow:inset 0 -1px 0 #E8C877}
+.vcard{display:flex;flex-direction:column;position:relative;color:#EDEDF0;background:rgba(255,255,255,.05);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.10);border-radius:22px;box-shadow:inset 0 1px 0 rgba(232,200,119,.28),0 30px 60px -28px rgba(0,0,0,.8)}
+.vcard:hover{color:#EDEDF0;border-color:rgba(232,200,119,.45)}
+.vcard-off{opacity:.7}
+.vcard-off .media img{filter:grayscale(1) brightness(.7)}
+.media{position:relative;overflow:hidden;border-radius:21px 21px 0 0;background:#131316}
+.media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.media-fade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,12,0) 45%,rgba(10,10,12,.85) 100%)}
+.rule{height:1px;background:linear-gradient(90deg,rgba(232,200,119,0),rgba(232,200,119,.55),rgba(232,200,119,0))}
+.spec{aspect-ratio:1/1;display:flex;flex-direction:column;justify-content:space-between;padding:22px;border-radius:22px}
+.row{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding:16px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+.thumb{display:block;width:96px;height:64px;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.14);padding:0;background:#131316;cursor:pointer}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb-on{border-color:#E8C877;box-shadow:0 0 0 1px #E8C877}
+.foot-a{color:#8E8E96;font-size:14px}.foot-a:hover{color:#EDEDF0}
+.bg-photo{background:#0A0A0C url(../../assets/images/vehicule-placeholder.jpg) 62% 45%/cover no-repeat}
+</style>
+</helmet>
+<div style="position: relative; font-family: 'Manrope', system-ui, sans-serif; color: #EDEDF0; background: #0A0A0C; -webkit-font-smoothing: antialiased; overflow: hidden">
+
+<!-- ============ HERO ============ -->
+<section style="position: relative; min-height: 880px; display: flex; flex-direction: column">
+  <div class="bg-photo" style="position: absolute; inset: 0"></div>
+  <div style="position: absolute; inset: 0; background: linear-gradient(90deg, rgba(10,10,12,.95) 0%, rgba(10,10,12,.8) 30%, rgba(10,10,12,.25) 62%, rgba(10,10,12,.25) 100%)"></div>
+  <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 340px; background: linear-gradient(180deg, rgba(10,10,12,0), #0A0A0C)"></div>
+  <div style="position: absolute; left: 0; right: 0; top: 0; height: 180px; background: linear-gradient(180deg, rgba(10,10,12,.6), rgba(10,10,12,0))"></div>
+
+  <header class="wrap" style="position: relative; z-index: 3; padding-top: 24px">
+    <div class="glass" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 28px; padding: 10px 12px 10px 18px; border-radius: 999px">
+      <a href="Main.dc.html" style="display: flex; align-items: center; gap: 12px; color: #EDEDF0">
+        <img src="../../assets/images/bp-logo.png" alt="Black Pégasus" style="width: 46px; height: 46px; object-fit: contain">
+        <span style="display: flex; flex-direction: column; gap: 3px">
+          <span class="display gold" style="font-size: 16px; font-weight: 700; letter-spacing: .14em">BLACK PÉGASUS</span>
+          <span style="font-size: 9px; letter-spacing: .32em; color: #8E8E96; font-weight: 700">AMERICAN TRANSPORTS</span>
+        </span>
+      </a>
+      <nav aria-label="Navigation principale" style="display: flex; flex-wrap: wrap; gap: 8px 30px">
+        <a class="nav-a" href="Main.dc.html">Accueil</a>
+        <a class="nav-a nav-on" href="Flotte.dc.html">La flotte</a>
+        <a class="nav-a" href="Reglement.dc.html">Règlement</a>
+        <a class="nav-a" href="Main.dc.html#maison">La maison</a>
+      </nav>
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+        <a class="btn btn-glass" href="Admin-Connexion.dc.html" style="min-height: 46px; padding: 0 18px; font-size: 14px">
+          <svg class="ico" viewBox="0 0 24 24" style="stroke: #C8C8CC; width: 18px; height: 18px" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>
+          Espace admin
+        </a>
+        <a class="btn btn-gold" href="#tarifs" style="min-height: 46px; padding: 0 20px">
+          <svg class="ico" viewBox="0 0 24 24" style="stroke: #0A0A0C" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"></path></svg>
+          555-XXXX
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap" style="position: relative; z-index: 2; flex: 1; display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 40px; padding-top: 60px; padding-bottom: 160px">
+    <div style="display: flex; flex-direction: column; gap: 24px; max-width: 540px">
+      <nav aria-label="Fil d’Ariane" style="display: flex; flex-wrap: wrap; gap: 10px; font-size: 13px; color: #8E8E96"><a href="Main.dc.html" style="color: #8E8E96">Accueil</a><span>/</span><a href="Flotte.dc.html" style="color: #8E8E96">Avions</a><span>/</span><span style="color: #EDEDF0">Luxor</span></nav>
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px">
+        <span class="label" style="color: #E8C877">Avion · Jet privé</span>
+        <span class="badge badge-on"><span class="dot"></span>1 / 1 disponible</span>
+      </div>
+      <h1 class="display gold" style="margin: 0; font-size: clamp(56px, 7vw, 104px); line-height: 1; font-weight: 700; letter-spacing: -.02em">Luxor</h1>
+      <p style="margin: 0; font-size: 17px; line-height: 1.7; color: #C8C8CC; text-wrap: pretty">Le vaisseau amiral de la flotte aérienne : une cabine de dix places et une autonomie taillée pour traverser San Andreas d’une traite.</p>
+      <div style="display: flex; align-items: baseline; gap: 10px">
+        <span style="color: #8E8E96; font-size: 14px">à partir de</span>
+        <span class="gold" style="font-size: 40px; font-weight: 800">$4 500</span>
+        <span style="color: #8E8E96; font-size: 14px">/ heure</span>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 14px">
+        <a class="btn btn-gold" href="#tarifs" style="min-height: 58px; padding: 0 30px; font-size: 16px">
+          <svg class="ico" viewBox="0 0 24 24" style="stroke: #0A0A0C" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"></path></svg>
+          Appeler le 555-XXXX
+        </a>
+        <a class="btn btn-glass" href="Flotte.dc.html" style="min-height: 58px">
+          <svg class="ico" viewBox="0 0 24 24" style="stroke: #C8C8CC" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"></path></svg>
+          Retour à la flotte
+        </a>
+      </div>
+    </div>
+
+    <div class="glass" style="display: flex; flex-direction: column; gap: 12px; padding: 14px; border-radius: 20px; background: rgba(10,10,12,.35)">
+      <span class="label" style="padding-left: 4px; color: #C8C8CC">Galerie · 3 photos</span>
+      <div style="display: flex; gap: 10px">
+        <button type="button" class="thumb thumb-on" aria-label="Photo 1"><img src="../../assets/images/vehicule-placeholder.jpg" alt=""></button>
+        <button type="button" class="thumb" aria-label="Photo 2"><img src="../../assets/images/vehicule-placeholder.jpg" alt=""></button>
+        <button type="button" class="thumb" aria-label="Photo 3"><img src="../../assets/images/vehicule-placeholder.jpg" alt=""></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SPEC BLOCKS ============ -->
+<section class="wrap" style="position: relative; z-index: 3; margin-top: -120px">
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 18px">
+    <div class="glass spec">
+      <span style="width: 48px; height: 48px; border-radius: 14px; border: 1px solid rgba(232,200,119,.4); display: flex; align-items: center; justify-content: center">
+        <svg class="ico" viewBox="0 0 24 24" style="width: 24px; height: 24px" aria-hidden="true"><path d="M16 20v-1.5A3.5 3.5 0 0 0 12.5 15h-5A3.5 3.5 0 0 0 4 18.5V20"></path><circle cx="10" cy="8" r="3.5"></circle><path d="M20 20v-1.5a3.5 3.5 0 0 0-2.5-3.3M15.5 4.7a3.5 3.5 0 0 1 0 6.6"></path></svg>
+      </span>
+      <span style="display: flex; flex-direction: column; gap: 6px"><span style="font-size: 44px; font-weight: 800; line-height: 1">10</span><span class="label">Places</span></span>
+    </div>
+    <div class="glass spec">
+      <span style="width: 48px; height: 48px; border-radius: 14px; border: 1px solid rgba(232,200,119,.4); display: flex; align-items: center; justify-content: center">
+        <svg class="ico" viewBox="0 0 24 24" style="width: 24px; height: 24px" aria-hidden="true"><path d="M21 8l-9-5-9 5v8l9 5 9-5z"></path><path d="M3 8l9 5 9-5M12 13v8"></path></svg>
+      </span>
+      <span style="display: flex; flex-direction: column; gap: 6px"><span style="font-size: 44px; font-weight: 800; line-height: 1">300<span style="font-size: 20px; color: #C8C8CC; margin-left: 6px">kg</span></span><span class="label">Contenance</span></span>
+    </div>
+    <div class="glass spec">
+      <span style="width: 48px; height: 48px; border-radius: 14px; border: 1px solid rgba(232,200,119,.4); display: flex; align-items: center; justify-content: center">
+        <svg class="ico" viewBox="0 0 24 24" style="width: 24px; height: 24px" aria-hidden="true"><path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"></path><circle cx="7.5" cy="7.5" r="1.5"></circle></svg>
+      </span>
+      <span style="display: flex; flex-direction: column; gap: 6px"><span class="display" style="font-size: 28px; line-height: 1.1">Jet privé</span><span class="label">Catégorie</span></span>
+    </div>
+    <div class="glass spec" style="border-color: rgba(232,200,119,.4)">
+      <span style="width: 48px; height: 48px; border-radius: 14px; background: linear-gradient(100deg,#A67C2E,#E8C877 50%,#C9A24A); display: flex; align-items: center; justify-content: center">
+        <svg class="ico" viewBox="0 0 24 24" style="width: 24px; height: 24px; stroke: #0A0A0C" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5z"></path><path d="M3 13l9 5 9-5"></path></svg>
+      </span>
+      <span style="display: flex; flex-direction: column; gap: 6px"><span style="font-size: 44px; font-weight: 800; line-height: 1"><span class="gold">1</span><span style="font-size: 24px; color: #8E8E96"> / 1</span></span><span class="label">Exemplaire disponible</span></span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DETAILS + TARIFS ============ -->
+<section class="wrap" style="position: relative; padding-top: 90px; padding-bottom: 110px; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 40px">
+  <div style="flex: 999 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 28px">
+    <span class="label" style="color: #E8C877">Présentation</span>
+    <h2 class="display" style="margin: 0; font-size: clamp(26px, 2.8vw, 38px); line-height: 1.18">Un salon privé à dix mille pieds</h2>
+    <p style="margin: 0; color: #C8C8CC; font-size: 16px; line-height: 1.8; max-width: 640px; text-wrap: pretty">Le Luxor accueille jusqu’à dix passagers et leurs bagages. Idéal pour un déplacement d’affaires, un départ vers Cayo Perico ou une soirée qui commence au-dessus des nuages.</p>
+    <div class="rule" style="max-width: 520px"></div>
+    <div style="display: flex; flex-direction: column; gap: 6px; max-width: 640px">
+      <span class="label" style="color: #C8C8CC; margin-bottom: 8px">À savoir avant de louer</span>
+      <div style="display: flex; align-items: flex-start; gap: 14px; padding: 12px 0; font-size: 15px; line-height: 1.6; color: #EDEDF0"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" style="margin-top: 2px"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"></path><path d="M9 12l2 2 4-4"></path></svg>Caution versée à la signature, restituée au retour si l’appareil est intact.</div>
+      <div style="display: flex; align-items: flex-start; gap: 14px; padding: 12px 0; font-size: 15px; line-height: 1.6; color: #EDEDF0"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" style="margin-top: 2px"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>Tout retard au retour est facturé par heure entamée.</div>
+      <div style="display: flex; align-items: flex-start; gap: 14px; padding: 12px 0; font-size: 15px; line-height: 1.6; color: #EDEDF0"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" style="margin-top: 2px"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><path d="M14 3v6h6M8 13h8M8 17h5"></path></svg><span>Conditions complètes dans le <a href="Reglement.dc.html" style="font-weight: 700">règlement des locations</a>.</span></div>
+    </div>
+  </div>
+
+  <aside id="tarifs" class="glass" aria-label="Tarifs" style="flex: 1 1 360px; max-width: 420px; padding: 30px 28px; display: flex; flex-direction: column; gap: 6px; border-radius: 24px">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px">
+      <span class="display" style="font-size: 26px">Tarifs</span>
+      <span class="badge badge-on"><span class="dot"></span>Disponible</span>
+    </div>
+    <div class="row"><span style="color: #C8C8CC; font-size: 15px">À l’heure</span><span class="gold" style="font-size: 32px; font-weight: 800">$4 500</span></div>
+    <div class="row"><span style="color: #C8C8CC; font-size: 15px">À la journée</span><span class="silver" style="font-size: 26px; font-weight: 800">$28 000</span></div>
+    <div class="row"><span style="color: #C8C8CC; font-size: 15px">Caution</span><span style="font-size: 20px; font-weight: 700; color: #EDEDF0">$15 000</span></div>
+    <div style="display: flex; align-items: flex-start; gap: 12px; margin-top: 14px; padding: 14px 16px; border-radius: 14px; background: rgba(232,200,119,.08); border: 1px solid rgba(232,200,119,.25)">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true" style="margin-top: 1px"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v5M12 16h.01"></path></svg>
+      <span style="font-size: 13.5px; line-height: 1.55; color: #EDEDF0">Le tarif journalier s’applique automatiquement s’il est plus avantageux.</span>
+    </div>
+    <a class="btn btn-gold" href="#tarifs" style="margin-top: 20px; min-height: 62px; font-size: 17px; border-radius: 18px">
+      <svg class="ico" viewBox="0 0 24 24" style="stroke: #0A0A0C; width: 22px; height: 22px" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"></path></svg>
+      Appeler le 555-XXXX
+    </a>
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 4px; margin-top: 12px; text-align: center">
+      <span style="font-size: 13.5px; color: #C8C8CC">Tous les jours · 14h – 02h</span>
+      <span style="font-size: 12.5px; color: #8E8E96">Aucune réservation en ligne · contrat signé à l’agence</span>
+    </div>
+  </aside>
+</section>
+
+<!-- ============ SIMILAIRES ============ -->
+<section class="wrap" style="padding-bottom: 120px">
+  <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 40px">
+    <div style="display: flex; flex-direction: column; gap: 12px">
+      <span class="label" style="color: #E8C877">Pour prendre l’air</span>
+      <h2 class="display" style="margin: 0; font-size: clamp(26px, 2.8vw, 38px)">Véhicules similaires</h2>
+    </div>
+    <a href="Flotte.dc.html" style="display: inline-flex; align-items: center; gap: 10px; font-weight: 700; font-size: 15px">Toute la flotte
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+    </a>
+  </div>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr)); gap: 24px">
+    <a class="vcard" href="Fiche.dc.html">
+      <div class="media" style="height: 200px">
+        <img src="../../assets/images/vehicule-placeholder.jpg" alt="Dodo">
+        <div class="media-fade"></div>
+        <span class="badge badge-on" style="position: absolute; left: 20px; bottom: 14px"><span class="dot"></span>1 / 1 disponible</span>
+      </div>
+      <div style="padding: 16px 24px 24px; display: flex; flex-direction: column; gap: 16px">
+        <div style="display: flex; flex-direction: column; gap: 5px"><span class="label">Avion · Hydravion</span><span class="display" style="font-size: 22px">Dodo</span></div>
+        <div class="rule"></div>
+        <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px">
+          <span style="display: flex; align-items: baseline; gap: 5px"><span class="gold" style="font-size: 30px; font-weight: 800">$1 200</span><span style="color: #8E8E96; font-size: 12.5px">/ h</span></span>
+          <span style="display: flex; align-items: baseline; gap: 5px"><span class="silver" style="font-size: 19px; font-weight: 700">$7 200</span><span style="color: #8E8E96; font-size: 12.5px">/ jour</span></span>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px">
+          <span class="chip"><svg class="ico-s" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 20v-1.5A3.5 3.5 0 0 0 12.5 15h-5A3.5 3.5 0 0 0 4 18.5V20"></path><circle cx="10" cy="8" r="3.5"></circle></svg>4 places</span>
+          <span class="chip"><svg class="ico-s" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8l-9-5-9 5v8l9 5 9-5z"></path><path d="M3 8l9 5 9-5M12 13v8"></path></svg>200 kg</span>
+        </div>
+      </div>
+    </a>
+    <a class="vcard vcard-off" href="Fiche.dc.html">
+      <div class="media" style="height: 200px">
+        <img src="../../assets/images/vehicule-placeholder.jpg" alt="Streamer 2026">
+        <div class="media-fade"></div>
+        <span class="badge badge-off" style="position: absolute; left: 20px; bottom: 14px"><span class="dot"></span>Complet</span>
+      </div>
+      <div style="padding: 16px 24px 24px; display: flex; flex-direction: column; gap: 16px">
+        <div style="display: flex; flex-direction: column; gap: 5px"><span class="label">Avion · Sport</span><span class="display" style="font-size: 22px">Streamer 2026</span></div>
+        <div class="rule"></div>
+        <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px">
+          <span style="display: flex; align-items: baseline; gap: 5px"><span class="gold" style="font-size: 30px; font-weight: 800">$1 500</span><span style="color: #8E8E96; font-size: 12.5px">/ h</span></span>
+          <span style="display: flex; align-items: baseline; gap: 5px"><span class="silver" style="font-size: 19px; font-weight: 700">$9 000</span><span style="color: #8E8E96; font-size: 12.5px">/ jour</span></span>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px">
+          <span class="chip"><svg class="ico-s" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 20v-1.5A3.5 3.5 0 0 0 12.5 15h-5A3.5 3.5 0 0 0 4 18.5V20"></path><circle cx="10" cy="8" r="3.5"></circle></svg>2 places</span>
+          <span class="chip"><svg class="ico-s" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8l-9-5-9 5v8l9 5 9-5z"></path><path d="M3 8l9 5 9-5M12 13v8"></path></svg>50 kg</span>
+        </div>
+      </div>
+    </a>
+    <a class="vcard" href="Fiche.dc.html">
+      <div class="media" style="height: 200px">
+        <img src="../../assets/images/vehicule-placeholder.jpg" alt="SuperVolito Carbon">
+        <div class="media-fade"></div>
+        <span class="badge badge-on" style="position: absolute; left: 20px; bottom: 14px"><span class="dot"></span>1 / 1 disponible</span>
+      </div>
+      <div style="padding: 16px 24px 24px; display: flex; flex-direction: column; gap: 16px">
+        <div style="display: flex; flex-direction: column; gap: 5px"><span class="label">Hélicoptère · Affaires</span><span class="display" style="font-size: 22px">SuperVolito Carbon</span></div>
+        <div class="rule"></div>
+        <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px">
+          <span style="display: flex; align-items: baseline; gap: 5px"><span class="gold" style="font-size: 30px; font-weight: 800">$2 400</span><span style="color: #8E8E96; font-size: 12.5px">/ h</span></span>
+          <span style="display: flex; align-items: baseline; gap: 5px"><span class="silver" style="font-size: 19px; font-weight: 700">$15 000</span><span style="color: #8E8E96; font-size: 12.5px">/ jour</span></span>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px">
+          <span class="chip"><svg class="ico-s" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 20v-1.5A3.5 3.5 0 0 0 12.5 15h-5A3.5 3.5 0 0 0 4 18.5V20"></path><circle cx="10" cy="8" r="3.5"></circle></svg>4 places</span>
+          <span class="chip"><svg class="ico-s" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8l-9-5-9 5v8l9 5 9-5z"></path><path d="M3 8l9 5 9-5M12 13v8"></path></svg>200 kg</span>
+        </div>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer style="border-top: 1px solid rgba(232,200,119,.22); background: #0A0A0C">
+  <div class="wrap" style="padding-top: 56px; padding-bottom: 32px; display: flex; flex-direction: column; gap: 40px">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 40px">
+      <div style="display: flex; flex-direction: column; gap: 16px">
+        <img src="../../assets/images/bp-logo.png" alt="Black Pégasus – American Transports" style="width: 100px; height: 100px; object-fit: contain">
+        <span style="color: #8E8E96; font-size: 14px; line-height: 1.6">Location de bateaux, d’avions et d’hélicoptères.</span>
+      </div>
+      <nav aria-label="Pied de page" style="display: flex; flex-direction: column; gap: 12px">
+        <span class="label" style="color: #C8C8CC; margin-bottom: 6px">Navigation</span>
+        <a class="foot-a" href="Main.dc.html">Accueil</a>
+        <a class="foot-a" href="Flotte.dc.html">La flotte</a>
+        <a class="foot-a" href="Reglement.dc.html">Règlement des locations</a>
+      </nav>
+      <div style="display: flex; flex-direction: column; gap: 12px">
+        <span class="label" style="color: #C8C8CC; margin-bottom: 6px">La flotte</span>
+        <a class="foot-a" href="Flotte.dc.html">Bateaux</a>
+        <a class="foot-a" href="Flotte.dc.html">Avions</a>
+        <a class="foot-a" href="Flotte.dc.html">Hélicoptères</a>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 12px">
+        <span class="label" style="color: #C8C8CC; margin-bottom: 6px">Contact</span>
+        <span class="gold" style="font-size: 24px; font-weight: 800">555-XXXX</span>
+        <span style="color: #8E8E96; font-size: 14px">Tous les jours · 14h – 02h</span>
+      </div>
+    </div>
+    <div class="rule"></div>
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; color: #8E8E96; font-size: 12.5px">
+      <span>© Black Pégasus – American Transports</span>
+      <span>Entreprise fictive d’un serveur de jeu de rôle GTA V (FiveM)</span>
+    </div>
+  </div>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2840}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,673 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Black Pégasus Admin — Comptabilité hebdomadaire</title>
+<link rel="stylesheet" href="../../assets/fonts/fonts.css">
+<style>
+body{margin:0;background:#0A0A0C}
+*{box-sizing:border-box}
+a{color:#E8C877;text-decoration:none}a:hover{color:#EDEDF0}
+.display{font-family:'Montserrat','Manrope',system-ui,sans-serif;font-weight:600;letter-spacing:-.01em}
+.gold{background:linear-gradient(100deg,#A67C2E 0%,#E8C877 48%,#C9A24A 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.label{font-size:10.5px;line-height:16px;letter-spacing:.2em;text-transform:uppercase;font-weight:700;color:#8E8E96}
+.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.glass{background:rgba(255,255,255,.055);-webkit-backdrop-filter:blur(24px) saturate(130%);backdrop-filter:blur(24px) saturate(130%);border:1px solid rgba(255,255,255,.09);border-radius:20px;box-shadow:inset 0 1px 0 rgba(232,200,119,.24),0 24px 50px -24px rgba(0,0,0,.7)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:44px;padding:0 18px;border-radius:12px;font:700 14px/1 'Manrope',system-ui,sans-serif;cursor:pointer;white-space:nowrap;border:0}
+.btn-gold{background:linear-gradient(100deg,#A67C2E 0%,#E8C877 50%,#C9A24A 100%);color:#0A0A0C;box-shadow:0 10px 26px -12px rgba(232,200,119,.55),inset 0 1px 0 rgba(255,255,255,.5)}
+.btn-gold:hover{color:#0A0A0C;filter:brightness(1.07)}
+.btn-glass{background:rgba(255,255,255,.05);border:1px solid rgba(200,200,204,.35);color:#EDEDF0}
+.btn-glass:hover{color:#EDEDF0;border-color:rgba(237,237,240,.7)}
+.ibtn{width:44px;height:44px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);cursor:pointer;padding:0;position:relative}
+.ibtn:disabled{opacity:.35;cursor:not-allowed}
+.ico{width:18px;height:18px;fill:none;stroke:#C8C8CC;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.ico-g{stroke:#D6B467}.ico-k{stroke:#0A0A0C}.ico-w{stroke:#F2A99D}
+.nv{display:flex;align-items:center;gap:12px;min-height:44px;padding:0 12px;border-radius:12px;color:#A9A9B1;font-size:14px;font-weight:600}
+.nv:hover{color:#EDEDF0;background:rgba(255,255,255,.04)}
+.nv-on{color:#EDEDF0;background:rgba(255,255,255,.08);box-shadow:inset 0 1px 0 rgba(232,200,119,.22)}
+.nv-on .ico{stroke:#E8C877}
+.cnt{margin-left:auto;font-size:11px;font-weight:800;min-width:22px;height:20px;padding:0 6px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,.08);color:#C8C8CC}
+.cnt-warn{background:rgba(224,122,107,.18);color:#F2A99D}
+.mut{color:#8E8E96}
+.r{text-align:right;justify-self:end}
+.st{display:inline-flex;align-items:center;gap:7px;height:26px;padding:0 11px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
+.st-gold{background:rgba(232,200,119,.08);border:1px solid rgba(232,200,119,.45);color:#E8C877}
+.st-ok{background:rgba(237,237,240,.07);border:1px solid rgba(237,237,240,.32);color:#EDEDF0}
+.st-mute{background:rgba(142,142,150,.08);border:1px solid rgba(142,142,150,.3);color:#A4A4AC}
+.av{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:linear-gradient(145deg,#4a4a52,#1b1b20);color:#EDEDF0;font-weight:800;flex:none}
+.av-ring{box-shadow:0 0 0 1.5px rgba(232,200,119,.7)}
+.tag{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);font-size:12px;font-weight:600;color:#C8C8CC;white-space:nowrap}
+a.tag:hover{color:#EDEDF0;border-color:rgba(255,255,255,.25)}
+.kpi{padding:20px 22px;display:flex;flex-direction:column;gap:10px}
+.kpi-v{font-size:28px;font-weight:800;line-height:1}
+.seg{display:inline-flex;align-items:center;gap:8px;min-height:38px;padding:0 14px;border-radius:10px;border:0;background:transparent;color:#A9A9B1;font:700 13px/1 'Manrope',system-ui,sans-serif;cursor:pointer}
+.seg:hover{color:#EDEDF0}
+.seg-on{background:rgba(255,255,255,.1);color:#EDEDF0;box-shadow:inset 0 1px 0 rgba(232,200,119,.3)}
+.gr{display:grid;grid-template-columns:52px 120px 140px minmax(170px,1fr) 150px 92px 92px 92px;align-items:center;column-gap:12px;padding:0 14px}
+.gh{min-height:42px;border-bottom:1px solid rgba(255,255,255,.1);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#8E8E96;font-weight:700}
+.gd{min-height:50px;border-bottom:1px solid rgba(255,255,255,.06);font-size:13.5px}
+.gd:hover{background:rgba(255,255,255,.03)}
+.gt{min-height:56px;font-size:14px;font-weight:800;border-top:1px solid rgba(232,200,119,.35)}
+.rec{color:#E8C877;font-weight:800}
+.dep{color:#C8C8CC;font-weight:800}
+.cau{color:#A4A4AC;font-weight:700}
+.chk{display:flex;align-items:center;gap:12px;font-size:14px}
+.bg-app{background:#0A0A0C url(../../assets/images/bg-skyline.jpg) center 70%/cover no-repeat}
+</style>
+</head>
+<body>
+<div style="position: relative; min-height: 100vh; font-family: 'Manrope', system-ui, sans-serif; color: #EDEDF0; background: #0A0A0C; overflow: hidden; -webkit-font-smoothing: antialiased">
+  <div class="bg-app" style="position: absolute; inset: -60px; filter: blur(30px) brightness(.34) saturate(.9)"></div>
+  <div style="position: absolute; inset: 0; background: radial-gradient(70% 50% at 75% 0%, rgba(201,162,74,.10), rgba(10,10,12,0) 60%), linear-gradient(180deg, rgba(10,10,12,.3), rgba(10,10,12,.75))"></div>
+
+  <div style="position: relative; display: flex; flex-wrap: wrap; align-items: stretch; gap: 20px; padding: 20px">
+
+    <aside class="glass" aria-label="Navigation du panel" style="flex: 1 1 236px; max-width: 256px; padding: 22px 12px 16px; display: flex; flex-direction: column; gap: 28px; border-radius: 24px">
+      <a href="11-admin-tableau-de-bord.html" style="display: flex; align-items: center; gap: 12px; padding: 0 8px; color: #EDEDF0">
+        <img src="../../assets/images/bp-logo.png" alt="Black Pégasus" style="width: 42px; height: 42px; object-fit: contain">
+        <span style="display: flex; flex-direction: column; gap: 3px">
+          <span class="display gold" style="font-size: 13px; font-weight: 700; letter-spacing: .14em">BLACK PÉGASUS</span>
+          <span class="label" style="font-size: 9.5px">Administration</span>
+        </span>
+      </a>
+      <nav style="display: flex; flex-direction: column; gap: 4px">
+        <span class="label" style="padding: 0 12px 8px">Gestion</span>
+        <a class="nv" href="11-admin-tableau-de-bord.html"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="8" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="15" width="7" height="6" rx="1.5"/></svg>Tableau de bord</a>
+        <a class="nv" href="12-admin-solde.html"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3"/><path d="M21 9h-6a3 3 0 0 0 0 6h6z"/></svg>Solde</a>
+        <a class="nv" href="14-admin-vehicules.html"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg>Véhicules<span class="cnt">9</span></a>
+        <a class="nv" href="16-admin-contrats.html"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg>Contrats<span class="cnt cnt-warn">1 retard</span></a>
+        <a class="nv nv-on" href="19-admin-comptabilite.html" aria-current="page"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M7 21h10M5 7h14"/><path d="M5 7l-3 6a3 3 0 0 0 6 0zM19 7l-3 6a3 3 0 0 0 6 0z"/></svg>Comptabilité</a>
+        <a class="nv" href="21-admin-comptes.html"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 20v-1.5A3.5 3.5 0 0 0 12.5 15h-5A3.5 3.5 0 0 0 4 18.5V20"/><circle cx="10" cy="8" r="3.5"/><path d="M20 20v-1.5a3.5 3.5 0 0 0-2.5-3.3M15.5 4.7a3.5 3.5 0 0 1 0 6.6"/></svg>Comptes</a>
+      </nav>
+      <div style="margin-top: auto; display: flex; flex-direction: column; gap: 10px">
+        <a href="19-admin-comptabilite.html" style="display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 14px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); color: #EDEDF0">
+          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.5-2"/></svg>
+          <span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 13px; font-weight: 700">Semaine 43 · ouverte</span><span class="mut" style="font-size: 12px">Clôture dimanche 25/10</span></span>
+        </a>
+        <a class="nv" href="01-site-accueil.html"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>Voir le site public</a>
+        <a class="nv" href="10-admin-connexion.html"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H4"/></svg>Déconnexion</a>
+      </div>
+    </aside>
+
+    <main style="flex: 999 1 640px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+      <header class="glass" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 16px 14px 24px">
+        <div style="display: flex; flex-direction: column; gap: 4px">
+          <span class="label">Gestion · Comptabilité · FISC</span>
+          <h1 class="display" style="margin: 0; font-size: 24px">Comptabilité hebdomadaire</h1>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px; padding: 6px 14px 6px 6px; border-radius: 999px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08)">
+          <span class="av av-ring" style="width: 40px; height: 40px; font-size: 14px">VM</span>
+          <span style="display: flex; flex-direction: column; gap: 3px">
+            <span style="font-size: 14px; font-weight: 700">Vincent Moretti <span class="mut" style="font-weight: 500">@vmoretti</span></span>
+            <span class="st st-gold" style="height: 20px; font-size: 10.5px; align-self: flex-start">Administrateur</span>
+          </span>
+        </div>
+      </header>
+
+      <!-- SÉLECTEUR DE SEMAINE -->
+      <section class="glass" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 18px">
+        <div style="display: flex; align-items: center; gap: 14px">
+          <button type="button" class="ibtn" aria-label="Semaine précédente"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+          <div style="display: flex; flex-direction: column; gap: 4px; min-width: 300px">
+            <span class="display" style="font-size: 20px">Semaine 43</span>
+            <span class="mut" style="font-size: 13.5px">Du lundi 19 au dimanche 25 octobre 2026</span>
+          </div>
+          <button type="button" class="ibtn" aria-label="Semaine suivante" disabled><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+          
+            <span class="st st-ok"><svg class="ico" viewBox="0 0 24 24" style="width: 14px; height: 14px; stroke: #EDEDF0" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.5-2"/></svg>Ouverte</span>
+          
+          
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 10px">
+          <a class="btn btn-glass" href="31-pdf-declaration-page-1.html"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Exporter un brouillon</a>
+          
+            <a class="btn btn-gold" href="20-admin-comptabilite-cloture.html"><svg class="ico ico-k" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Clôturer la semaine</a>
+          
+        </div>
+      </section>
+
+      <!-- SYNTHÈSE -->
+      <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 16px" aria-label="Synthèse de la semaine">
+        <div class="glass kpi"><span class="label">Solde d’ouverture</span><span class="kpi-v num">$412 380</span><span class="mut" style="font-size: 12.5px">Lundi 19/10 à 00:00</span></div>
+        <div class="glass kpi"><span class="label">Total des recettes</span><span class="kpi-v num" style="color: #E8C877">$91 400</span><span class="mut" style="font-size: 12.5px">Locations $90 000 · pénalités $1 400</span></div>
+        <div class="glass kpi"><span class="label">Total des dépenses</span><span class="kpi-v num">$24 150</span><span class="mut" style="font-size: 12.5px">Dont impôt S42 : $12 600</span></div>
+        <div class="glass kpi" style="border-color: rgba(232,200,119,.45); background: rgba(232,200,119,.06)"><span class="label" style="color: #E8C877">Résultat imposable</span><span class="kpi-v gold num" style="font-size: 32px">$67 250</span><span class="mut" style="font-size: 12.5px">Recettes − dépenses</span></div>
+        <div class="glass kpi" style="border-style: dashed; border-color: rgba(200,200,204,.3)"><span class="label">Cautions détenues</span><span class="kpi-v num" style="color: #C8C8CC">$35 000</span><span class="mut" style="font-size: 12.5px">Hors recettes · à restituer</span></div>
+        <div class="glass kpi"><span class="label">Solde provisoire</span><span class="kpi-v num">$514 630</span><span class="mut" style="font-size: 12.5px">Au samedi 24/10, 21:40</span></div>
+      </section>
+
+      
+        <section class="glass" style="padding: 20px 24px; display: flex; flex-wrap: wrap; gap: 14px 40px; align-items: center" aria-label="Contrôles avant clôture">
+          <span class="display" style="font-size: 16px; flex: 1 1 100%">Contrôles avant clôture</span>
+          <span class="chk"><svg class="ico ico-g" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>5 / 5 dépenses justifiées</span>
+          <span class="chk"><svg class="ico ico-g" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>35 opérations numérotées, sans trou</span>
+          <span class="chk"><svg class="ico ico-g" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>Solde rapproché : $514 630</span>
+          <span class="chk" style="color: #F2A99D"><svg class="ico ico-w" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18h.01"/></svg>5 contrats encore en cours, dont 1 en retard</span>
+        </section>
+      
+
+      <!-- REGISTRE -->
+      
+        <section class="glass" style="padding: 18px 8px 8px; display: flex; flex-direction: column; gap: 14px">
+          <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; padding: 0 12px">
+            <div style="display: flex; flex-direction: column; gap: 3px">
+              <h2 class="display" style="margin: 0; font-size: 18px">Registre des opérations</h2>
+              <span class="mut" style="font-size: 13px">Chaque opération est numérotée et rattachée à un contrat ou à un justificatif.</span>
+            </div>
+            <div role="tablist" aria-label="Filtrer le registre" style="display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 4px; border-radius: 12px; background: rgba(10,10,12,.35); border: 1px solid rgba(255,255,255,.08)">
+              <button type="button" role="tab" class="seg seg-on" aria-selected="true">Toutes <span class="mut" style="font-size: 12px">35</span></button><button type="button" role="tab" class="seg" aria-selected="false">Recettes <span class="mut" style="font-size: 12px">13</span></button><button type="button" role="tab" class="seg" aria-selected="false">Dépenses <span class="mut" style="font-size: 12px">5</span></button><button type="button" role="tab" class="seg" aria-selected="false">Cautions <span class="mut" style="font-size: 12px">17</span></button>
+            </div>
+          </div>
+          <div style="overflow-x: auto">
+            <div role="table" aria-label="Registre des opérations de la semaine 43" style="min-width: 1020px">
+              <div role="row" class="gr gh"><span role="columnheader">N°</span><span role="columnheader">Date</span><span role="columnheader">Catégorie</span><span role="columnheader">Libellé</span><span role="columnheader">Pièce</span><span role="columnheader" class="r">Recette</span><span role="columnheader" class="r">Dépense</span><span role="columnheader" class="r">Caution</span></div>
+              
+                <div role="row" class="gr gd">
+                  <span role="cell" class="num mut" style="font-weight: 800">001</span>
+                  <span role="cell" class="num" style="color: #C8C8CC">Lun. 19/10 09:15</span>
+                  <span role="cell"><span class="tag">Impôts</span></span>
+                  <span role="cell">Impôt hebdomadaire S42 réglé au FISC</span>
+                  <span role="cell">
+                    
+                    <a class="tag" href="12-admin-solde.html" style="border-color: rgba(232,200,119,.35); color: #E8C877"><svg class="ico ico-g" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M21 11.5l-8.5 8.5a5 5 0 0 1-7-7L14 4.5a3.5 3.5 0 0 1 5 5L10.5 18a2 2 0 0 1-3-3L15 7.5"/></svg>JUST-43-01</a>
+                  </span>
+                  <span role="cell" class="r num rec"></span>
+                  <span role="cell" class="r num dep">−$12 600</span>
+                  <span role="cell" class="r num cau"></span>
+                </div>
+              
+                <div role="row" class="gr gd">
+                  <span role="cell" class="num mut" style="font-weight: 800">002</span>
+                  <span role="cell" class="num" style="color: #C8C8CC">Lun. 19/10 14:00</span>
+                  <span role="cell"><span class="tag">Caution encaissée</span></span>
+                  <span role="cell">Seashark2 · Jimmy Calloway</span>
+                  <span role="cell">
+                    <a class="tag" href="30-pdf-contrat.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>CTR-2026-0031</a>
+                    
+                  </span>
+                  <span role="cell" class="r num rec"></span>
+                  <span role="cell" class="r num dep"></span>
+                  <span role="cell" class="r num cau">+$1 000</span>
+                </div>
+              
+                <div role="row" class="gr gd">
+                  <span role="cell" class="num mut" style="font-weight: 800">003</span>
+                  <span role="cell" class="num" style="color: #C8C8CC">Lun. 19/10 14:00</span>
+                  <span role="cell"><span class="tag">Location</span></span>
+                  <span role="cell">Seashark2 · 2 h</span>
+                  <span role="cell">
+                    <a class="tag" href="30-pdf-contrat.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>CTR-2026-0031</a>
+                    
+                  </span>
+                  <span role="cell" class="r num rec">+$300</span>
+                  <span role="cell" class="r num dep"></span>
+                  <span role="cell" class="r num cau"></span>
+                </div>
+              
+                <div role="row" class="gr gd">
+                  <span role="cell" class="num mut" style="font-weight: 800">004</span>
+                  <span role="cell" class="num" style="color: #C8C8CC">Lun. 19/10 16:05</span>
+                  <span role="cell"><span class="tag">Caution rendue</span></span>
+                  <span role="cell">Seashark2 restitué</span>
+                  <span role="cell">
+                    <a class="tag" href="30-pdf-contrat.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>CTR-2026-0031</a>
+                    
+                  </span>
+                  <span role="cell" class="r num rec"></span>
+                  <span role="cell" class="r num dep"></span>
+                  <span role="cell" class="r num cau">−$1 000</span>
+                </div>
+              
+                <div role="row" class="gr gd">
+                  <span role="cell" class="num mut" style="font-weight: 800">005</span>
+                  <span role="cell" class="num" style="color: #C8C8CC">Lun. 19/10 18:00</span>
+                  <span role="cell"><span class="tag">Caution encaissée</span></span>
+                  <span role="cell">Toro2 · Rosa Delgado</span>
+                  <span role="cell">
+                    <a class="tag" href="30-pdf-contrat.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>CTR-2026-0032</a>
+                    
+                  </span>
+                  <span role="cell" class="r num rec"></span>
+                  <span role="cell" class="r num dep"></span>
+                  <span role="cell" class="r num cau">+$5 000</span>
+                </div>
+              
+                <div role="row" class="gr gd">
+                  <span role="cell" class="num mut" style="font-weight: 800">006</span>
+                  <span role="cell" class="num" style="color: #C8C8CC">Lun. 19/10 18:00</span>
+                  <span role="cell"><span class="tag">Location</span></span>
+                  <span role="cell">Toro2 · 4 h</span>
+                  <span role="cell">
+                    <a class="tag" href="30-pdf-contrat.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>CTR-2026-0032</a>
+                    
+                  </span>
+                  <span role="cell" class="r num rec">+$2 400</span>
+                  <span role="cell" class="r num dep"></span>
+                  <span role="cell" class="r num cau"></span>
+                </div>
+              
+                <div role="row" class="gr gd">
+                  <span role="cell" class="num mut" style="font-weight: 800">007</span>
+                  <span role="cell" class="num" style="color: #C8C8CC">Lun. 19/10 23:10</span>
+                  <span role="cell"><span class="tag">Pénalité</span></span>
+                  <span role="cell">Retard de 1 h 10 (1 h facturée)</span>
+                  <span role="cell">
+                    <a class="tag" href="30-pdf-contrat.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>CTR-2026-0032</a>
+                    
+                  </span>
+                  <span role="cell" class="r num rec">+$900</span>
+                  <span role="cell" class="r num dep"></span>
+                  <span role="cell" class="r num cau"></span>
+                </div>
+              
+                <div role="row" class="gr gd">
+                  <span role="cell" class="num mut" style="font-weight: 800">008</span>
+                  <span role="cell" class="num" style="color: #C8C8CC">Lun. 19/10 23:10</span>
+                  <span role="cell"><span class="tag">Caution rendue</span></span>
+                  <span role="cell">Toro2 restitué</span>
+                  <span role="cell">
+                    <a class="tag" href="30-pdf-contrat.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>CTR-2026-0032</a>
+                    
+                  </span>
+                  <span role="cell" class="r num rec"></span>
+                  <span role="cell" class="r num dep"></span>
+                  <span role="cell" class="r num cau">−$5 000</span>
+                </div>
+              
+                <div role="row" class="gr gd">
+                  <span role="cell" class="num mut" style="font-weight: 800">009</span>
+                  <span role="cell" class="num" style="color: #C8C8CC">Mar. 20/10 11:30</span>
+                  <span role="cell"><span class="tag">Entretien</span></span>
+                  <span role="cell">Vidange et révision du Toro2</span>
+                  <span role="cell">
+                    
+                    <a class="tag" href="12-admin-solde.html" style="border-color: rgba(232,200,119,.35); color: #E8C877"><svg class="ico ico-g" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M21 11.5l-8.5 8.5a5 5 0 0 1-7-7L14 4.5a3.5 3.5 0 0 1 5 5L10.5 18a2 2 0 0 1-3-3L15 7.5"/></svg>JUST-43-02</a>
+                  </span>
+                  <span role="cell" class="r num rec"></span>
+                  <span role="cell" class="r num dep">−$1 200</span>
+                  <span role="cell" class="r num cau"></span>
+                </div>
+              
+                <div role="row" class="gr gd">
+                  <span role="cell" class="num mut" style="font-weight: 800">010</span>
+                  <span role="cell" class="num" style="color: #C8C8CC">Mar. 20/10 12:00</span>
+                  <span role="cell"><span class="tag">Caution encaissée</span></span>
+                  <span role="cell">Luxor · Dmitri Volkov</span>
+                  <span role="cell">
+                    <a class="tag" href="30-pdf-contrat.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>CTR-2026-0033</a>
+                    
+                  </span>
+                  <span role="cell" class="r num rec"></span>
+                  <span role="cell" class="r num dep"></span>
+                  <span role="cell" class="r num cau">+$15 000</span>
+                </div>
+              
+                <div role="row" class="gr gd">
+                  <span role="cell" class="num mut" style="font-weight: 800">011</span>
+                  <span role="cell" class="num" style="color: #C8C8CC">Mar. 20/10 12:00</span>
+                  <span role="cell"><span class="tag">Location</span></span>
+                  <span role="cell">Luxor · 24 h, tarif journalier</span>
+                  <span role="cell">
+                    <a class="tag" href="30-pdf-contrat.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>CTR-2026-0033</a>
+                    
+                  </span>
+                  <span role="cell" class="r num rec">+$28 000</span>
+                  <span role="cell" class="r num dep"></span>
+                  <span role="cell" class="r num cau"></span>
+                </div>
+              
+                <div role="row" class="gr gd">
+                  <span role="cell" class="num mut" style="font-weight: 800">012</span>
+                  <span role="cell" class="num" style="color: #C8C8CC">Mer. 21/10 12:05</span>
+                  <span role="cell"><span class="tag">Caution rendue</span></span>
+                  <span role="cell">Luxor restitué</span>
+                  <span role="cell">
+                    <a class="tag" href="30-pdf-contrat.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>CTR-2026-0033</a>
+                    
+                  </span>
+                  <span role="cell" class="r num rec"></span>
+                  <span role="cell" class="r num dep"></span>
+                  <span role="cell" class="r num cau">−$15 000</span>
+                </div>
+              
+                <div role="row" class="gr gd">
+                  <span role="cell" class="num mut" style="font-weight: 800">013</span>
+                  <span role="cell" class="num" style="color: #C8C8CC">Mer. 21/10 20:00</span>
+                  <span role="cell"><span class="tag">Caution encaissée</span></span>
+                  <span role="cell">SuperVolito Carbon · Isabella Cruz</span>
+                  <span role="cell">
+                    <a class="tag" href="30-pdf-contrat.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>CTR-2026-0034</a>
+                    
+                  </span>
+                  <span role="cell" class="r num rec"></span>
+                  <span role="cell" class="r num dep"></span>
+                  <span role="cell" class="r num cau">+$10 000</span>
+                </div>
+              
+                <div role="row" class="gr gd">
+                  <span role="cell" class="num mut" style="font-weight: 800">014</span>
+                  <span role="cell" class="num" style="color: #C8C8CC">Mer. 21/10 20:00</span>
+                  <span role="cell"><span class="tag">Location</span></span>
+                  <span role="cell">SuperVolito Carbon · 3 h</span>
+                  <span role="cell">
+                    <a class="tag" href="30-pdf-contrat.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>CTR-2026-0034</a>
+                    
+                  </span>
+                  <span role="cell" class="r num rec">+$7 200</span>
+                  <span role="cell" class="r num dep"></span>
+                  <span role="cell" class="r num cau"></span>
+                </div>
+              
+                <div role="row" class="gr gd">
+                  <span role="cell" class="num mut" style="font-weight: 800">015</span>
+                  <span role="cell" class="num" style="color: #C8C8CC">Mer. 21/10 23:15</span>
+                  <span role="cell"><span class="tag">Pénalité</span></span>
+                  <span role="cell">Rayures légères sur le patin gauche</span>
+                  <span role="cell">
+                    <a class="tag" href="30-pdf-contrat.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>CTR-2026-0034</a>
+                    
+                  </span>
+                  <span role="cell" class="r num rec">+$500</span>
+                  <span role="cell" class="r num dep"></span>
+                  <span role="cell" class="r num cau"></span>
+                </div>
+              
+                <div role="row" class="gr gd">
+                  <span role="cell" class="num mut" style="font-weight: 800">016</span>
+                  <span role="cell" class="num" style="color: #C8C8CC">Mer. 21/10 23:15</span>
+                  <span role="cell"><span class="tag">Caution rendue</span></span>
+                  <span role="cell">SuperVolito Carbon restitué</span>
+                  <span role="cell">
+                    <a class="tag" href="30-pdf-contrat.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>CTR-2026-0034</a>
+                    
+                  </span>
+                  <span role="cell" class="r num rec"></span>
+                  <span role="cell" class="r num dep"></span>
+                  <span role="cell" class="r num cau">−$10 000</span>
+                </div>
+              
+                <div role="row" class="gr gd">
+                  <span role="cell" class="num mut" style="font-weight: 800">017</span>
+                  <span role="cell" class="num" style="color: #C8C8CC">Jeu. 22/10 10:40</span>
+                  <span role="cell"><span class="tag">Entretien</span></span>
+                  <span role="cell">Réparation de coque du Remorqueur</span>
+                  <span role="cell">
+                    
+                    <a class="tag" href="12-admin-solde.html" style="border-color: rgba(232,200,119,.35); color: #E8C877"><svg class="ico ico-g" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M21 11.5l-8.5 8.5a5 5 0 0 1-7-7L14 4.5a3.5 3.5 0 0 1 5 5L10.5 18a2 2 0 0 1-3-3L15 7.5"/></svg>JUST-43-03</a>
+                  </span>
+                  <span role="cell" class="r num rec"></span>
+                  <span role="cell" class="r num dep">−$3 500</span>
+                  <span role="cell" class="r num cau"></span>
+                </div>
+              
+                <div role="row" class="gr gd">
+                  <span role="cell" class="num mut" style="font-weight: 800">018</span>
+                  <span role="cell" class="num" style="color: #C8C8CC">Jeu. 22/10 15:00</span>
+                  <span role="cell"><span class="tag">Caution encaissée</span></span>
+                  <span role="cell">Dinghy4 · Tony Varga</span>
+                  <span role="cell">
+                    <a class="tag" href="30-pdf-contrat.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>CTR-2026-0035</a>
+                    
+                  </span>
+                  <span role="cell" class="r num rec"></span>
+                  <span role="cell" class="r num dep"></span>
+                  <span role="cell" class="r num cau">+$2 000</span>
+                </div>
+              
+                <div role="row" class="gr gd">
+                  <span role="cell" class="num mut" style="font-weight: 800">019</span>
+                  <span role="cell" class="num" style="color: #C8C8CC">Jeu. 22/10 15:00</span>
+                  <span role="cell"><span class="tag">Location</span></span>
+                  <span role="cell">Dinghy4 · 4 h</span>
+                  <span role="cell">
+                    <a class="tag" href="30-pdf-contrat.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>CTR-2026-0035</a>
+                    
+                  </span>
+                  <span role="cell" class="r num rec">+$1 200</span>
+                  <span role="cell" class="r num dep"></span>
+                  <span role="cell" class="r num cau"></span>
+                </div>
+              
+                <div role="row" class="gr gd">
+                  <span role="cell" class="num mut" style="font-weight: 800">020</span>
+                  <span role="cell" class="num" style="color: #C8C8CC">Jeu. 22/10 19:00</span>
+                  <span role="cell"><span class="tag">Caution rendue</span></span>
+                  <span role="cell">Dinghy4 restitué</span>
+                  <span role="cell">
+                    <a class="tag" href="30-pdf-contrat.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>CTR-2026-0035</a>
+                    
+                  </span>
+                  <span role="cell" class="r num rec"></span>
+                  <span role="cell" class="r num dep"></span>
+                  <span role="cell" class="r num cau">−$2 000</span>
+                </div>
+              
+                <div role="row" class="gr gd">
+                  <span role="cell" class="num mut" style="font-weight: 800">021</span>
+                  <span role="cell" class="num" style="color: #C8C8CC">Ven. 23/10 09:20</span>
+                  <span role="cell"><span class="tag">Divers</span></span>
+                  <span role="cell">Plein de kérosène du Luxor</span>
+                  <span role="cell">
+                    
+                    <a class="tag" href="12-admin-solde.html" style="border-color: rgba(232,200,119,.35); color: #E8C877"><svg class="ico ico-g" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M21 11.5l-8.5 8.5a5 5 0 0 1-7-7L14 4.5a3.5 3.5 0 0 1 5 5L10.5 18a2 2 0 0 1-3-3L15 7.5"/></svg>JUST-43-04</a>
+                  </span>
+                  <span role="cell" class="r num rec"></span>
+                  <span role="cell" class="r num dep">−$850</span>
+                  <span role="cell" class="r num cau"></span>
+                </div>
+              
+                <div role="row" class="gr gd">
+                  <span role="cell" class="num mut" style="font-weight: 800">022</span>
+                  <span role="cell" class="num" style="color: #C8C8CC">Ven. 23/10 10:00</span>
+                  <span role="cell"><span class="tag">Caution encaissée</span></span>
+                  <span role="cell">Dodo · Amara Okafor</span>
+                  <span role="cell">
+                    <a class="tag" href="30-pdf-contrat.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>CTR-2026-0036</a>
+                    
+                  </span>
+                  <span role="cell" class="r num rec"></span>
+                  <span role="cell" class="r num dep"></span>
+                  <span role="cell" class="r num cau">+$8 000</span>
+                </div>
+              
+                <div role="row" class="gr gd">
+                  <span role="cell" class="num mut" style="font-weight: 800">023</span>
+                  <span role="cell" class="num" style="color: #C8C8CC">Ven. 23/10 10:00</span>
+                  <span role="cell"><span class="tag">Location</span></span>
+                  <span role="cell">Dodo · 5 h</span>
+                  <span role="cell">
+                    <a class="tag" href="30-pdf-contrat.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>CTR-2026-0036</a>
+                    
+                  </span>
+                  <span role="cell" class="r num rec">+$6 000</span>
+                  <span role="cell" class="r num dep"></span>
+                  <span role="cell" class="r num cau"></span>
+                </div>
+              
+                <div role="row" class="gr gd">
+                  <span role="cell" class="num mut" style="font-weight: 800">024</span>
+                  <span role="cell" class="num" style="color: #C8C8CC">Ven. 23/10 15:10</span>
+                  <span role="cell"><span class="tag">Caution rendue</span></span>
+                  <span role="cell">Dodo restitué</span>
+                  <span role="cell">
+                    <a class="tag" href="30-pdf-contrat.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>CTR-2026-0036</a>
+                    
+                  </span>
+                  <span role="cell" class="r num rec"></span>
+                  <span role="cell" class="r num dep"></span>
+                  <span role="cell" class="r num cau">−$8 000</span>
+                </div>
+              
+                <div role="row" class="gr gd">
+                  <span role="cell" class="num mut" style="font-weight: 800">025</span>
+                  <span role="cell" class="num" style="color: #C8C8CC">Sam. 24/10 08:00</span>
+                  <span role="cell"><span class="tag">Caution encaissée</span></span>
+                  <span role="cell">Luxor · Dmitri Volkov</span>
+                  <span role="cell">
+                    <a class="tag" href="30-pdf-contrat.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>CTR-2026-0037</a>
+                    
+                  </span>
+                  <span role="cell" class="r num rec"></span>
+                  <span role="cell" class="r num dep"></span>
+                  <span role="cell" class="r num cau">+$15 000</span>
+                </div>
+              
+                <div role="row" class="gr gd">
+                  <span role="cell" class="num mut" style="font-weight: 800">026</span>
+                  <span role="cell" class="num" style="color: #C8C8CC">Sam. 24/10 08:00</span>
+                  <span role="cell"><span class="tag">Location</span></span>
+                  <span role="cell">Luxor · 24 h, tarif journalier</span>
+                  <span role="cell">
+                    <a class="tag" href="30-pdf-contrat.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>CTR-2026-0037</a>
+                    
+                  </span>
+                  <span role="cell" class="r num rec">+$28 000</span>
+                  <span role="cell" class="r num dep"></span>
+                  <span role="cell" class="r num cau"></span>
+                </div>
+              
+                <div role="row" class="gr gd">
+                  <span role="cell" class="num mut" style="font-weight: 800">027</span>
+                  <span role="cell" class="num" style="color: #C8C8CC">Sam. 24/10 12:30</span>
+                  <span role="cell"><span class="tag">Divers</span></span>
+                  <span role="cell">Primes hebdomadaires des employés</span>
+                  <span role="cell">
+                    
+                    <a class="tag" href="12-admin-solde.html" style="border-color: rgba(232,200,119,.35); color: #E8C877"><svg class="ico ico-g" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M21 11.5l-8.5 8.5a5 5 0 0 1-7-7L14 4.5a3.5 3.5 0 0 1 5 5L10.5 18a2 2 0 0 1-3-3L15 7.5"/></svg>JUST-43-05</a>
+                  </span>
+                  <span role="cell" class="r num rec"></span>
+                  <span role="cell" class="r num dep">−$6 000</span>
+                  <span role="cell" class="r num cau"></span>
+                </div>
+              
+                <div role="row" class="gr gd">
+                  <span role="cell" class="num mut" style="font-weight: 800">028</span>
+                  <span role="cell" class="num" style="color: #C8C8CC">Sam. 24/10 17:00</span>
+                  <span role="cell"><span class="tag">Caution encaissée</span></span>
+                  <span role="cell">Streamer 2026 · Kenji Mori</span>
+                  <span role="cell">
+                    <a class="tag" href="30-pdf-contrat.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>CTR-2026-0038</a>
+                    
+                  </span>
+                  <span role="cell" class="r num rec"></span>
+                  <span role="cell" class="r num dep"></span>
+                  <span role="cell" class="r num cau">+$8 000</span>
+                </div>
+              
+                <div role="row" class="gr gd">
+                  <span role="cell" class="num mut" style="font-weight: 800">029</span>
+                  <span role="cell" class="num" style="color: #C8C8CC">Sam. 24/10 17:00</span>
+                  <span role="cell"><span class="tag">Location</span></span>
+                  <span role="cell">Streamer 2026 · 5 h</span>
+                  <span role="cell">
+                    <a class="tag" href="30-pdf-contrat.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>CTR-2026-0038</a>
+                    
+                  </span>
+                  <span role="cell" class="r num rec">+$7 500</span>
+                  <span role="cell" class="r num dep"></span>
+                  <span role="cell" class="r num cau"></span>
+                </div>
+              
+                <div role="row" class="gr gd">
+                  <span role="cell" class="num mut" style="font-weight: 800">030</span>
+                  <span role="cell" class="num" style="color: #C8C8CC">Sam. 24/10 19:00</span>
+                  <span role="cell"><span class="tag">Caution encaissée</span></span>
+                  <span role="cell">Seashark2 · Chen Wu</span>
+                  <span role="cell">
+                    <a class="tag" href="30-pdf-contrat.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>CTR-2026-0039</a>
+                    
+                  </span>
+                  <span role="cell" class="r num rec"></span>
+                  <span role="cell" class="r num dep"></span>
+                  <span role="cell" class="r num cau">+$1 000</span>
+                </div>
+              
+                <div role="row" class="gr gd">
+                  <span role="cell" class="num mut" style="font-weight: 800">031</span>
+                  <span role="cell" class="num" style="color: #C8C8CC">Sam. 24/10 19:00</span>
+                  <span role="cell"><span class="tag">Location</span></span>
+                  <span role="cell">Seashark2 · 2 h</span>
+                  <span role="cell">
+                    <a class="tag" href="30-pdf-contrat.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>CTR-2026-0039</a>
+                    
+                  </span>
+                  <span role="cell" class="r num rec">+$300</span>
+                  <span role="cell" class="r num dep"></span>
+                  <span role="cell" class="r num cau"></span>
+                </div>
+              
+                <div role="row" class="gr gd">
+                  <span role="cell" class="num mut" style="font-weight: 800">032</span>
+                  <span role="cell" class="num" style="color: #C8C8CC">Sam. 24/10 20:00</span>
+                  <span role="cell"><span class="tag">Caution encaissée</span></span>
+                  <span role="cell">Swift · Luis Herrera</span>
+                  <span role="cell">
+                    <a class="tag" href="30-pdf-contrat.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>CTR-2026-0040</a>
+                    
+                  </span>
+                  <span role="cell" class="r num rec"></span>
+                  <span role="cell" class="r num dep"></span>
+                  <span role="cell" class="r num cau">+$10 000</span>
+                </div>
+              
+                <div role="row" class="gr gd">
+                  <span role="cell" class="num mut" style="font-weight: 800">033</span>
+                  <span role="cell" class="num" style="color: #C8C8CC">Sam. 24/10 20:00</span>
+                  <span role="cell"><span class="tag">Location</span></span>
+                  <span role="cell">Swift · 4 h</span>
+                  <span role="cell">
+                    <a class="tag" href="30-pdf-contrat.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>CTR-2026-0040</a>
+                    
+                  </span>
+                  <span role="cell" class="r num rec">+$8 800</span>
+                  <span role="cell" class="r num dep"></span>
+                  <span role="cell" class="r num cau"></span>
+                </div>
+              
+                <div role="row" class="gr gd">
+                  <span role="cell" class="num mut" style="font-weight: 800">034</span>
+                  <span role="cell" class="num" style="color: #C8C8CC">Sam. 24/10 21:00</span>
+                  <span role="cell"><span class="tag">Caution encaissée</span></span>
+                  <span role="cell">Seashark2 · Marisol Vega</span>
+                  <span role="cell">
+                    <a class="tag" href="30-pdf-contrat.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>CTR-2026-0041</a>
+                    
+                  </span>
+                  <span role="cell" class="r num rec"></span>
+                  <span role="cell" class="r num dep"></span>
+                  <span role="cell" class="r num cau">+$1 000</span>
+                </div>
+              
+                <div role="row" class="gr gd">
+                  <span role="cell" class="num mut" style="font-weight: 800">035</span>
+                  <span role="cell" class="num" style="color: #C8C8CC">Sam. 24/10 21:00</span>
+                  <span role="cell"><span class="tag">Location</span></span>
+                  <span role="cell">Seashark2 · 2 h</span>
+                  <span role="cell">
+                    <a class="tag" href="30-pdf-contrat.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>CTR-2026-0041</a>
+                    
+                  </span>
+                  <span role="cell" class="r num rec">+$300</span>
+                  <span role="cell" class="r num dep"></span>
+                  <span role="cell" class="r num cau"></span>
+                </div>
+              
+              <div role="row" class="gr gt">
+                <span role="cell"></span><span role="cell"></span><span role="cell"></span>
+                <span role="cell" class="label" style="color: #C8C8CC">Totaux · 35 opérations</span><span role="cell"></span>
+                <span role="cell" class="r num rec">+$91 400</span>
+                <span role="cell" class="r num dep">−$24 150</span>
+                <span role="cell" class="r num cau">+$35 000</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      
+
+      
+    </main>
+  </div>
+</div>
+</body>
+</html>

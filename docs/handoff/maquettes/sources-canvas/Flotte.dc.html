@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Black Pégasus — La flotte</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0A0A0C}
+*{box-sizing:border-box}
+a{color:#E8C877;text-decoration:none}a:hover{color:#EDEDF0}
+.display{font-family:'Montserrat','Manrope',system-ui,sans-serif;font-weight:600;letter-spacing:-.01em}
+.gold{background:linear-gradient(100deg,#A67C2E 0%,#E8C877 48%,#C9A24A 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.silver{background:linear-gradient(180deg,#EDEDF0,#C8C8CC);-webkit-background-clip:text;background-clip:text;color:transparent}
+.label{font-size:11px;line-height:16px;letter-spacing:.24em;text-transform:uppercase;font-weight:700;color:#8E8E96}
+.glass{background:rgba(255,255,255,.06);-webkit-backdrop-filter:blur(26px) saturate(140%);backdrop-filter:blur(26px) saturate(140%);border:1px solid rgba(255,255,255,.10);border-radius:20px;box-shadow:inset 0 1px 0 rgba(232,200,119,.32),0 30px 60px -24px rgba(0,0,0,.7)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:0 26px;border-radius:999px;font:700 15px/1 'Manrope',system-ui,sans-serif;letter-spacing:.01em;cursor:pointer;white-space:nowrap}
+.btn-gold{background:linear-gradient(100deg,#A67C2E 0%,#E8C877 50%,#C9A24A 100%);color:#0A0A0C;border:0;box-shadow:0 12px 32px -12px rgba(232,200,119,.55),inset 0 1px 0 rgba(255,255,255,.55)}
+.btn-gold:hover{color:#0A0A0C;filter:brightness(1.07)}
+.btn-glass{background:rgba(255,255,255,.05);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border:1px solid rgba(200,200,204,.5);color:#EDEDF0}
+.btn-glass:hover{color:#EDEDF0;border-color:#EDEDF0}
+.chip{display:inline-flex;align-items:center;gap:7px;height:30px;padding:0 12px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);font-size:12.5px;font-weight:600;color:#C8C8CC;white-space:nowrap}
+.badge{display:inline-flex;align-items:center;gap:7px;height:26px;padding:0 11px;border-radius:999px;font-size:10.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap}
+.badge-on{background:rgba(20,16,8,.55);border:1px solid rgba(232,200,119,.6);color:#E8C877}
+.badge-off{background:rgba(10,10,12,.55);border:1px solid rgba(142,142,150,.45);color:#A4A4AC}
+.dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+.ico{width:20px;height:20px;fill:none;stroke:#D6B467;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.ico-s{width:15px;height:15px;fill:none;stroke:#C8C8CC;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.wrap{width:100%;max-width:1360px;margin:0 auto;padding-inline:clamp(20px,4vw,56px)}
+.nav-a{color:#C8C8CC;font-size:14px;font-weight:600;padding:12px 4px}
+.nav-a:hover{color:#EDEDF0}
+.nav-on{color:#EDEDF0;box-shadow:inset 0 -1px 0 #E8C877}
+.vcard{display:flex;flex-direction:column;position:relative;color:#EDEDF0;background:rgba(255,255,255,.05);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.10);border-radius:22px;box-shadow:inset 0 1px 0 rgba(232,200,119,.28),0 30px 60px -28px rgba(0,0,0,.8)}
+.vcard:hover{color:#EDEDF0;border-color:rgba(232,200,119,.45)}
+.vcard-off{opacity:.7}
+.vcard-off .media img{filter:grayscale(1) brightness(.7)}
+.media{position:relative;overflow:hidden;border-radius:21px 21px 0 0;background:#131316}
+.media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.media-fade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,12,0) 45%,rgba(10,10,12,.85) 100%)}
+.rule{height:1px;background:linear-gradient(90deg,rgba(232,200,119,0),rgba(232,200,119,.55),rgba(232,200,119,0))}
+.seg{display:inline-flex;align-items:center;gap:10px;min-height:48px;padding:0 22px;border-radius:999px;border:0;background:transparent;color:#C8C8CC;font:700 15px/1 'Manrope',system-ui,sans-serif;cursor:pointer}
+.seg:hover{color:#EDEDF0}
+.seg-on{background:linear-gradient(100deg,#A67C2E 0%,#E8C877 50%,#C9A24A 100%);color:#0A0A0C;box-shadow:inset 0 1px 0 rgba(255,255,255,.5)}
+.seg-on:hover{color:#0A0A0C}
+.seg-on .ico{stroke:#0A0A0C}
+.opt{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:40px;font-size:14px;color:#EDEDF0;cursor:pointer}
+.opt input{width:18px;height:18px;accent-color:#C9A24A;margin:0}
+.pill{min-height:40px;padding:0 14px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:#C8C8CC;font:600 13px/1 'Manrope',system-ui,sans-serif;cursor:pointer}
+.pill-on{border-color:rgba(232,200,119,.7);color:#E8C877;background:rgba(232,200,119,.10)}
+.switch{position:relative;width:52px;height:30px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);cursor:pointer;padding:0;flex:none}
+.switch-on{background:linear-gradient(100deg,#A67C2E,#E8C877 50%,#C9A24A);border-color:transparent}
+.knob{position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#C8C8CC;box-shadow:0 2px 6px rgba(0,0,0,.4)}
+.switch-on .knob{left:25px;background:#0A0A0C}
+.bar{flex:1;border-radius:2px;background:rgba(200,200,204,.22)}
+.bar-in{background:linear-gradient(180deg,#E8C877,#A67C2E)}
+.foot-a{color:#8E8E96;font-size:14px}.foot-a:hover{color:#EDEDF0}
+.bg-runway{background:#0A0A0C url(../../assets/images/bg-piste-de-nuit.jpg) center 40%/cover no-repeat}
+.bg-sea{background:#0A0A0C url(../../assets/images/bg-mer.jpg) center/cover no-repeat}
+.bg-skyline{background:#0A0A0C url(../../assets/images/bg-skyline.jpg) center 70%/cover no-repeat}
+select.field{appearance:none;-webkit-appearance:none;height:44px;padding:0 40px 0 16px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:#EDEDF0;font:600 14px 'Manrope',system-ui,sans-serif}
+select.field option{background:#131316;color:#EDEDF0}
+</style>
+</helmet>
+<div style="position: relative; font-family: 'Manrope', system-ui, sans-serif; color: #EDEDF0; background: #0A0A0C; -webkit-font-smoothing: antialiased; overflow: hidden">
+
+  <!-- ambiance -->
+  <div class="{{ bgClass }}" style="position: absolute; left: 0; right: 0; top: 0; height: 760px"></div>
+  <div style="position: absolute; left: 0; right: 0; top: 0; height: 760px; background: linear-gradient(180deg, rgba(10,10,12,.55) 0%, rgba(10,10,12,.55) 40%, #0A0A0C 100%)"></div>
+  <div style="position: absolute; left: -200px; top: 1100px; width: 900px; height: 900px; background: radial-gradient(50% 50% at 50% 50%, rgba(201,162,74,.08), rgba(201,162,74,0))"></div>
+
+  <header class="wrap" style="position: relative; z-index: 3; padding-top: 24px">
+    <div class="glass" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 28px; padding: 10px 12px 10px 18px; border-radius: 999px">
+      <a href="Main.dc.html" style="display: flex; align-items: center; gap: 12px; color: #EDEDF0">
+        <img src="../../assets/images/bp-logo.png" alt="Black Pégasus" style="width: 46px; height: 46px; object-fit: contain">
+        <span style="display: flex; flex-direction: column; gap: 2px">
+          <span class="display gold" style="font-size: 17px; font-weight: 700; letter-spacing: .06em">BLACK PÉGASUS</span>
+          <span style="font-size: 9px; letter-spacing: .32em; color: #8E8E96; font-weight: 700">AMERICAN TRANSPORTS</span>
+        </span>
+      </a>
+      <nav aria-label="Navigation principale" style="display: flex; flex-wrap: wrap; gap: 8px 30px">
+        <a class="nav-a" href="Main.dc.html">Accueil</a>
+        <a class="nav-a nav-on" href="Flotte.dc.html">La flotte</a>
+        <a class="nav-a" href="Reglement.dc.html">Règlement</a>
+        <a class="nav-a" href="Main.dc.html#maison">La maison</a>
+      </nav>
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+        <a class="btn btn-glass" href="Admin-Connexion.dc.html" style="min-height: 46px; padding: 0 18px; font-size: 14px">
+          <svg class="ico" viewBox="0 0 24 24" style="stroke: #C8C8CC; width: 18px; height: 18px" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>
+          Espace admin
+        </a>
+        <a class="btn btn-gold" href="#appel" style="min-height: 46px; padding: 0 20px">
+          <svg class="ico" viewBox="0 0 24 24" style="stroke: #0A0A0C" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"></path></svg>
+          555-XXXX
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- title -->
+  <section class="wrap" style="position: relative; z-index: 2; padding-top: 72px; padding-bottom: 40px; display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 28px">
+    <div style="display: flex; flex-direction: column; gap: 16px; max-width: 640px">
+      <nav aria-label="Fil d’Ariane" style="display: flex; gap: 10px; font-size: 13px; color: #8E8E96"><a href="Main.dc.html" style="color: #8E8E96">Accueil</a><span>/</span><span style="color: #EDEDF0">La flotte</span></nav>
+      <h1 class="display" style="margin: 0; font-size: clamp(40px, 4.4vw, 62px); line-height: 1.05">Choisissez votre <span class="gold" style="font-weight: 600">appareil</span></h1>
+      <p style="margin: 0; color: #C8C8CC; font-size: 17px; line-height: 1.6">Tarifs à l’heure ou à la journée, disponibilités mises à jour par l’agence.</p>
+    </div>
+    <div id="appel" class="glass" style="display: flex; align-items: center; gap: 16px; padding: 16px 22px">
+      <span style="width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(232,200,119,.5); display: flex; align-items: center; justify-content: center">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"></path></svg>
+      </span>
+      <span style="display: flex; flex-direction: column; gap: 4px">
+        <span class="label">Réservez par téléphone en jeu</span>
+        <span style="display: flex; align-items: baseline; gap: 12px"><span class="gold" style="font-size: 24px; font-weight: 800">555-XXXX</span><span style="font-size: 13px; color: #C8C8CC">Tous les jours · 14h – 02h</span></span>
+      </span>
+    </div>
+  </section>
+
+  <!-- segments -->
+  <section class="wrap" style="position: relative; z-index: 2; padding-bottom: 40px">
+    <div class="glass" role="tablist" aria-label="Type de véhicule" style="display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 6px; border-radius: 999px">
+      <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="3">
+        <button type="button" role="tab" class="{{ t.cls }}" aria-selected="{{ t.selected }}" onClick="{{ t.pick }}">
+          <sc-if value="{{ t.isBoat }}" hint-placeholder-val="{{ true }}"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="2"></circle><path d="M12 7v14M5 12H3a9 9 0 0 0 18 0h-2M8 10h8"></path></svg></sc-if>
+          <sc-if value="{{ t.isPlane }}" hint-placeholder-val="{{ false }}"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"></path></svg></sc-if>
+          <sc-if value="{{ t.isHeli }}" hint-placeholder-val="{{ false }}"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h16M11 4v3"></path><path d="M6 11a4 4 0 0 1 4-4h5a4 4 0 0 1 4 4v2a2 2 0 0 1-2 2H9a3 3 0 0 1-3-3z"></path><path d="M6 12H2M9 19h10M12 15v4M16 15v4"></path></svg></sc-if>
+          {{ t.label }}
+          <span style="font-size: 12px; opacity: .7">{{ t.count }}</span>
+        </button>
+      </sc-for>
+    </div>
+  </section>
+
+  <!-- body -->
+  <section class="wrap" style="position: relative; z-index: 2; padding-bottom: 100px; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 32px">
+
+    <!-- filters -->
+    <aside class="glass" aria-label="Filtres" style="flex: 1 1 280px; max-width: 300px; padding: 26px 24px; display: flex; flex-direction: column; gap: 26px; border-radius: 24px">
+      <div style="display: flex; align-items: center; justify-content: space-between">
+        <span class="display" style="font-size: 24px">Filtres</span>
+        <a href="#" onClick="{{ reset }}" style="font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase">Effacer</a>
+      </div>
+
+      <fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px">
+        <legend class="label" style="padding: 0; margin-bottom: 10px; color: #C8C8CC">Catégorie</legend>
+        <sc-for list="{{ cats }}" as="c" hint-placeholder-count="3">
+          <label class="opt">
+            <span style="display: flex; align-items: center; gap: 12px"><input type="checkbox" checked="{{ c.checked }}" onChange="{{ c.toggle }}">{{ c.name }}</span>
+            <span style="color: #8E8E96; font-size: 13px">{{ c.n }}</span>
+          </label>
+        </sc-for>
+      </fieldset>
+
+      <div style="height: 1px; background: rgba(255,255,255,.08)"></div>
+
+      <fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px">
+        <legend class="label" style="padding: 0; margin-bottom: 10px; color: #C8C8CC">Nombre de places</legend>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px">
+          <sc-for list="{{ seatOpts }}" as="s" hint-placeholder-count="4">
+            <button type="button" class="{{ s.cls }}" aria-pressed="{{ s.on }}" onClick="{{ s.pick }}">{{ s.label }}</button>
+          </sc-for>
+        </div>
+      </fieldset>
+
+      <fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px">
+        <legend class="label" style="padding: 0; margin-bottom: 10px; color: #C8C8CC">Contenance</legend>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px">
+          <sc-for list="{{ loadOpts }}" as="s" hint-placeholder-count="4">
+            <button type="button" class="{{ s.cls }}" aria-pressed="{{ s.on }}" onClick="{{ s.pick }}">{{ s.label }}</button>
+          </sc-for>
+        </div>
+      </fieldset>
+
+      <div style="height: 1px; background: rgba(255,255,255,.08)"></div>
+
+      <div style="display: flex; flex-direction: column; gap: 14px">
+        <div style="display: flex; align-items: center; justify-content: space-between">
+          <span class="label" style="color: #C8C8CC">Prix à l’heure</span>
+          <span style="font-size: 13px; color: #EDEDF0; font-weight: 700">$150 – $4 500</span>
+        </div>
+        <div aria-hidden="true" style="display: flex; align-items: flex-end; gap: 4px; height: 56px; padding: 0 2px">
+          <span class="bar" style="height: 30%"></span><span class="bar bar-in" style="height: 55%"></span><span class="bar bar-in" style="height: 80%"></span><span class="bar bar-in" style="height: 100%"></span><span class="bar bar-in" style="height: 70%"></span><span class="bar bar-in" style="height: 60%"></span><span class="bar bar-in" style="height: 85%"></span><span class="bar bar-in" style="height: 45%"></span><span class="bar bar-in" style="height: 50%"></span><span class="bar bar-in" style="height: 35%"></span><span class="bar bar-in" style="height: 40%"></span><span class="bar" style="height: 25%"></span><span class="bar" style="height: 30%"></span><span class="bar" style="height: 15%"></span><span class="bar" style="height: 20%"></span>
+        </div>
+        <div style="position: relative; height: 22px">
+          <div style="position: absolute; left: 0; right: 0; top: 10px; height: 2px; border-radius: 2px; background: rgba(200,200,204,.2)"></div>
+          <div style="position: absolute; left: 7%; right: 22%; top: 10px; height: 2px; background: linear-gradient(90deg,#A67C2E,#E8C877,#C9A24A)"></div>
+          <button type="button" aria-label="Prix minimum" style="position: absolute; left: calc(7% - 11px); top: 0; width: 22px; height: 22px; border-radius: 50%; border: 2px solid #E8C877; background: #0A0A0C; padding: 0; cursor: pointer"></button>
+          <button type="button" aria-label="Prix maximum" style="position: absolute; left: calc(78% - 11px); top: 0; width: 22px; height: 22px; border-radius: 50%; border: 2px solid #E8C877; background: #0A0A0C; padding: 0; cursor: pointer"></button>
+        </div>
+      </div>
+
+      <div style="height: 1px; background: rgba(255,255,255,.08)"></div>
+
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px">
+        <span id="dispo-lbl" style="font-size: 14px; font-weight: 600">Disponible uniquement</span>
+        <button type="button" role="switch" aria-checked="{{ availOnly }}" aria-labelledby="dispo-lbl" class="{{ switchCls }}" onClick="{{ toggleAvail }}"><span class="knob"></span></button>
+      </div>
+    </aside>
+
+    <!-- grid -->
+    <div style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 28px">
+      <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px">
+        <span style="font-size: 15px; color: #C8C8CC"><strong style="color: #EDEDF0; font-size: 18px">{{ shown }}</strong> {{ shownLabel }}</span>
+        <label style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: #8E8E96">Trier par
+          <span style="position: relative; display: inline-flex">
+            <select class="field">
+              <option>Recommandés</option>
+              <option>Prix croissant</option>
+              <option>Prix décroissant</option>
+              <option>Nombre de places</option>
+            </select>
+            <svg class="ico-s" viewBox="0 0 24 24" aria-hidden="true" style="position: absolute; right: 14px; top: 14px; pointer-events: none"><path d="M6 9l6 6 6-6"></path></svg>
+          </span>
+        </label>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(262px, 100%), 1fr)); gap: 24px 22px">
+        <sc-for list="{{ items }}" as="v" hint-placeholder-count="6">
+          <a class="{{ v.cardCls }}" href="Fiche.dc.html">
+            <div class="media" style="height: 180px">
+              <img src="{{ v.img }}" alt="{{ v.name }}">
+              <div class="media-fade"></div>
+              <span class="{{ v.badgeCls }}" style="position: absolute; left: 18px; bottom: 14px"><span class="dot"></span>{{ v.badge }}</span>
+            </div>
+            <div style="padding: 16px 20px 22px; display: flex; flex-direction: column; gap: 16px">
+              <div style="display: flex; flex-direction: column; gap: 5px">
+                <span class="label">{{ v.cat }}</span>
+                <span class="display" style="font-size: 23px">{{ v.name }}</span>
+              </div>
+              <div class="rule"></div>
+              <div style="display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 12px">
+                <span style="display: flex; align-items: baseline; gap: 5px"><span class="gold" style="font-size: 30px; font-weight: 800; letter-spacing: -.01em">{{ v.h }}</span><span style="color: #8E8E96; font-size: 12.5px">/ h</span></span>
+                <span style="display: flex; align-items: baseline; gap: 5px"><span class="silver" style="font-size: 18px; font-weight: 700">{{ v.d }}</span><span style="color: #8E8E96; font-size: 12.5px">/ jour</span></span>
+              </div>
+              <div style="display: flex; flex-wrap: wrap; gap: 8px">
+                <span class="chip"><svg class="ico-s" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 20v-1.5A3.5 3.5 0 0 0 12.5 15h-5A3.5 3.5 0 0 0 4 18.5V20"></path><circle cx="10" cy="8" r="3.5"></circle></svg>{{ v.places }} places</span>
+                <span class="chip"><svg class="ico-s" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8l-9-5-9 5v8l9 5 9-5z"></path><path d="M3 8l9 5 9-5M12 13v8"></path></svg>{{ v.load }}</span>
+              </div>
+            </div>
+          </a>
+        </sc-for>
+      </div>
+
+      <sc-if value="{{ empty }}" hint-placeholder-val="{{ false }}">
+        <div class="glass" style="padding: 40px; text-align: center; display: flex; flex-direction: column; gap: 12px; align-items: center">
+          <span class="display" style="font-size: 24px">Aucun appareil ne correspond</span>
+          <span style="color: #8E8E96; font-size: 15px">Élargissez vos filtres, ou appelez l’agence : un exemplaire peut se libérer.</span>
+        </div>
+      </sc-if>
+
+      <div class="glass" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 18px 28px; padding: 22px 26px; margin-top: 16px">
+        <div style="display: flex; align-items: center; gap: 14px; max-width: 560px">
+          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v5M12 16h.01"></path></svg>
+          <span style="font-size: 14px; color: #C8C8CC; line-height: 1.55">Le tarif journalier s’applique automatiquement s’il est plus avantageux. Aucune réservation en ligne.</span>
+        </div>
+        <a class="btn btn-gold" href="#appel">
+          <svg class="ico" viewBox="0 0 24 24" style="stroke: #0A0A0C" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"></path></svg>
+          Appeler le 555-XXXX
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- footer -->
+  <footer style="position: relative; border-top: 1px solid rgba(232,200,119,.22); background: #0A0A0C">
+    <div class="wrap" style="padding-top: 56px; padding-bottom: 32px; display: flex; flex-direction: column; gap: 40px">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 40px">
+        <div style="display: flex; flex-direction: column; gap: 16px">
+          <img src="../../assets/images/bp-logo.png" alt="Black Pégasus – American Transports" style="width: 100px; height: 100px; object-fit: contain">
+          <span style="color: #8E8E96; font-size: 14px; line-height: 1.6">Location de bateaux, d’avions et d’hélicoptères.</span>
+        </div>
+        <nav aria-label="Pied de page" style="display: flex; flex-direction: column; gap: 12px">
+          <span class="label" style="color: #C8C8CC; margin-bottom: 6px">Navigation</span>
+          <a class="foot-a" href="Main.dc.html">Accueil</a>
+          <a class="foot-a" href="Flotte.dc.html">La flotte</a>
+          <a class="foot-a" href="Reglement.dc.html">Règlement des locations</a>
+        </nav>
+        <div style="display: flex; flex-direction: column; gap: 12px">
+          <span class="label" style="color: #C8C8CC; margin-bottom: 6px">La flotte</span>
+          <a class="foot-a" href="Flotte.dc.html">Bateaux</a>
+          <a class="foot-a" href="Flotte.dc.html">Avions</a>
+          <a class="foot-a" href="Flotte.dc.html">Hélicoptères</a>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 12px">
+          <span class="label" style="color: #C8C8CC; margin-bottom: 6px">Contact</span>
+          <span class="gold" style="font-size: 24px; font-weight: 800">555-XXXX</span>
+          <span style="color: #8E8E96; font-size: 14px">Tous les jours · 14h – 02h</span>
+        </div>
+      </div>
+      <div class="rule"></div>
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; color: #8E8E96; font-size: 12.5px">
+        <span>© Black Pégasus – American Transports</span>
+        <span>Entreprise fictive d’un serveur de jeu de rôle GTA V (FiveM)</span>
+      </div>
+    </div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"startTab":{"editor":"enum","options":["bateaux","avions","helicos"],"default":"bateaux"},"$preview":{"width":1440,"height":2040}}'>
+// Photo provisoire : la même image pour tous les véhicules, à remplacer par vos captures.
+const PH = '../../assets/images/vehicule-placeholder.jpg';
+// Tarifs, places et contenances : valeurs d'exemple à remplacer.
+const FLEET = {
+  bateaux: { label: 'Bateaux', bg: 'bg-sea', cats: ['Jet-ski', 'Semi-rigide', 'Vedette', 'Remorqueur'], items: [
+    { name: 'Seashark2', cat: 'Jet-ski', img: PH, h: '$150', d: '$900', places: 2, kg: 20, avail: 3, total: 4 },
+    { name: 'Dinghy4', cat: 'Semi-rigide', img: PH, h: '$300', d: '$1 800', places: 4, kg: 100, avail: 1, total: 1 },
+    { name: 'Toro2', cat: 'Vedette', img: PH, h: '$600', d: '$3 600', places: 6, kg: 150, avail: 1, total: 1 },
+    { name: 'Remorqueur', cat: 'Remorqueur', img: PH, h: '$800', d: '$4 800', places: 4, kg: 2000, avail: 0, total: 1 }
+  ] },
+  avions: { label: 'Avions', bg: 'bg-runway', cats: ['Jet privé', 'Hydravion', 'Sport'], items: [
+    { name: 'Luxor', cat: 'Jet privé', img: PH, h: '$4 500', d: '$28 000', places: 10, kg: 300, avail: 1, total: 1 },
+    { name: 'Dodo', cat: 'Hydravion', img: PH, h: '$1 200', d: '$7 200', places: 4, kg: 200, avail: 1, total: 1 },
+    { name: 'Streamer 2026', cat: 'Sport', img: PH, h: '$1 500', d: '$9 000', places: 2, kg: 50, avail: 0, total: 1 }
+  ] },
+  helicos: { label: 'Hélicoptères', bg: 'bg-skyline', cats: ['Affaires'], items: [
+    { name: 'SuperVolito Carbon', cat: 'Affaires', img: PH, h: '$2 400', d: '$15 000', places: 4, kg: 200, avail: 1, total: 1 },
+    { name: 'Swift', cat: 'Affaires', img: PH, h: '$2 200', d: '$13 500', places: 4, kg: 150, avail: 0, total: 1 }
+  ] }
+};
+const SEATS = [{ id: 'all', label: 'Tous', test: () => true }, { id: 's', label: '1 – 2', test: (p) => p <= 2 }, { id: 'm', label: '3 – 6', test: (p) => p >= 3 && p <= 6 }, { id: 'l', label: '7 +', test: (p) => p >= 7 }];
+const LOADS = [{ id: 'all', label: 'Toutes', test: () => true }, { id: 's', label: '< 100 kg', test: (k) => k < 100 }, { id: 'm', label: '100 – 500 kg', test: (k) => k >= 100 && k <= 500 }, { id: 'l', label: '500 kg +', test: (k) => k > 500 }];
+function fmtKg(k) { return k >= 1000 ? (k / 1000).toString().replace('.', ',') + ' t' : k + ' kg'; }
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { tab: null, off: {}, availOnly: false, seat: 'all', load: 'all' };
+  }
+  renderVals() {
+    const tab = this.state.tab || this.props.startTab || 'bateaux';
+    const f = FLEET[tab];
+    const off = this.state.off;
+    const seat = SEATS.find((s) => s.id === this.state.seat);
+    const load = LOADS.find((s) => s.id === this.state.load);
+    const list = f.items.filter((v) => !off[v.cat] && (!this.state.availOnly || v.avail > 0) && seat.test(v.places) && load.test(v.kg));
+    const items = list.map((v) => {
+      const ok = v.avail > 0;
+      return {
+        name: v.name, img: v.img, h: v.h, d: v.d, places: v.places, load: fmtKg(v.kg),
+        cat: f.label.replace(/s$/, '') + ' · ' + v.cat,
+        badge: ok ? v.avail + ' / ' + v.total + ' disponible' + (v.avail > 1 ? 's' : '') : 'Complet',
+        badgeCls: ok ? 'badge badge-on' : 'badge badge-off',
+        cardCls: ok ? 'vcard' : 'vcard vcard-off',
+        spotCls: ok ? 'spot' : 'spot-off'
+      };
+    });
+    const tabs = Object.keys(FLEET).map((k) => ({
+      label: FLEET[k].label, count: FLEET[k].items.length,
+      cls: k === tab ? 'seg seg-on' : 'seg', selected: k === tab ? 'true' : 'false',
+      isBoat: k === 'bateaux', isPlane: k === 'avions', isHeli: k === 'helicos',
+      pick: () => this.setState({ tab: k, off: {} })
+    }));
+    const cats = f.cats.map((c) => ({
+      name: c, n: f.items.filter((v) => v.cat === c).length, checked: !off[c],
+      toggle: () => this.setState({ off: Object.assign({}, off, { [c]: !off[c] }) })
+    }));
+    const seatOpts = SEATS.map((s) => ({ label: s.label, on: s.id === this.state.seat ? 'true' : 'false', cls: s.id === this.state.seat ? 'pill pill-on' : 'pill', pick: () => this.setState({ seat: s.id }) }));
+    const loadOpts = LOADS.map((s) => ({ label: s.label, on: s.id === this.state.load ? 'true' : 'false', cls: s.id === this.state.load ? 'pill pill-on' : 'pill', pick: () => this.setState({ load: s.id }) }));
+    return {
+      tabs, cats, seatOpts, loadOpts, items,
+      bgClass: f.bg,
+      shown: items.length,
+      shownLabel: (items.length > 1 ? 'modèles' : 'modèle') + ' · ' + f.label,
+      empty: items.length === 0,
+      availOnly: this.state.availOnly ? 'true' : 'false',
+      switchCls: this.state.availOnly ? 'switch switch-on' : 'switch',
+      toggleAvail: () => this.setState({ availOnly: !this.state.availOnly }),
+      reset: (e) => { if (e && e.preventDefault) e.preventDefault(); this.setState({ off: {}, availOnly: false, seat: 'all', load: 'all' }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

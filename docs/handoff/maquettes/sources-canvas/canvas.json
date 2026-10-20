@@ -1,0 +1,56 @@
+{
+  "v": 3,
+  "createdOnFiles": {"v": 1, "at": "2026-10-20T07:42:00Z"},
+  "title": "Black Pégasus – American Transports",
+  "launch": {"view": "canvas"},
+  "pages": [
+    {"id": "site", "name": "Site public"},
+    {"id": "admin", "name": "Panel d’administration"},
+    {"id": "pdf-contrat", "name": "PDF · Contrat"},
+    {"id": "pdf-fisc", "name": "PDF · Déclaration FISC"}
+  ],
+  "boards": {
+    "Main.dc.html": {"x": 0, "y": 0, "w": 1440, "h": 4700, "title": "Accueil", "expand": "fill", "is_interactive": true},
+    "Flotte.dc.html": {"x": 1520, "y": 0, "w": 1440, "h": 2040, "title": "Flotte (catalogue)", "expand": "fill", "is_interactive": true},
+    "Fiche.dc.html": {"x": 3040, "y": 0, "w": 1440, "h": 2840, "title": "Fiche véhicule", "expand": "fill", "is_interactive": true},
+    "Reglement.dc.html": {"x": 4560, "y": 0, "w": 1440, "h": 3370, "title": "Règlement des locations", "expand": "fill", "is_interactive": true},
+    "Composants.dc.html": {"x": 6080, "y": 0, "w": 1440, "h": 1940, "title": "Système de composants"},
+
+    "Admin-Connexion.dc.html": {"x": 0, "y": 0, "w": 1440, "h": 900, "title": "1 · Connexion", "page": "admin", "expand": "fill", "is_interactive": true},
+    "Admin-Dashboard.dc.html": {"x": 1520, "y": 0, "w": 1440, "h": 960, "title": "2 · Tableau de bord", "page": "admin", "expand": "fill", "is_interactive": true},
+    "Admin-Solde.dc.html": {"x": 3040, "y": 0, "w": 1440, "h": 1600, "title": "3 · Solde de l’entreprise", "page": "admin", "expand": "fill", "is_interactive": true},
+    "Admin-Solde-Mouvement.dc.html": {"x": 4560, "y": 0, "w": 1440, "h": 960, "title": "3b · Nouveau mouvement (modale)", "page": "admin", "expand": "fill", "is_interactive": true},
+
+    "Admin-Vehicules.dc.html": {"x": 0, "y": 2020, "w": 1440, "h": 1060, "title": "4 · Véhicules", "page": "admin", "expand": "fill", "is_interactive": true},
+    "Admin-Vehicule-Form.dc.html": {"x": 1520, "y": 2020, "w": 1440, "h": 1280, "title": "4b · Modifier un véhicule", "page": "admin", "expand": "fill", "is_interactive": true},
+    "Admin-Comptes.dc.html": {"x": 3040, "y": 2020, "w": 1440, "h": 900, "title": "7 · Comptes", "page": "admin", "expand": "fill", "is_interactive": true},
+    "Admin-Comptes-Ajout.dc.html": {"x": 4560, "y": 2020, "w": 1440, "h": 900, "title": "7b · Ajouter un compte (modale)", "page": "admin", "expand": "fill", "is_interactive": true},
+
+    "Admin-Contrats.dc.html": {"x": 0, "y": 3720, "w": 1440, "h": 900, "title": "5 · Contrats", "page": "admin", "expand": "fill", "is_interactive": true},
+    "Admin-Contrat-Nouveau.dc.html": {"x": 1520, "y": 3720, "w": 1440, "h": 900, "title": "5b · Nouveau contrat", "page": "admin", "expand": "fill", "is_interactive": true},
+    "Admin-Contrat-Cloture.dc.html": {"x": 3040, "y": 3720, "w": 1440, "h": 1000, "title": "5c · Clôture d’un contrat", "page": "admin", "expand": "fill", "is_interactive": true},
+
+    "Admin-Compta.dc.html": {"x": 0, "y": 5140, "w": 1440, "h": 2600, "title": "6 · Comptabilité hebdomadaire", "page": "admin", "expand": "fill", "is_interactive": true},
+    "Admin-Compta-Cloture.dc.html": {"x": 1520, "y": 5140, "w": 1440, "h": 900, "title": "6b · Clôturer la semaine (confirmation)", "page": "admin", "expand": "fill", "is_interactive": true},
+
+    "PDF-Contrat.dc.html": {"x": 0, "y": 0, "w": 794, "h": 1123, "title": "Contrat CTR-2026-0042", "page": "pdf-contrat", "paper": "a4"},
+    "PDF-Declaration-1.dc.html": {"x": 0, "y": 0, "w": 794, "h": 1123, "title": "Déclaration S43 · page 1", "page": "pdf-fisc", "paper": "a4"},
+    "PDF-Declaration-2.dc.html": {"x": 874, "y": 0, "w": 794, "h": 1123, "title": "Déclaration S43 · page 2", "page": "pdf-fisc", "paper": "a4"}
+  },
+  "order": [
+    "Main.dc.html", "Flotte.dc.html", "Fiche.dc.html", "Reglement.dc.html", "Composants.dc.html",
+    "Admin-Connexion.dc.html", "Admin-Dashboard.dc.html", "Admin-Solde.dc.html", "Admin-Solde-Mouvement.dc.html",
+    "Admin-Vehicules.dc.html", "Admin-Vehicule-Form.dc.html", "Admin-Comptes.dc.html", "Admin-Comptes-Ajout.dc.html",
+    "Admin-Contrats.dc.html", "Admin-Contrat-Nouveau.dc.html", "Admin-Contrat-Cloture.dc.html",
+    "Admin-Compta.dc.html", "Admin-Compta-Cloture.dc.html",
+    "PDF-Contrat.dc.html", "PDF-Declaration-1.dc.html", "PDF-Declaration-2.dc.html"
+  ],
+  "notes": {
+    "t-desktop": {"x": 0, "y": -300, "text": "Black Pégasus – maquettes desktop", "kind": "title1", "maxW": 7520},
+    "a-row1": {"x": 0, "y": -300, "text": "Connexion · Tableau de bord · Solde", "kind": "title1", "maxW": 6000, "page": "admin"},
+    "a-row2": {"x": 0, "y": 1720, "text": "Véhicules · Comptes", "kind": "title1", "maxW": 6000, "page": "admin"},
+    "a-row3": {"x": 0, "y": 3420, "text": "Contrats", "kind": "title1", "maxW": 4480, "page": "admin"},
+    "a-row4": {"x": 0, "y": 4840, "text": "Comptabilité hebdomadaire (FISC)", "kind": "title1", "maxW": 2960, "page": "admin"}
+  },
+  "designSystems": []
+}

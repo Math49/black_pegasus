@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Black Pégasus Admin — Nouveau mouvement</title>
+<link rel="stylesheet" href="../../assets/fonts/fonts.css">
+<style>
+body{margin:0;background:#0A0A0C}
+*{box-sizing:border-box}
+a{color:#E8C877;text-decoration:none}a:hover{color:#EDEDF0}
+.display{font-family:'Montserrat','Manrope',system-ui,sans-serif;font-weight:600;letter-spacing:-.01em}
+.label{font-size:10.5px;line-height:16px;letter-spacing:.2em;text-transform:uppercase;font-weight:700;color:#8E8E96}
+.num{font-variant-numeric:tabular-nums}
+.glass{background:rgba(255,255,255,.055);-webkit-backdrop-filter:blur(24px) saturate(130%);backdrop-filter:blur(24px) saturate(130%);border:1px solid rgba(255,255,255,.09);border-radius:20px;box-shadow:inset 0 1px 0 rgba(232,200,119,.24),0 24px 50px -24px rgba(0,0,0,.7)}
+.ghost{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.05);border-radius:20px}
+.modal{background:rgba(24,24,28,.72);-webkit-backdrop-filter:blur(30px) saturate(140%);backdrop-filter:blur(30px) saturate(140%);border:1px solid rgba(255,255,255,.12);border-radius:24px;box-shadow:inset 0 1px 0 rgba(232,200,119,.35),0 40px 100px -20px rgba(0,0,0,.85)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:44px;padding:0 18px;border-radius:12px;font:700 14px/1 'Manrope',system-ui,sans-serif;cursor:pointer;white-space:nowrap;border:0}
+.btn-gold{background:linear-gradient(100deg,#A67C2E 0%,#E8C877 50%,#C9A24A 100%);color:#0A0A0C;box-shadow:0 10px 26px -12px rgba(232,200,119,.55),inset 0 1px 0 rgba(255,255,255,.5)}
+.btn-gold:hover{color:#0A0A0C;filter:brightness(1.07)}
+.btn-glass{background:rgba(255,255,255,.05);border:1px solid rgba(200,200,204,.35);color:#EDEDF0}
+.btn-glass:hover{color:#EDEDF0;border-color:rgba(237,237,240,.7)}
+.ibtn{width:40px;height:40px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);cursor:pointer;padding:0}
+.ico{width:18px;height:18px;fill:none;stroke:#C8C8CC;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.ico-g{stroke:#D6B467}.ico-k{stroke:#0A0A0C}
+.mut{color:#8E8E96}
+.flab{display:flex;flex-direction:column;gap:8px;font-size:12.5px;font-weight:600;color:#C8C8CC}
+.fld{width:100%;height:46px;padding:0 14px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(10,10,12,.45);color:#EDEDF0;font:500 14.5px 'Manrope',system-ui,sans-serif}
+.fld:focus{outline:none;border-color:rgba(232,200,119,.7);box-shadow:0 0 0 3px rgba(232,200,119,.15)}
+select.fld{appearance:none;-webkit-appearance:none;padding-right:36px}
+select.fld option{background:#131316;color:#EDEDF0}
+.sg{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:46px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:#A9A9B1;font:700 14px 'Manrope',system-ui,sans-serif;cursor:pointer}
+.sg-in{border-color:rgba(232,200,119,.7);background:rgba(232,200,119,.10);color:#E8C877}
+.sg-out{border-color:rgba(237,237,240,.6);background:rgba(237,237,240,.08);color:#EDEDF0}
+.av{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:linear-gradient(145deg,#4a4a52,#1b1b20);color:#EDEDF0;font-weight:800;flex:none}
+.bg-app{background:#0A0A0C url(../../assets/images/bg-skyline.jpg) center 70%/cover no-repeat}
+</style>
+</head>
+<body>
+<div style="position: relative; min-height: 100vh; font-family: 'Manrope', system-ui, sans-serif; color: #EDEDF0; background: #0A0A0C; overflow: hidden; -webkit-font-smoothing: antialiased">
+  <div class="bg-app" style="position: absolute; inset: -60px; filter: blur(30px) brightness(.34) saturate(.9)"></div>
+
+  <!-- page en arrière-plan (estompée) -->
+  <div aria-hidden="true" style="position: absolute; inset: 0; display: flex; gap: 20px; padding: 20px; filter: blur(3px); opacity: .55">
+    <div class="ghost" style="width: 256px; flex: none"></div>
+    <div style="flex: 1; display: flex; flex-direction: column; gap: 20px">
+      <div class="ghost" style="height: 76px"></div>
+      <div style="display: flex; gap: 20px; height: 250px"><div class="ghost" style="flex: 2.2"></div><div class="ghost" style="flex: 1"></div></div>
+      <div class="ghost" style="flex: 1"></div>
+    </div>
+  </div>
+  <div style="position: absolute; inset: 0; background: rgba(5,5,7,.62)"></div>
+
+  <div style="position: relative; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px 20px">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mv-title" style="width: 100%; max-width: 640px; display: flex; flex-direction: column">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 24px 28px 20px; border-bottom: 1px solid rgba(255,255,255,.08)">
+        <div style="display: flex; flex-direction: column; gap: 4px">
+          <span class="label">Solde · semaine 43</span>
+          <h2 id="mv-title" class="display" style="margin: 0; font-size: 22px">Nouveau mouvement</h2>
+        </div>
+        <a class="ibtn" href="12-admin-solde.html" aria-label="Fermer"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></a>
+      </div>
+
+      <form style="display: flex; flex-direction: column; gap: 20px; padding: 24px 28px">
+        <fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px">
+          <legend style="padding: 0; margin-bottom: 8px; font-size: 12.5px; font-weight: 600; color: #C8C8CC">Sens</legend>
+          <div style="display: flex; gap: 10px">
+            <button type="button" class="sg" aria-pressed="false"><svg class="ico" viewBox="0 0 24 24" style="stroke: currentColor" aria-hidden="true"><path d="M17 7L7 17M7 9v8h8"/></svg>Entrée</button>
+            <button type="button" class="sg sg-out" aria-pressed="true"><svg class="ico" viewBox="0 0 24 24" style="stroke: currentColor" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg>Sortie</button>
+          </div>
+        </fieldset>
+
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px">
+          <label class="flab">Montant
+            <span style="position: relative; display: block">
+              <span style="position: absolute; left: 14px; top: 13px; font-weight: 800; color: #8E8E96">$</span>
+              <input class="fld num" type="text" inputmode="numeric" value="2 400" style="padding-left: 30px; font-weight: 800; font-size: 16px">
+            </span>
+          </label>
+          <label class="flab">Catégorie
+            <span style="position: relative; display: block">
+              <select class="fld">
+                <option>Location</option><option>Pénalité</option><option>Caution encaissée</option><option>Caution rendue</option><option>Achat de véhicule</option><option selected>Entretien</option><option>Impôts</option><option>Apport</option><option>Divers</option>
+              </select>
+              <svg class="ico" viewBox="0 0 24 24" aria-hidden="true" style="position: absolute; right: 12px; top: 14px; pointer-events: none"><path d="M6 9l6 6 6-6"/></svg>
+            </span>
+          </label>
+        </div>
+
+        <label class="flab">Motif
+          <input class="fld" type="text" value="Révision des rotors du SuperVolito Carbon">
+        </label>
+
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px">
+          <label class="flab">Date et heure
+            <input class="fld num" type="text" value="24/10/2026 · 21:45">
+          </label>
+          <label class="flab">Contrat lié <span class="mut" style="font-weight: 500">(facultatif)</span>
+            <span style="position: relative; display: block">
+              <select class="fld"><option>Aucun contrat</option><option>CTR-2026-0041 · Marisol Vega</option><option>CTR-2026-0040 · Luis Herrera</option><option>CTR-2026-0039 · Chen Wu</option></select>
+              <svg class="ico" viewBox="0 0 24 24" aria-hidden="true" style="position: absolute; right: 12px; top: 14px; pointer-events: none"><path d="M6 9l6 6 6-6"/></svg>
+            </span>
+          </label>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <span style="font-size: 12.5px; font-weight: 600; color: #C8C8CC">Justificatif <span class="mut" style="font-weight: 500">· exigé par le FISC pour toute dépense</span></span>
+          <label style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 140px; padding: 20px; border-radius: 16px; border: 1.5px dashed rgba(232,200,119,.45); background: rgba(232,200,119,.04); text-align: center; cursor: pointer">
+            <span style="width: 48px; height: 48px; border-radius: 50%; border: 1px solid rgba(232,200,119,.45); display: flex; align-items: center; justify-content: center"><svg class="ico ico-g" viewBox="0 0 24 24" style="width: 22px; height: 22px" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg></span>
+            <span style="font-size: 14.5px; font-weight: 700">Déposez la capture d’écran du jeu ici</span>
+            <span class="mut" style="font-size: 12.5px">ou <span style="color: #E8C877; font-weight: 700">parcourir vos fichiers</span> · PNG ou JPG · 10 Mo max.</span>
+            <input type="file" accept="image/png,image/jpeg" style="position: absolute; width: 1px; height: 1px; opacity: 0">
+          </label>
+          <div style="display: flex; align-items: center; gap: 14px; padding: 10px 12px; border-radius: 14px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08)">
+            <img src="../../assets/images/vehicule-placeholder.jpg" alt="Aperçu du justificatif" style="width: 64px; height: 42px; object-fit: cover; border-radius: 8px">
+            <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 13.5px; font-weight: 700">facture-garage-aeroport_24-10.png</span><span class="mut" style="font-size: 12px">1,2 Mo · ajouté à l’instant</span></span>
+            <button type="button" class="ibtn" aria-label="Retirer le justificatif"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+          </div>
+        </div>
+      </form>
+
+      <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; padding: 18px 28px 24px; border-top: 1px solid rgba(255,255,255,.08)">
+        <span style="display: inline-flex; align-items: center; gap: 10px; font-size: 13px; color: #C8C8CC"><span class="av" style="width: 28px; height: 28px; font-size: 10px">VM</span>Saisi par Vincent Moretti</span>
+        <div style="display: flex; gap: 10px">
+          <a class="btn btn-glass" href="12-admin-solde.html">Annuler</a>
+          <a class="btn btn-gold" href="12-admin-solde.html"><svg class="ico ico-k" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>Enregistrer le mouvement</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

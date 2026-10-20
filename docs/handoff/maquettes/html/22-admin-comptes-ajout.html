@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Black Pégasus Admin — Ajouter un compte</title>
+<link rel="stylesheet" href="../../assets/fonts/fonts.css">
+<style>
+body{margin:0;background:#0A0A0C}
+*{box-sizing:border-box}
+a{color:#E8C877;text-decoration:none}a:hover{color:#EDEDF0}
+.display{font-family:'Montserrat','Manrope',system-ui,sans-serif;font-weight:600;letter-spacing:-.01em}
+.label{font-size:10.5px;line-height:16px;letter-spacing:.2em;text-transform:uppercase;font-weight:700;color:#8E8E96}
+.num{font-variant-numeric:tabular-nums}
+.ghost{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.05);border-radius:20px}
+.modal{background:rgba(24,24,28,.72);-webkit-backdrop-filter:blur(30px) saturate(140%);backdrop-filter:blur(30px) saturate(140%);border:1px solid rgba(255,255,255,.12);border-radius:24px;box-shadow:inset 0 1px 0 rgba(232,200,119,.35),0 40px 100px -20px rgba(0,0,0,.85)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:44px;padding:0 18px;border-radius:12px;font:700 14px/1 'Manrope',system-ui,sans-serif;cursor:pointer;white-space:nowrap;border:0}
+.btn-gold{background:linear-gradient(100deg,#A67C2E 0%,#E8C877 50%,#C9A24A 100%);color:#0A0A0C;box-shadow:0 10px 26px -12px rgba(232,200,119,.55),inset 0 1px 0 rgba(255,255,255,.5)}
+.btn-gold:hover{color:#0A0A0C;filter:brightness(1.07)}
+.btn-glass{background:rgba(255,255,255,.05);border:1px solid rgba(200,200,204,.35);color:#EDEDF0}
+.btn-glass:hover{color:#EDEDF0;border-color:rgba(237,237,240,.7)}
+.ibtn{width:40px;height:40px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);cursor:pointer;padding:0}
+.ico{width:18px;height:18px;fill:none;stroke:#C8C8CC;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.ico-g{stroke:#D6B467}.ico-k{stroke:#0A0A0C}
+.mut{color:#8E8E96}
+.flab{display:flex;flex-direction:column;gap:8px;font-size:12.5px;font-weight:600;color:#C8C8CC}
+.fld{width:100%;height:46px;padding:0 14px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(10,10,12,.45);color:#EDEDF0;font:500 14.5px 'Manrope',system-ui,sans-serif}
+.fld:focus{outline:none;border-color:rgba(232,200,119,.7);box-shadow:0 0 0 3px rgba(232,200,119,.15)}
+.rc{flex:1;display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:16px;border-radius:14px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:#EDEDF0;text-align:left;font:500 13px/1.5 'Manrope',system-ui,sans-serif;cursor:pointer}
+.rc-on{border-color:rgba(232,200,119,.7);background:rgba(232,200,119,.08)}
+.rc-dot{width:18px;height:18px;border-radius:50%;border:1.5px solid rgba(200,200,204,.5);display:inline-flex;align-items:center;justify-content:center}
+.rc-on .rc-dot{border-color:#E8C877}
+.rc-on .rc-dot::after{content:"";width:8px;height:8px;border-radius:50%;background:#E8C877}
+.av{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:linear-gradient(145deg,#4a4a52,#1b1b20);color:#EDEDF0;font-weight:800;flex:none}
+.bg-app{background:#0A0A0C url(../../assets/images/bg-skyline.jpg) center 70%/cover no-repeat}
+</style>
+</head>
+<body>
+<div style="position: relative; min-height: 100vh; font-family: 'Manrope', system-ui, sans-serif; color: #EDEDF0; background: #0A0A0C; overflow: hidden; -webkit-font-smoothing: antialiased">
+  <div class="bg-app" style="position: absolute; inset: -60px; filter: blur(30px) brightness(.34) saturate(.9)"></div>
+  <div aria-hidden="true" style="position: absolute; inset: 0; display: flex; gap: 20px; padding: 20px; filter: blur(3px); opacity: .55">
+    <div class="ghost" style="width: 256px; flex: none"></div>
+    <div style="flex: 1; display: flex; flex-direction: column; gap: 20px">
+      <div class="ghost" style="height: 76px"></div>
+      <div class="ghost" style="height: 500px"></div>
+      <div style="display: flex; gap: 20px; height: 120px"><div class="ghost" style="flex: 1"></div><div class="ghost" style="flex: 1"></div></div>
+    </div>
+  </div>
+  <div style="position: absolute; inset: 0; background: rgba(5,5,7,.62)"></div>
+
+  <div style="position: relative; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px 20px">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="acc-title" style="width: 100%; max-width: 560px; display: flex; flex-direction: column">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 24px 28px 20px; border-bottom: 1px solid rgba(255,255,255,.08)">
+        <div style="display: flex; flex-direction: column; gap: 4px">
+          <span class="label">Comptes</span>
+          <h2 id="acc-title" class="display" style="margin: 0; font-size: 22px">Ajouter un compte</h2>
+        </div>
+        <a class="ibtn" href="21-admin-comptes.html" aria-label="Fermer"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></a>
+      </div>
+
+      <form style="display: flex; flex-direction: column; gap: 20px; padding: 24px 28px">
+        <label class="flab">Identifiant Discord
+          <span style="display: flex; gap: 10px">
+            <input class="fld num" type="text" inputmode="numeric" value="734205918846263296" style="letter-spacing: .04em; font-weight: 700">
+            <button type="button" class="btn btn-glass">Vérifier</button>
+          </span>
+          <span class="mut" style="font-weight: 500; font-size: 12.5px; line-height: 1.5">Discord › Paramètres › Avancés › activer le Mode développeur, puis clic droit sur le profil › Copier l’identifiant.</span>
+        </label>
+
+        <div style="display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 14px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1)">
+          <span class="av" style="width: 46px; height: 46px; font-size: 15px">RO</span>
+          <span style="flex: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 700; font-size: 15px">Rafael Ortiz</span><span class="mut" style="font-size: 13px">@rafa.ortiz · compte trouvé</span></span>
+          <svg class="ico ico-g" viewBox="0 0 24 24" style="width: 22px; height: 22px" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>
+        </div>
+
+        <fieldset style="border: 0; margin: 0; padding: 0">
+          <legend style="padding: 0; margin-bottom: 10px; font-size: 12.5px; font-weight: 600; color: #C8C8CC">Rôle</legend>
+          <div style="display: flex; gap: 12px">
+            <button type="button" class="rc rc-on" aria-pressed="true">
+              <span style="display: flex; align-items: center; gap: 10px; font-size: 14.5px; font-weight: 800"><span class="rc-dot"></span>Gestionnaire</span>
+              <span class="mut">Contrats, véhicules et mouvements.</span>
+            </button>
+            <button type="button" class="rc" aria-pressed="false">
+              <span style="display: flex; align-items: center; gap: 10px; font-size: 14.5px; font-weight: 800"><span class="rc-dot"></span>Administrateur</span>
+              <span class="mut">Accès complet, comptes et clôtures.</span>
+            </button>
+          </div>
+        </fieldset>
+      </form>
+
+      <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; padding: 18px 28px 24px; border-top: 1px solid rgba(255,255,255,.08)">
+        <span class="mut" style="font-size: 12.5px; max-width: 220px; line-height: 1.5">Accès immédiat via « Se connecter avec Discord ».</span>
+        <div style="display: flex; gap: 10px">
+          <a class="btn btn-glass" href="21-admin-comptes.html">Annuler</a>
+          <a class="btn btn-gold" href="21-admin-comptes.html"><svg class="ico ico-k" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Ajouter le compte</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

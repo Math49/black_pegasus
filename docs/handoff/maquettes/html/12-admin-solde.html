@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Black Pégasus Admin — Solde de l’entreprise</title>
+<link rel="stylesheet" href="../../assets/fonts/fonts.css">
+<style>
+body{margin:0;background:#0A0A0C}
+*{box-sizing:border-box}
+a{color:#E8C877;text-decoration:none}a:hover{color:#EDEDF0}
+.display{font-family:'Montserrat','Manrope',system-ui,sans-serif;font-weight:600;letter-spacing:-.01em}
+.gold{background:linear-gradient(100deg,#A67C2E 0%,#E8C877 48%,#C9A24A 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.label{font-size:10.5px;line-height:16px;letter-spacing:.2em;text-transform:uppercase;font-weight:700;color:#8E8E96}
+.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.glass{background:rgba(255,255,255,.055);-webkit-backdrop-filter:blur(24px) saturate(130%);backdrop-filter:blur(24px) saturate(130%);border:1px solid rgba(255,255,255,.09);border-radius:20px;box-shadow:inset 0 1px 0 rgba(232,200,119,.24),0 24px 50px -24px rgba(0,0,0,.7)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:44px;padding:0 18px;border-radius:12px;font:700 14px/1 'Manrope',system-ui,sans-serif;cursor:pointer;white-space:nowrap;border:0}
+.btn-gold{background:linear-gradient(100deg,#A67C2E 0%,#E8C877 50%,#C9A24A 100%);color:#0A0A0C;box-shadow:0 10px 26px -12px rgba(232,200,119,.55),inset 0 1px 0 rgba(255,255,255,.5)}
+.btn-gold:hover{color:#0A0A0C;filter:brightness(1.07)}
+.btn-glass{background:rgba(255,255,255,.05);border:1px solid rgba(200,200,204,.35);color:#EDEDF0}
+.btn-glass:hover{color:#EDEDF0;border-color:rgba(237,237,240,.7)}
+.btn-sm{min-height:36px;padding:0 12px;font-size:13px;border-radius:10px}
+.ibtn{width:44px;height:44px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);cursor:pointer;padding:0;position:relative}
+.ibtn-sm{width:34px;height:34px;border-radius:10px}
+.ico{width:18px;height:18px;fill:none;stroke:#C8C8CC;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.ico-g{stroke:#D6B467}.ico-k{stroke:#0A0A0C}.ico-w{stroke:#F2A99D}
+.nv{display:flex;align-items:center;gap:12px;min-height:44px;padding:0 12px;border-radius:12px;color:#A9A9B1;font-size:14px;font-weight:600}
+.nv:hover{color:#EDEDF0;background:rgba(255,255,255,.04)}
+.nv-on{color:#EDEDF0;background:rgba(255,255,255,.08);box-shadow:inset 0 1px 0 rgba(232,200,119,.22)}
+.nv-on .ico{stroke:#E8C877}
+.cnt{margin-left:auto;font-size:11px;font-weight:800;min-width:22px;height:20px;padding:0 6px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,.08);color:#C8C8CC}
+.cnt-warn{background:rgba(224,122,107,.18);color:#F2A99D}
+.tbl{width:100%;border-collapse:collapse;font-size:14px}
+.tbl th{text-align:left;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#8E8E96;font-weight:700;padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.1);white-space:nowrap}
+.tbl td{padding:11px 14px;border-bottom:1px solid rgba(255,255,255,.06);vertical-align:middle;color:#EDEDF0}
+.tbl tbody tr:hover td{background:rgba(255,255,255,.03)}
+.tbl tr:last-child td{border-bottom:0}
+.r{text-align:right !important;justify-self:end}
+.gr{display:grid;grid-template-columns:112px 84px 140px minmax(150px,1fr) 150px 150px 52px 100px;align-items:center;column-gap:12px;padding:0 14px}
+.gh{min-height:42px;border-bottom:1px solid rgba(255,255,255,.1);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#8E8E96;font-weight:700}
+.gd{min-height:58px;border-bottom:1px solid rgba(255,255,255,.06)}
+.gd:hover{background:rgba(255,255,255,.03)}
+.mut{color:#8E8E96}
+.amt-in{color:#E8C877;font-weight:800}
+.amt-out{color:#C8C8CC;font-weight:800}
+.tag{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);font-size:12px;font-weight:600;color:#C8C8CC;white-space:nowrap}
+a.tag:hover{color:#EDEDF0;border-color:rgba(255,255,255,.25)}
+.st{display:inline-flex;align-items:center;gap:7px;height:24px;padding:0 10px;border-radius:999px;font-size:11.5px;font-weight:700;white-space:nowrap}
+.st-ok{background:rgba(237,237,240,.07);border:1px solid rgba(237,237,240,.32);color:#EDEDF0}
+.st-gold{background:rgba(232,200,119,.08);border:1px solid rgba(232,200,119,.45);color:#E8C877}
+.av{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:linear-gradient(145deg,#4a4a52,#1b1b20);color:#EDEDF0;font-weight:800;flex:none}
+.av-ring{box-shadow:0 0 0 1.5px rgba(232,200,119,.7)}
+.fld{width:100%;height:44px;padding:0 14px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(10,10,12,.4);color:#EDEDF0;font:500 14px 'Manrope',system-ui,sans-serif}
+.fld::placeholder{color:#8E8E96}
+select.fld{appearance:none;-webkit-appearance:none;padding-right:36px}
+select.fld option{background:#131316;color:#EDEDF0}
+.bg-app{background:#0A0A0C url(../../assets/images/bg-skyline.jpg) center 70%/cover no-repeat}
+</style>
+</head>
+<body>
+<div style="position: relative; min-height: 100vh; font-family: 'Manrope', system-ui, sans-serif; color: #EDEDF0; background: #0A0A0C; overflow: hidden; -webkit-font-smoothing: antialiased">
+  <div class="bg-app" style="position: absolute; inset: -60px; filter: blur(30px) brightness(.34) saturate(.9)"></div>
+  <div style="position: absolute; inset: 0; background: radial-gradient(70% 50% at 75% 0%, rgba(201,162,74,.10), rgba(10,10,12,0) 60%), linear-gradient(180deg, rgba(10,10,12,.3), rgba(10,10,12,.75))"></div>
+
+  <div style="position: relative; display: flex; flex-wrap: wrap; align-items: stretch; gap: 20px; padding: 20px">
+
+    <aside class="glass" aria-label="Navigation du panel" style="flex: 1 1 236px; max-width: 256px; padding: 22px 12px 16px; display: flex; flex-direction: column; gap: 28px; border-radius: 24px">
+      <a href="11-admin-tableau-de-bord.html" style="display: flex; align-items: center; gap: 12px; padding: 0 8px; color: #EDEDF0">
+        <img src="../../assets/images/bp-logo.png" alt="Black Pégasus" style="width: 42px; height: 42px; object-fit: contain">
+        <span style="display: flex; flex-direction: column; gap: 3px">
+          <span class="display gold" style="font-size: 13px; font-weight: 700; letter-spacing: .14em">BLACK PÉGASUS</span>
+          <span class="label" style="font-size: 9.5px">Administration</span>
+        </span>
+      </a>
+      <nav style="display: flex; flex-direction: column; gap: 4px">
+        <span class="label" style="padding: 0 12px 8px">Gestion</span>
+        <a class="nv" href="11-admin-tableau-de-bord.html"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="8" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="15" width="7" height="6" rx="1.5"/></svg>Tableau de bord</a>
+        <a class="nv nv-on" href="12-admin-solde.html" aria-current="page"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3"/><path d="M21 9h-6a3 3 0 0 0 0 6h6z"/></svg>Solde</a>
+        <a class="nv" href="14-admin-vehicules.html"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg>Véhicules<span class="cnt">9</span></a>
+        <a class="nv" href="16-admin-contrats.html"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg>Contrats<span class="cnt cnt-warn">1 retard</span></a>
+        <a class="nv" href="19-admin-comptabilite.html"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M7 21h10M5 7h14"/><path d="M5 7l-3 6a3 3 0 0 0 6 0zM19 7l-3 6a3 3 0 0 0 6 0z"/></svg>Comptabilité</a>
+        <a class="nv" href="21-admin-comptes.html"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 20v-1.5A3.5 3.5 0 0 0 12.5 15h-5A3.5 3.5 0 0 0 4 18.5V20"/><circle cx="10" cy="8" r="3.5"/><path d="M20 20v-1.5a3.5 3.5 0 0 0-2.5-3.3M15.5 4.7a3.5 3.5 0 0 1 0 6.6"/></svg>Comptes</a>
+      </nav>
+      <div style="margin-top: auto; display: flex; flex-direction: column; gap: 10px">
+        <a href="19-admin-comptabilite.html" style="display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 14px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); color: #EDEDF0">
+          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.5-2"/></svg>
+          <span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 13px; font-weight: 700">Semaine 43 · ouverte</span><span class="mut" style="font-size: 12px">Clôture dimanche 25/10</span></span>
+        </a>
+        <a class="nv" href="01-site-accueil.html"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>Voir le site public</a>
+        <a class="nv" href="10-admin-connexion.html"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H4"/></svg>Déconnexion</a>
+      </div>
+    </aside>
+
+    <main style="flex: 999 1 640px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+      <header class="glass" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 16px 14px 24px">
+        <div style="display: flex; flex-direction: column; gap: 4px">
+          <span class="label">Gestion · Solde</span>
+          <h1 class="display" style="margin: 0; font-size: 24px">Solde de l’entreprise</h1>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px">
+          <button type="button" class="ibtn" aria-label="Notifications, 1 alerte"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8"/><path d="M10 20a2 2 0 0 0 4 0"/></svg><span style="position: absolute; top: 10px; right: 11px; width: 8px; height: 8px; border-radius: 50%; background: #E07A6B; box-shadow: 0 0 0 2px #1a1a1e"></span></button>
+          <div style="display: flex; align-items: center; gap: 12px; padding: 6px 14px 6px 6px; border-radius: 999px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08)">
+            <span class="av av-ring" style="width: 40px; height: 40px; font-size: 14px">VM</span>
+            <span style="display: flex; flex-direction: column; gap: 3px">
+              <span style="font-size: 14px; font-weight: 700">Vincent Moretti <span class="mut" style="font-weight: 500">@vmoretti</span></span>
+              <span class="st st-gold" style="height: 20px; font-size: 10.5px; align-self: flex-start">Administrateur</span>
+            </span>
+          </div>
+        </div>
+      </header>
+
+      <!-- HERO SOLDE -->
+      <section style="display: flex; flex-wrap: wrap; gap: 20px; align-items: stretch">
+        <div class="glass" style="flex: 999 1 560px; min-width: 0; padding: 28px 30px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px; border-radius: 24px">
+          <div style="display: flex; flex-direction: column; gap: 14px">
+            <span class="label">Solde actuel · sam. 24/10, 21:40</span>
+            <span class="gold num" style="font-size: 76px; font-weight: 800; line-height: 1; letter-spacing: -.02em">$514 630</span>
+            <span style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 14px; color: #C8C8CC">
+              <span class="st st-ok"><svg class="ico" viewBox="0 0 24 24" style="width: 14px; height: 14px; stroke: #EDEDF0" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg>+$102 250 · +24,8 %</span>
+              sur la semaine 43
+            </span>
+            <span class="mut" style="font-size: 13px">Dont $35 000 de cautions à restituer</span>
+          </div>
+          <figure style="margin: 0; flex: 1 1 340px; max-width: 540px; display: flex; flex-direction: column; gap: 6px">
+            <svg viewBox="0 0 520 170" role="img" aria-label="Évolution du solde cette semaine : ouverture 412 380, lundi 403 380, mardi 445 180, mercredi 437 880, jeudi 435 580, vendredi 440 730, samedi 514 630 dollars." style="width: 100%; height: auto; overflow: visible">
+              <defs>
+                <linearGradient id="soldeFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E8C877" stop-opacity=".28"/><stop offset="1" stop-color="#E8C877" stop-opacity="0"/></linearGradient>
+                <linearGradient id="soldeLine" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#A67C2E"/><stop offset=".6" stop-color="#E8C877"/><stop offset="1" stop-color="#C9A24A"/></linearGradient>
+              </defs>
+              <path d="M10 150 H510" stroke="rgba(255,255,255,.12)" stroke-width="1"/>
+              <path d="M10 80 H510" stroke="rgba(255,255,255,.06)" stroke-width="1" stroke-dasharray="3 5"/>
+              <path d="M10 135.6 L93 146.1 L176 97.3 L259 105.8 L342 108.5 L425 102.5 L508 16.3 L508 150 L10 150 Z" fill="url(#soldeFill)"/>
+              <path d="M10 135.6 L93 146.1 L176 97.3 L259 105.8 L342 108.5 L425 102.5 L508 16.3" fill="none" stroke="url(#soldeLine)" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+              <circle cx="10" cy="135.6" r="3.5" fill="#0A0A0C" stroke="#C8C8CC" stroke-width="1.5"/>
+              <circle cx="93" cy="146.1" r="3.5" fill="#0A0A0C" stroke="#C9A24A" stroke-width="1.5"/>
+              <circle cx="176" cy="97.3" r="3.5" fill="#0A0A0C" stroke="#C9A24A" stroke-width="1.5"/>
+              <circle cx="259" cy="105.8" r="3.5" fill="#0A0A0C" stroke="#C9A24A" stroke-width="1.5"/>
+              <circle cx="342" cy="108.5" r="3.5" fill="#0A0A0C" stroke="#C9A24A" stroke-width="1.5"/>
+              <circle cx="425" cy="102.5" r="3.5" fill="#0A0A0C" stroke="#C9A24A" stroke-width="1.5"/>
+              <circle cx="508" cy="16.3" r="5" fill="#E8C877"/>
+              <text x="10" y="126" fill="#8E8E96" font-size="11" font-family="Manrope, sans-serif">412k</text>
+              <text x="500" y="8" fill="#E8C877" font-size="11.5" font-weight="800" font-family="Manrope, sans-serif" text-anchor="end">514,6k</text>
+            </svg>
+            <div style="display: flex; justify-content: space-between; font-size: 11.5px; color: #8E8E96" aria-hidden="true"><span>Ouv.</span><span>Lun</span><span>Mar</span><span>Mer</span><span>Jeu</span><span>Ven</span><span style="color: #E8C877; font-weight: 800">Sam</span></div>
+          </figure>
+        </div>
+        <div style="flex: 1 1 260px; display: flex; flex-direction: column; gap: 20px">
+          <div class="glass" style="flex: 1; padding: 22px; display: flex; flex-direction: column; justify-content: space-between; gap: 10px">
+            <div style="display: flex; align-items: center; justify-content: space-between"><span class="label">Entrées · S43</span><svg class="ico ico-g" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 7L7 17M7 9v8h8"/></svg></div>
+            <span class="num" style="font-size: 30px; font-weight: 800; color: #E8C877">+$167 400</span>
+            <span class="mut" style="font-size: 12.5px">Recettes $91 400 · cautions $76 000</span>
+          </div>
+          <div class="glass" style="flex: 1; padding: 22px; display: flex; flex-direction: column; justify-content: space-between; gap: 10px">
+            <div style="display: flex; align-items: center; justify-content: space-between"><span class="label">Sorties · S43</span><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg></div>
+            <span class="num" style="font-size: 30px; font-weight: 800; color: #C8C8CC">−$65 150</span>
+            <span class="mut" style="font-size: 12.5px">Dépenses $24 150 · cautions rendues $41 000</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- HISTORIQUE -->
+      <section class="glass" style="padding: 22px 8px 12px; display: flex; flex-direction: column; gap: 16px">
+        <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; padding: 0 14px">
+          <h2 class="display" style="margin: 0; font-size: 18px">Historique des mouvements</h2>
+          <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+            <label style="position: relative; display: block; width: 240px">
+              <span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Rechercher un mouvement</span>
+              <svg class="ico" viewBox="0 0 24 24" aria-hidden="true" style="position: absolute; left: 13px; top: 13px"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+              <input class="fld" type="search" placeholder="Motif, contrat, nom…" style="padding-left: 40px">
+            </label>
+            <label style="position: relative; display: block">
+              <span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Catégorie</span>
+              <select class="fld" style="width: 190px"><option>Toutes les catégories</option><option>Location</option><option>Pénalité</option><option>Caution encaissée</option><option>Caution rendue</option><option>Achat de véhicule</option><option>Entretien</option><option>Impôts</option><option>Apport</option><option>Divers</option></select>
+              <svg class="ico" viewBox="0 0 24 24" aria-hidden="true" style="position: absolute; right: 12px; top: 13px; pointer-events: none"><path d="M6 9l6 6 6-6"/></svg>
+            </label>
+            <label style="position: relative; display: block">
+              <span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Période</span>
+              <select class="fld" style="width: 200px"><option>Semaine 43 · 19–25 oct.</option><option>Semaine 42 · 12–18 oct.</option><option>Tout l’historique</option></select>
+              <svg class="ico" viewBox="0 0 24 24" aria-hidden="true" style="position: absolute; right: 12px; top: 13px; pointer-events: none"><path d="M6 9l6 6 6-6"/></svg>
+            </label>
+            <a class="btn btn-gold" href="13-admin-solde-nouveau-mouvement.html"><svg class="ico ico-k" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Nouveau mouvement</a>
+          </div>
+        </div>
+        <div style="overflow-x: auto">
+          <div role="table" aria-label="Historique des mouvements" style="min-width: 1030px; font-size: 14px">
+            <div role="row" class="gr gh">
+              <span role="columnheader">N° · Date</span><span role="columnheader">Sens</span><span role="columnheader">Catégorie</span><span role="columnheader">Motif</span><span role="columnheader">Contrat lié</span><span role="columnheader">Saisi par</span><span role="columnheader">Justif.</span><span role="columnheader" class="r">Montant</span>
+            </div>
+            
+              <div role="row" class="gr gd">
+                <span role="cell" style="display: flex; flex-direction: column; gap: 2px"><span class="num" style="font-weight: 700; font-size: 13px">OP-43-035</span><span class="mut num" style="font-size: 12px">sam. 24/10 · 21:00</span></span>
+                <span role="cell">
+                  <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: #E8C877"><svg class="ico ico-g" viewBox="0 0 24 24" style="width: 15px; height: 15px" aria-hidden="true"><path d="M17 7L7 17M7 9v8h8"/></svg>Entrée</span>
+                  
+                </span>
+                <span role="cell"><span class="tag">Location</span></span>
+                <span role="cell" style="color: #C8C8CC">Seashark2 · 2 h</span>
+                <span role="cell">
+                  <a class="tag" href="16-admin-contrats.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>CTR-2026-0041</a>
+                  
+                </span>
+                <span role="cell" style="display: inline-flex; align-items: center; gap: 8px; font-size: 13px"><span class="av" style="width: 26px; height: 26px; font-size: 10px">LC</span>Lena Castillo</span>
+                <span role="cell">
+                  
+                  <span class="mut">—</span>
+                </span>
+                <span role="cell" class="r num"><span class="amt-in">+$300</span></span>
+              </div>
+            
+              <div role="row" class="gr gd">
+                <span role="cell" style="display: flex; flex-direction: column; gap: 2px"><span class="num" style="font-weight: 700; font-size: 13px">OP-43-034</span><span class="mut num" style="font-size: 12px">sam. 24/10 · 21:00</span></span>
+                <span role="cell">
+                  <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: #E8C877"><svg class="ico ico-g" viewBox="0 0 24 24" style="width: 15px; height: 15px" aria-hidden="true"><path d="M17 7L7 17M7 9v8h8"/></svg>Entrée</span>
+                  
+                </span>
+                <span role="cell"><span class="tag">Caution encaissée</span></span>
+                <span role="cell" style="color: #C8C8CC">Seashark2 · BP SH 03</span>
+                <span role="cell">
+                  <a class="tag" href="16-admin-contrats.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>CTR-2026-0041</a>
+                  
+                </span>
+                <span role="cell" style="display: inline-flex; align-items: center; gap: 8px; font-size: 13px"><span class="av" style="width: 26px; height: 26px; font-size: 10px">LC</span>Lena Castillo</span>
+                <span role="cell">
+                  
+                  <span class="mut">—</span>
+                </span>
+                <span role="cell" class="r num"><span class="amt-in">+$1 000</span></span>
+              </div>
+            
+              <div role="row" class="gr gd">
+                <span role="cell" style="display: flex; flex-direction: column; gap: 2px"><span class="num" style="font-weight: 700; font-size: 13px">OP-43-033</span><span class="mut num" style="font-size: 12px">sam. 24/10 · 20:00</span></span>
+                <span role="cell">
+                  <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: #E8C877"><svg class="ico ico-g" viewBox="0 0 24 24" style="width: 15px; height: 15px" aria-hidden="true"><path d="M17 7L7 17M7 9v8h8"/></svg>Entrée</span>
+                  
+                </span>
+                <span role="cell"><span class="tag">Location</span></span>
+                <span role="cell" style="color: #C8C8CC">Swift · 4 h</span>
+                <span role="cell">
+                  <a class="tag" href="16-admin-contrats.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>CTR-2026-0040</a>
+                  
+                </span>
+                <span role="cell" style="display: inline-flex; align-items: center; gap: 8px; font-size: 13px"><span class="av" style="width: 26px; height: 26px; font-size: 10px">MH</span>Marcus Hale</span>
+                <span role="cell">
+                  
+                  <span class="mut">—</span>
+                </span>
+                <span role="cell" class="r num"><span class="amt-in">+$8 800</span></span>
+              </div>
+            
+              <div role="row" class="gr gd">
+                <span role="cell" style="display: flex; flex-direction: column; gap: 2px"><span class="num" style="font-weight: 700; font-size: 13px">OP-43-032</span><span class="mut num" style="font-size: 12px">sam. 24/10 · 20:00</span></span>
+                <span role="cell">
+                  <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: #E8C877"><svg class="ico ico-g" viewBox="0 0 24 24" style="width: 15px; height: 15px" aria-hidden="true"><path d="M17 7L7 17M7 9v8h8"/></svg>Entrée</span>
+                  
+                </span>
+                <span role="cell"><span class="tag">Caution encaissée</span></span>
+                <span role="cell" style="color: #C8C8CC">Swift · BP SW 01</span>
+                <span role="cell">
+                  <a class="tag" href="16-admin-contrats.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>CTR-2026-0040</a>
+                  
+                </span>
+                <span role="cell" style="display: inline-flex; align-items: center; gap: 8px; font-size: 13px"><span class="av" style="width: 26px; height: 26px; font-size: 10px">MH</span>Marcus Hale</span>
+                <span role="cell">
+                  
+                  <span class="mut">—</span>
+                </span>
+                <span role="cell" class="r num"><span class="amt-in">+$10 000</span></span>
+              </div>
+            
+              <div role="row" class="gr gd">
+                <span role="cell" style="display: flex; flex-direction: column; gap: 2px"><span class="num" style="font-weight: 700; font-size: 13px">OP-43-031</span><span class="mut num" style="font-size: 12px">sam. 24/10 · 19:00</span></span>
+                <span role="cell">
+                  <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: #E8C877"><svg class="ico ico-g" viewBox="0 0 24 24" style="width: 15px; height: 15px" aria-hidden="true"><path d="M17 7L7 17M7 9v8h8"/></svg>Entrée</span>
+                  
+                </span>
+                <span role="cell"><span class="tag">Location</span></span>
+                <span role="cell" style="color: #C8C8CC">Seashark2 · 2 h</span>
+                <span role="cell">
+                  <a class="tag" href="16-admin-contrats.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>CTR-2026-0039</a>
+                  
+                </span>
+                <span role="cell" style="display: inline-flex; align-items: center; gap: 8px; font-size: 13px"><span class="av" style="width: 26px; height: 26px; font-size: 10px">LC</span>Lena Castillo</span>
+                <span role="cell">
+                  
+                  <span class="mut">—</span>
+                </span>
+                <span role="cell" class="r num"><span class="amt-in">+$300</span></span>
+              </div>
+            
+              <div role="row" class="gr gd">
+                <span role="cell" style="display: flex; flex-direction: column; gap: 2px"><span class="num" style="font-weight: 700; font-size: 13px">OP-43-030</span><span class="mut num" style="font-size: 12px">sam. 24/10 · 19:00</span></span>
+                <span role="cell">
+                  <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: #E8C877"><svg class="ico ico-g" viewBox="0 0 24 24" style="width: 15px; height: 15px" aria-hidden="true"><path d="M17 7L7 17M7 9v8h8"/></svg>Entrée</span>
+                  
+                </span>
+                <span role="cell"><span class="tag">Caution encaissée</span></span>
+                <span role="cell" style="color: #C8C8CC">Seashark2 · BP SH 01</span>
+                <span role="cell">
+                  <a class="tag" href="16-admin-contrats.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>CTR-2026-0039</a>
+                  
+                </span>
+                <span role="cell" style="display: inline-flex; align-items: center; gap: 8px; font-size: 13px"><span class="av" style="width: 26px; height: 26px; font-size: 10px">LC</span>Lena Castillo</span>
+                <span role="cell">
+                  
+                  <span class="mut">—</span>
+                </span>
+                <span role="cell" class="r num"><span class="amt-in">+$1 000</span></span>
+              </div>
+            
+              <div role="row" class="gr gd">
+                <span role="cell" style="display: flex; flex-direction: column; gap: 2px"><span class="num" style="font-weight: 700; font-size: 13px">OP-43-029</span><span class="mut num" style="font-size: 12px">sam. 24/10 · 17:00</span></span>
+                <span role="cell">
+                  <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: #E8C877"><svg class="ico ico-g" viewBox="0 0 24 24" style="width: 15px; height: 15px" aria-hidden="true"><path d="M17 7L7 17M7 9v8h8"/></svg>Entrée</span>
+                  
+                </span>
+                <span role="cell"><span class="tag">Location</span></span>
+                <span role="cell" style="color: #C8C8CC">Streamer 2026 · 5 h</span>
+                <span role="cell">
+                  <a class="tag" href="16-admin-contrats.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>CTR-2026-0038</a>
+                  
+                </span>
+                <span role="cell" style="display: inline-flex; align-items: center; gap: 8px; font-size: 13px"><span class="av" style="width: 26px; height: 26px; font-size: 10px">MH</span>Marcus Hale</span>
+                <span role="cell">
+                  
+                  <span class="mut">—</span>
+                </span>
+                <span role="cell" class="r num"><span class="amt-in">+$7 500</span></span>
+              </div>
+            
+              <div role="row" class="gr gd">
+                <span role="cell" style="display: flex; flex-direction: column; gap: 2px"><span class="num" style="font-weight: 700; font-size: 13px">OP-43-028</span><span class="mut num" style="font-size: 12px">sam. 24/10 · 17:00</span></span>
+                <span role="cell">
+                  <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: #E8C877"><svg class="ico ico-g" viewBox="0 0 24 24" style="width: 15px; height: 15px" aria-hidden="true"><path d="M17 7L7 17M7 9v8h8"/></svg>Entrée</span>
+                  
+                </span>
+                <span role="cell"><span class="tag">Caution encaissée</span></span>
+                <span role="cell" style="color: #C8C8CC">Streamer 2026 · BP ST 01</span>
+                <span role="cell">
+                  <a class="tag" href="16-admin-contrats.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>CTR-2026-0038</a>
+                  
+                </span>
+                <span role="cell" style="display: inline-flex; align-items: center; gap: 8px; font-size: 13px"><span class="av" style="width: 26px; height: 26px; font-size: 10px">MH</span>Marcus Hale</span>
+                <span role="cell">
+                  
+                  <span class="mut">—</span>
+                </span>
+                <span role="cell" class="r num"><span class="amt-in">+$8 000</span></span>
+              </div>
+            
+              <div role="row" class="gr gd">
+                <span role="cell" style="display: flex; flex-direction: column; gap: 2px"><span class="num" style="font-weight: 700; font-size: 13px">OP-43-027</span><span class="mut num" style="font-size: 12px">sam. 24/10 · 12:30</span></span>
+                <span role="cell">
+                  
+                  <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: #C8C8CC"><svg class="ico" viewBox="0 0 24 24" style="width: 15px; height: 15px" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg>Sortie</span>
+                </span>
+                <span role="cell"><span class="tag">Divers</span></span>
+                <span role="cell" style="color: #C8C8CC">Primes hebdomadaires des employés</span>
+                <span role="cell">
+                  
+                  <span class="mut">—</span>
+                </span>
+                <span role="cell" style="display: inline-flex; align-items: center; gap: 8px; font-size: 13px"><span class="av" style="width: 26px; height: 26px; font-size: 10px">VM</span>Vincent Moretti</span>
+                <span role="cell">
+                  <button type="button" class="ibtn ibtn-sm" aria-label="Voir le justificatif"><svg class="ico ico-g" viewBox="0 0 24 24" style="width: 16px; height: 16px" aria-hidden="true"><path d="M21 11.5l-8.5 8.5a5 5 0 0 1-7-7L14 4.5a3.5 3.5 0 0 1 5 5L10.5 18a2 2 0 0 1-3-3L15 7.5"/></svg></button>
+                  
+                </span>
+                <span role="cell" class="r num"><span class="amt-out">−$6 000</span></span>
+              </div>
+            
+              <div role="row" class="gr gd">
+                <span role="cell" style="display: flex; flex-direction: column; gap: 2px"><span class="num" style="font-weight: 700; font-size: 13px">OP-43-026</span><span class="mut num" style="font-size: 12px">sam. 24/10 · 08:00</span></span>
+                <span role="cell">
+                  <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: #E8C877"><svg class="ico ico-g" viewBox="0 0 24 24" style="width: 15px; height: 15px" aria-hidden="true"><path d="M17 7L7 17M7 9v8h8"/></svg>Entrée</span>
+                  
+                </span>
+                <span role="cell"><span class="tag">Location</span></span>
+                <span role="cell" style="color: #C8C8CC">Luxor · 24 h, tarif journalier</span>
+                <span role="cell">
+                  <a class="tag" href="16-admin-contrats.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>CTR-2026-0037</a>
+                  
+                </span>
+                <span role="cell" style="display: inline-flex; align-items: center; gap: 8px; font-size: 13px"><span class="av" style="width: 26px; height: 26px; font-size: 10px">VM</span>Vincent Moretti</span>
+                <span role="cell">
+                  
+                  <span class="mut">—</span>
+                </span>
+                <span role="cell" class="r num"><span class="amt-in">+$28 000</span></span>
+              </div>
+            
+              <div role="row" class="gr gd">
+                <span role="cell" style="display: flex; flex-direction: column; gap: 2px"><span class="num" style="font-weight: 700; font-size: 13px">OP-43-025</span><span class="mut num" style="font-size: 12px">sam. 24/10 · 08:00</span></span>
+                <span role="cell">
+                  <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: #E8C877"><svg class="ico ico-g" viewBox="0 0 24 24" style="width: 15px; height: 15px" aria-hidden="true"><path d="M17 7L7 17M7 9v8h8"/></svg>Entrée</span>
+                  
+                </span>
+                <span role="cell"><span class="tag">Caution encaissée</span></span>
+                <span role="cell" style="color: #C8C8CC">Luxor · BP LX 01</span>
+                <span role="cell">
+                  <a class="tag" href="16-admin-contrats.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>CTR-2026-0037</a>
+                  
+                </span>
+                <span role="cell" style="display: inline-flex; align-items: center; gap: 8px; font-size: 13px"><span class="av" style="width: 26px; height: 26px; font-size: 10px">VM</span>Vincent Moretti</span>
+                <span role="cell">
+                  
+                  <span class="mut">—</span>
+                </span>
+                <span role="cell" class="r num"><span class="amt-in">+$15 000</span></span>
+              </div>
+            
+              <div role="row" class="gr gd">
+                <span role="cell" style="display: flex; flex-direction: column; gap: 2px"><span class="num" style="font-weight: 700; font-size: 13px">OP-43-024</span><span class="mut num" style="font-size: 12px">ven. 23/10 · 15:10</span></span>
+                <span role="cell">
+                  
+                  <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: #C8C8CC"><svg class="ico" viewBox="0 0 24 24" style="width: 15px; height: 15px" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg>Sortie</span>
+                </span>
+                <span role="cell"><span class="tag">Caution rendue</span></span>
+                <span role="cell" style="color: #C8C8CC">Dodo restitué sans dégât</span>
+                <span role="cell">
+                  <a class="tag" href="16-admin-contrats.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>CTR-2026-0036</a>
+                  
+                </span>
+                <span role="cell" style="display: inline-flex; align-items: center; gap: 8px; font-size: 13px"><span class="av" style="width: 26px; height: 26px; font-size: 10px">TB</span>Tommy Bishop</span>
+                <span role="cell">
+                  
+                  <span class="mut">—</span>
+                </span>
+                <span role="cell" class="r num"><span class="amt-out">−$8 000</span></span>
+              </div>
+            
+              <div role="row" class="gr gd">
+                <span role="cell" style="display: flex; flex-direction: column; gap: 2px"><span class="num" style="font-weight: 700; font-size: 13px">OP-43-023</span><span class="mut num" style="font-size: 12px">ven. 23/10 · 10:00</span></span>
+                <span role="cell">
+                  <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: #E8C877"><svg class="ico ico-g" viewBox="0 0 24 24" style="width: 15px; height: 15px" aria-hidden="true"><path d="M17 7L7 17M7 9v8h8"/></svg>Entrée</span>
+                  
+                </span>
+                <span role="cell"><span class="tag">Location</span></span>
+                <span role="cell" style="color: #C8C8CC">Dodo · 5 h</span>
+                <span role="cell">
+                  <a class="tag" href="16-admin-contrats.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>CTR-2026-0036</a>
+                  
+                </span>
+                <span role="cell" style="display: inline-flex; align-items: center; gap: 8px; font-size: 13px"><span class="av" style="width: 26px; height: 26px; font-size: 10px">TB</span>Tommy Bishop</span>
+                <span role="cell">
+                  
+                  <span class="mut">—</span>
+                </span>
+                <span role="cell" class="r num"><span class="amt-in">+$6 000</span></span>
+              </div>
+            
+              <div role="row" class="gr gd">
+                <span role="cell" style="display: flex; flex-direction: column; gap: 2px"><span class="num" style="font-weight: 700; font-size: 13px">OP-43-022</span><span class="mut num" style="font-size: 12px">ven. 23/10 · 10:00</span></span>
+                <span role="cell">
+                  <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: #E8C877"><svg class="ico ico-g" viewBox="0 0 24 24" style="width: 15px; height: 15px" aria-hidden="true"><path d="M17 7L7 17M7 9v8h8"/></svg>Entrée</span>
+                  
+                </span>
+                <span role="cell"><span class="tag">Caution encaissée</span></span>
+                <span role="cell" style="color: #C8C8CC">Dodo · BP DD 01</span>
+                <span role="cell">
+                  <a class="tag" href="16-admin-contrats.html"><svg class="ico" viewBox="0 0 24 24" style="width: 13px; height: 13px" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>CTR-2026-0036</a>
+                  
+                </span>
+                <span role="cell" style="display: inline-flex; align-items: center; gap: 8px; font-size: 13px"><span class="av" style="width: 26px; height: 26px; font-size: 10px">TB</span>Tommy Bishop</span>
+                <span role="cell">
+                  
+                  <span class="mut">—</span>
+                </span>
+                <span role="cell" class="r num"><span class="amt-in">+$8 000</span></span>
+              </div>
+            
+              <div role="row" class="gr gd">
+                <span role="cell" style="display: flex; flex-direction: column; gap: 2px"><span class="num" style="font-weight: 700; font-size: 13px">OP-43-021</span><span class="mut num" style="font-size: 12px">ven. 23/10 · 09:20</span></span>
+                <span role="cell">
+                  
+                  <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: #C8C8CC"><svg class="ico" viewBox="0 0 24 24" style="width: 15px; height: 15px" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg>Sortie</span>
+                </span>
+                <span role="cell"><span class="tag">Divers</span></span>
+                <span role="cell" style="color: #C8C8CC">Plein de kérosène du Luxor</span>
+                <span role="cell">
+                  
+                  <span class="mut">—</span>
+                </span>
+                <span role="cell" style="display: inline-flex; align-items: center; gap: 8px; font-size: 13px"><span class="av" style="width: 26px; height: 26px; font-size: 10px">LC</span>Lena Castillo</span>
+                <span role="cell">
+                  <button type="button" class="ibtn ibtn-sm" aria-label="Voir le justificatif"><svg class="ico ico-g" viewBox="0 0 24 24" style="width: 16px; height: 16px" aria-hidden="true"><path d="M21 11.5l-8.5 8.5a5 5 0 0 1-7-7L14 4.5a3.5 3.5 0 0 1 5 5L10.5 18a2 2 0 0 1-3-3L15 7.5"/></svg></button>
+                  
+                </span>
+                <span role="cell" class="r num"><span class="amt-out">−$850</span></span>
+              </div>
+            
+          </div>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 4px 14px 6px">
+          <span class="mut" style="font-size: 13px">1–15 sur 35 mouvements · semaine 43</span>
+          <div style="display: flex; gap: 8px">
+            <button type="button" class="ibtn ibtn-sm" aria-label="Page précédente" disabled style="opacity: .4"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+            <button type="button" class="ibtn ibtn-sm" aria-label="Page suivante"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Black Pégasus Admin — Clôturer la semaine</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0A0A0C}
+*{box-sizing:border-box}
+a{color:#E8C877;text-decoration:none}a:hover{color:#EDEDF0}
+.display{font-family:'Montserrat','Manrope',system-ui,sans-serif;font-weight:600;letter-spacing:-.01em}
+.gold{background:linear-gradient(100deg,#A67C2E 0%,#E8C877 48%,#C9A24A 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.label{font-size:10.5px;line-height:16px;letter-spacing:.2em;text-transform:uppercase;font-weight:700;color:#8E8E96}
+.num{font-variant-numeric:tabular-nums}
+.ghost{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.05);border-radius:20px}
+.modal{background:rgba(24,24,28,.74);-webkit-backdrop-filter:blur(30px) saturate(140%);backdrop-filter:blur(30px) saturate(140%);border:1px solid rgba(255,255,255,.12);border-radius:24px;box-shadow:inset 0 1px 0 rgba(232,200,119,.35),0 40px 100px -20px rgba(0,0,0,.85)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:46px;padding:0 18px;border-radius:12px;font:700 14px/1 'Manrope',system-ui,sans-serif;cursor:pointer;white-space:nowrap;border:0}
+.btn-gold{background:linear-gradient(100deg,#A67C2E 0%,#E8C877 50%,#C9A24A 100%);color:#0A0A0C;box-shadow:0 10px 26px -12px rgba(232,200,119,.55),inset 0 1px 0 rgba(255,255,255,.5)}
+.btn-gold:hover{color:#0A0A0C;filter:brightness(1.07)}
+.btn-gold:disabled{background:rgba(255,255,255,.08);color:#8E8E96;box-shadow:none;cursor:not-allowed;filter:none}
+.btn-gold:disabled .ico{stroke:#8E8E96}
+.btn-glass{background:rgba(255,255,255,.05);border:1px solid rgba(200,200,204,.35);color:#EDEDF0}
+.btn-glass:hover{color:#EDEDF0;border-color:rgba(237,237,240,.7)}
+.ibtn{width:40px;height:40px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);cursor:pointer;padding:0}
+.ico{width:18px;height:18px;fill:none;stroke:#C8C8CC;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.ico-g{stroke:#D6B467}.ico-k{stroke:#0A0A0C}.ico-w{stroke:#F2A99D}
+.mut{color:#8E8E96}
+.fld{width:100%;height:48px;padding:0 14px;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:rgba(10,10,12,.5);color:#EDEDF0;font:800 15px 'Manrope',system-ui,sans-serif;letter-spacing:.08em}
+.fld:focus{outline:none;border-color:rgba(232,200,119,.7);box-shadow:0 0 0 3px rgba(232,200,119,.15)}
+.fld::placeholder{color:#6E6E76;font-weight:600}
+.line{display:flex;align-items:baseline;justify-content:space-between;gap:12px;font-size:14px}
+.bg-app{background:#0A0A0C url(../../assets/images/bg-skyline.jpg) center 70%/cover no-repeat}
+</style>
+</helmet>
+<div style="position: relative; min-height: 100vh; font-family: 'Manrope', system-ui, sans-serif; color: #EDEDF0; background: #0A0A0C; overflow: hidden; -webkit-font-smoothing: antialiased">
+  <div class="bg-app" style="position: absolute; inset: -60px; filter: blur(30px) brightness(.34) saturate(.9)"></div>
+  <div aria-hidden="true" style="position: absolute; inset: 0; display: flex; gap: 20px; padding: 20px; filter: blur(3px); opacity: .55">
+    <div class="ghost" style="width: 256px; flex: none"></div>
+    <div style="flex: 1; display: flex; flex-direction: column; gap: 20px">
+      <div class="ghost" style="height: 76px"></div>
+      <div class="ghost" style="height: 80px"></div>
+      <div style="display: flex; gap: 16px; height: 120px"><div class="ghost" style="flex: 1"></div><div class="ghost" style="flex: 1"></div><div class="ghost" style="flex: 1"></div><div class="ghost" style="flex: 1"></div><div class="ghost" style="flex: 1"></div><div class="ghost" style="flex: 1"></div></div>
+      <div class="ghost" style="flex: 1"></div>
+    </div>
+  </div>
+  <div style="position: absolute; inset: 0; background: rgba(5,5,7,.64)"></div>
+
+  <div style="position: relative; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px 20px">
+    <div class="modal" role="alertdialog" aria-modal="true" aria-labelledby="cw-title" aria-describedby="cw-desc" style="width: 100%; max-width: 580px; display: flex; flex-direction: column">
+      <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 26px 28px 18px">
+        <div style="display: flex; align-items: center; gap: 16px">
+          <span style="width: 52px; height: 52px; border-radius: 16px; border: 1px solid rgba(232,200,119,.5); background: rgba(232,200,119,.08); display: flex; align-items: center; justify-content: center"><svg class="ico ico-g" viewBox="0 0 24 24" style="width: 24px; height: 24px" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg></span>
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <span class="label">Comptabilité · FISC</span>
+            <h2 id="cw-title" class="display" style="margin: 0; font-size: 21px">Clôturer la semaine 43 ?</h2>
+          </div>
+        </div>
+        <a class="ibtn" href="Admin-Compta.dc.html" aria-label="Fermer"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></a>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 18px; padding: 0 28px 22px">
+        <p id="cw-desc" style="margin: 0; font-size: 14.5px; line-height: 1.65; color: #C8C8CC">Le registre du lundi 19 au dimanche 25 octobre sera verrouillé : plus aucune opération ne pourra y être ajoutée ni modifiée, et la déclaration sera générée pour le FISC.</p>
+
+        <div style="display: flex; flex-direction: column; gap: 10px; padding: 16px 18px; border-radius: 14px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08)">
+          <div class="line"><span style="color: #C8C8CC">Opérations enregistrées</span><span class="num" style="font-weight: 800">35</span></div>
+          <div class="line"><span style="color: #C8C8CC">Recettes · dépenses</span><span class="num" style="font-weight: 800">$91 400 · $24 150</span></div>
+          <div class="line"><span style="color: #C8C8CC">Cautions détenues (hors résultat)</span><span class="num" style="font-weight: 800">$35 000</span></div>
+          <div class="line" style="padding-top: 10px; border-top: 1px solid rgba(255,255,255,.08)"><span class="label" style="color: #E8C877">Résultat imposable</span><span class="gold num" style="font-size: 26px; font-weight: 800">$67 250</span></div>
+        </div>
+
+        <div style="display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; border-radius: 14px; background: rgba(224,122,107,.08); border: 1px solid rgba(224,122,107,.35); font-size: 13.5px; line-height: 1.55">
+          <svg class="ico ico-w" viewBox="0 0 24 24" style="margin-top: 1px" aria-hidden="true"><path d="M12 3l10 18H2z"></path><path d="M12 10v5M12 18h.01"></path></svg>
+          <span><strong>5 contrats sont encore en cours</strong>, dont CTR-2026-0039 en retard. Leurs cautions restent détenues ; leurs pénalités éventuelles seront inscrites en semaine 44.</span>
+        </div>
+
+        <label style="display: flex; flex-direction: column; gap: 8px; font-size: 13px; font-weight: 600; color: #C8C8CC">Pour confirmer, saisissez <span class="num" style="color: #EDEDF0; font-weight: 800; letter-spacing: .06em">CLÔTURER S43</span>
+          <input class="fld" type="text" value="{{ typed }}" onChange="{{ onType }}" placeholder="CLÔTURER S43" autocomplete="off">
+        </label>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 10px; padding: 18px 28px 24px; border-top: 1px solid rgba(255,255,255,.08)">
+        <a class="btn btn-glass" href="Admin-Compta.dc.html">Annuler</a>
+        <button type="button" class="btn btn-gold" disabled="{{ locked }}"><svg class="ico ico-k" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>Clôturer et générer la déclaration</button>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { typed: 'CLÔTURER S43' }; }
+  renderVals() {
+    const ok = this.state.typed.trim().toUpperCase() === 'CLÔTURER S43';
+    return {
+      typed: this.state.typed,
+      onType: (e) => this.setState({ typed: e.target.value }),
+      locked: !ok
+    };
+  }
+}
+</script>
+</body>
+</html>
