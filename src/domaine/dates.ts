@@ -1,4 +1,6 @@
 import { TZDate, tzOffset } from "@date-fns/tz";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 import { ErreurMetier } from "./types";
 
 // Les instants sont stockés en UTC. Les durées facturées (location, retard) se comptent
@@ -50,4 +52,25 @@ export function formaterDateCourte(iso: string): string {
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
   if (!m) throw new ErreurMetier(`Date invalide : « ${iso} ».`);
   return `${m[3]}/${m[2]}/${m[1]}`;
+}
+
+/** « samedi 24 octobre 2026 · 21:40 » à l'heure du serveur. */
+export function formaterDateLongue(instant: Date, fuseau: string): string {
+  return format(versHeureServeur(instant, fuseau), "EEEE d MMMM yyyy '·' HH:mm", { locale: fr });
+}
+
+/** « dimanche 25/10 » à l'heure du serveur. */
+export function formaterJourCourt(instant: Date, fuseau: string): string {
+  return format(versHeureServeur(instant, fuseau), "EEEE dd/MM", { locale: fr });
+}
+
+/** « 21:40 » à l'heure du serveur. */
+export function formaterHeure(instant: Date, fuseau: string): string {
+  return format(versHeureServeur(instant, fuseau), "HH:mm");
+}
+
+/** Salutation selon l'heure affichée du serveur : « Bonsoir » de 18 h à 5 h. */
+export function salutation(instant: Date, fuseau: string): "Bonjour" | "Bonsoir" {
+  const h = versHeureServeur(instant, fuseau).getHours();
+  return h >= 18 || h < 5 ? "Bonsoir" : "Bonjour";
 }

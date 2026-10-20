@@ -65,3 +65,16 @@ export function verifierModificationCompte(p: {
     throw new ErreurMetier("Il doit rester au moins un administrateur actif.");
   }
 }
+
+// ── Connexion (HANDOFF § 7.10) ─────────────────────────────────────────────
+
+export type DecisionConnexion = "autorise" | "inconnu" | "inactif";
+
+/** Accès accordé seulement si l'identifiant Discord figure dans Compte et que le compte est actif. */
+export const decisionConnexion = (compte: { actif: boolean } | null): DecisionConnexion =>
+  !compte ? "inconnu" : compte.actif ? "autorise" : "inactif";
+
+export const LIBELLES_ROLE: Record<Role, string> = {
+  ADMIN: "Administrateur",
+  GESTIONNAIRE: "Gestionnaire",
+};

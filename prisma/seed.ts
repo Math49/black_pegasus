@@ -198,8 +198,8 @@ async function main() {
         await tx.compte.create({
           data: {
             discordId: adminDiscordId,
-            pseudo: "administrateur",
-            nomAffiche: "Administrateur",
+            pseudo: "",
+            nomAffiche: "",
             role: "ADMIN",
           },
         });

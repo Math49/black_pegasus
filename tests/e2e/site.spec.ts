@@ -1,19 +1,8 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
-import "dotenv/config";
-import { Client } from "pg";
+import { sql } from "./outils";
 
 // Parcours du site public sur les données du seed de démonstration.
-
-async function sql<T>(requete: string, valeurs: unknown[] = []): Promise<T[]> {
-  const client = new Client({ connectionString: process.env.DATABASE_URL });
-  await client.connect();
-  try {
-    return (await client.query(requete, valeurs)).rows as T[];
-  } finally {
-    await client.end();
-  }
-}
 
 const PAGES = [
   { chemin: "/", titre: /Le ciel et l’océan/ },

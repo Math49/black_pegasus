@@ -217,6 +217,9 @@ model Semaine {
 
 model Compte {
   id                String         @id @default(cuid())
+  /// Utilisateur Auth.js lié à la première connexion Discord.
+  userId            String?        @unique
+  user              User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
   discordId         String         @unique
   pseudo            String
   nomAffiche        String
@@ -291,6 +294,7 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+  compte        Compte?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }
