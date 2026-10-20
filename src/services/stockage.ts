@@ -1,5 +1,6 @@
 import "server-only";
-import { readFile } from "node:fs/promises";
+import { randomUUID } from "node:crypto";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 // Stockage des fichiers sur disque (volume /data). Interface remplaçable par S3 plus tard.
@@ -33,6 +34,25 @@ export async function lireFichier(cle: string): Promise<{ contenu: Buffer; type:
   } catch {
     return null;
   }
+}
+
+/** Enregistre un fichier sous un nom aléatoire et renvoie sa clé (« photos/3f2a….png »). */
+export async function enregistrerFichier(
+  dossier: "photos" | "justificatifs" | "pdf",
+  contenu: Uint8Array,
+  extension: string,
+) {
+  const cle = `${dossier}/${randomUUID()}.${extension}`;
+  const chemin = cheminDeCle(cle)!;
+  await mkdir(path.dirname(/*turbopackIgnore: true*/ chemin), { recursive: true });
+  await writeFile(/*turbopackIgnore: true*/ chemin, contenu);
+  return cle;
+}
+
+/** Supprime un fichier (sans erreur s'il n'existe plus). */
+export async function supprimerFichier(cle: string) {
+  const chemin = cheminDeCle(cle);
+  if (chemin) await rm(/*turbopackIgnore: true*/ chemin, { force: true });
 }
 
 /** URL publique d'une photo de véhicule. */

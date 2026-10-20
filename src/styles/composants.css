@@ -429,8 +429,9 @@
     padding-right: 40px;
     cursor: pointer;
   }
-  .bp-select-chevron {
+  .bp-champ-cadre > .bp-select-chevron {
     position: absolute;
+    left: auto;
     right: 14px;
     top: 50%;
     transform: translateY(-50%);
@@ -952,6 +953,48 @@
     height: 8px;
     border-radius: 50%;
     background: var(--bp-gold-text);
+  }
+
+  /* Pastilles d'exemplaires (liste des véhicules) */
+  .bp-pip {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    background: color-mix(in srgb, var(--bp-silver-1) 20%, transparent);
+  }
+  .bp-pip--actif {
+    background: var(--bp-text);
+  }
+
+  /* Choix segmenté du formulaire (type de véhicule, maquette 15) */
+  .bp-sg {
+    flex: 1;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    min-height: 46px;
+    border-radius: var(--bp-radius-control);
+    border: 1px solid var(--bp-trait-10);
+    background: var(--bp-voile-3);
+    color: var(--bp-text-nav);
+    font: 700 14px var(--bp-font-body);
+    cursor: pointer;
+  }
+  .bp-sg:has(input:checked) {
+    border-color: color-mix(in srgb, var(--bp-text) 60%, transparent);
+    background: color-mix(in srgb, var(--bp-text) 8%, transparent);
+    color: var(--bp-text);
+  }
+  .bp-sg:has(input:focus-visible) {
+    outline: 2px solid var(--bp-focus-border);
+    outline-offset: 2px;
+  }
+  .bp-sg input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
   }
 
   /* ── Carte « fantôme » du panel ── */

@@ -18,4 +18,9 @@ export const LIBELLES_ACTIONS: Record<string, string> = {
   "compte.role": "Rôle modifié",
   "compte.activer": "Compte réactivé",
   "compte.desactiver": "Compte désactivé",
+  "vehicule.creer": "Véhicule créé",
+  "vehicule.modifier": "Véhicule modifié",
+  "vehicule.afficher": "Véhicule affiché sur le site",
+  "vehicule.masquer": "Véhicule masqué du site",
+  "vehicule.supprimer": "Véhicule supprimé",
 };
