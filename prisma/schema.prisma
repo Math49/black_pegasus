@@ -1,4 +1,5 @@
-// Schéma complet en phase 2 (docs/CONCEPTION.md § 4).
+// Black Pégasus – schéma (docs/CONCEPTION.md § 4).
+// Montants : Int en dollars entiers. Dates : DateTime en UTC.
 
 generator client {
   provider = "prisma-client"
@@ -7,4 +8,325 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+}
+
+enum TypeVehicule {
+  BATEAU
+  AVION
+  HELICOPTERE
+}
+
+enum StatutExemplaire {
+  DISPONIBLE
+  LOUE
+  MAINTENANCE
+}
+
+enum StatutContrat {
+  EN_COURS
+  TERMINE
+  ANNULE
+}
+
+enum TarifApplique {
+  HORAIRE
+  JOURNALIER
+}
+
+enum Sens {
+  ENTREE
+  SORTIE
+}
+
+enum CategorieMouvement {
+  LOCATION
+  PENALITE
+  CAUTION_ENCAISSEE
+  CAUTION_RENDUE
+  ACHAT_VEHICULE
+  ENTRETIEN
+  IMPOTS
+  APPORT
+  DIVERS
+}
+
+enum StatutSemaine {
+  OUVERTE
+  CLOTUREE
+}
+
+enum Role {
+  ADMIN
+  GESTIONNAIRE
+}
+
+// ── Flotte ──────────────────────────────────────────────────────────────────
+
+/// Liste gérée dans Paramètres (filtres cohérents sur le site).
+model Categorie {
+  id        String       @id @default(cuid())
+  type      TypeVehicule
+  nom       String
+  ordre     Int          @default(0)
+  vehicules Vehicule[]
+
+  @@unique([type, nom])
+}
+
+model Vehicule {
+  id             String       @id @default(cuid())
+  slug           String       @unique
+  nom            String
+  type           TypeVehicule
+  categorieId    String
+  categorie      Categorie    @relation(fields: [categorieId], references: [id])
+  places         Int
+  contenanceKg   Int
+  prixHeure      Int
+  prixJour       Int
+  caution        Int
+  /// Clé de stockage
+  photo          String?
+  galerie        String[]     @default([])
+  description    String       @default("")
+  visibleSurSite Boolean      @default(true)
+  /// Suppression logique : l'historique des contrats reste lisible.
+  supprimeLe     DateTime?
+  exemplaires    Exemplaire[]
+  creeLe         DateTime     @default(now())
+  modifieLe      DateTime     @updatedAt
+  modifieParId   String?
+  modifiePar     Compte?      @relation("VehiculeModifiePar", fields: [modifieParId], references: [id])
+
+  @@index([type])
+}
+
+model Exemplaire {
+  id              String           @id @default(cuid())
+  vehiculeId      String
+  vehicule        Vehicule         @relation(fields: [vehiculeId], references: [id])
+  immatriculation String           @unique
+  statut          StatutExemplaire @default(DISPONIBLE)
+  note            String?
+  contrats        Contrat[]
+
+  @@index([vehiculeId])
+}
+
+// ── Contrats et comptabilité ────────────────────────────────────────────────
+
+model Contrat {
+  id               String        @id @default(cuid())
+  /// CTR-2026-0042
+  numero           String        @unique
+  clientNom        String
+  clientTelephone  String
+  exemplaireId     String
+  exemplaire       Exemplaire    @relation(fields: [exemplaireId], references: [id])
+  // Instantanés figés à la signature : le contrat ne bouge pas si les tarifs changent.
+  vehiculeNom      String
+  prixHeure        Int
+  prixJour         Int
+  debut            DateTime
+  finPrevue        DateTime
+  heuresFacturees  Int
+  tarifApplique    TarifApplique
+  montantLocation  Int
+  caution          Int
+  statut           StatutContrat @default(EN_COURS)
+  retourReel       DateTime?
+  retardMinutes    Int?
+  penaliteRetard   Int?
+  penaliteDegats   Int?
+  /// [{ libelle, montant }]
+  degats           Json?
+  cautionRestituee Int?
+  noteEtatDesLieux String?
+  /// Clé de stockage du PDF
+  pdf              String?
+  creeParId        String
+  creePar          Compte        @relation("ContratCreePar", fields: [creeParId], references: [id])
+  clotureParId     String?
+  cloturePar       Compte?       @relation("ContratCloturePar", fields: [clotureParId], references: [id])
+  creeLe           DateTime      @default(now())
+  mouvements       Mouvement[]
+
+  @@index([statut, finPrevue])
+  @@index([exemplaireId])
+}
+
+model Mouvement {
+  id                 String             @id @default(cuid())
+  /// Unique en base : 2026-OP-43-012 ; affiché OP-43-012 (CONCEPTION § 6.4).
+  numero             String             @unique
+  semaineId          String
+  semaine            Semaine            @relation(fields: [semaineId], references: [id])
+  /// Date réelle de l'opération
+  date               DateTime
+  sens               Sens
+  categorie          CategorieMouvement
+  /// Toujours positif : le sens porte le signe.
+  montant            Int
+  motif              String
+  contratId          String?
+  contrat            Contrat?           @relation(fields: [contratId], references: [id])
+  /// Clé de stockage
+  justificatif       String?
+  /// JUST-43-03
+  justificatifNumero String?
+  /// Généré par un contrat : non modifiable à la main.
+  automatique        Boolean            @default(false)
+  /// Contre-passation (CONCEPTION § 6.5) : mouvement annulé par celui-ci.
+  annuleMouvementId  String?            @unique
+  annuleMouvement    Mouvement?         @relation("ContrePassation", fields: [annuleMouvementId], references: [id])
+  annulePar          Mouvement?         @relation("ContrePassation")
+  saisiParId         String
+  saisiPar           Compte             @relation(fields: [saisiParId], references: [id])
+  creeLe             DateTime           @default(now())
+
+  @@index([semaineId, date])
+  @@index([contratId])
+}
+
+model Semaine {
+  /// « 2026-S43 » (semaine ISO, lundi → dimanche)
+  id                    String        @id
+  annee                 Int
+  numero                Int
+  /// Lundi 00:00 heure serveur, en UTC
+  debut                 DateTime
+  /// Lundi suivant 00:00 (borne exclusive)
+  fin                   DateTime
+  statut                StatutSemaine @default(OUVERTE)
+  soldeOuverture        Int
+  soldeCloture          Int?
+  clotureeLe            DateTime?
+  clotureeParId         String?
+  clotureePar           Compte?       @relation("SemaineClotureePar", fields: [clotureeParId], references: [id])
+  declarationPdf        String?
+  /// Empreinte SHA-256 du PDF remis au FISC
+  declarationSha256     String?
+  compteurOperations    Int           @default(0)
+  compteurJustificatifs Int           @default(0)
+  mouvements            Mouvement[]
+
+  @@unique([annee, numero])
+}
+
+// ── Comptes et administration ───────────────────────────────────────────────
+
+model Compte {
+  id                String         @id @default(cuid())
+  discordId         String         @unique
+  pseudo            String
+  nomAffiche        String
+  avatarUrl         String?
+  role              Role           @default(GESTIONNAIRE)
+  actif             Boolean        @default(true)
+  ajouteLe          DateTime       @default(now())
+  ajouteParId       String?
+  ajoutePar         Compte?        @relation("CompteAjoutePar", fields: [ajouteParId], references: [id])
+  comptesAjoutes    Compte[]       @relation("CompteAjoutePar")
+  derniereConnexion DateTime?
+  mouvements        Mouvement[]
+  contratsCrees     Contrat[]      @relation("ContratCreePar")
+  contratsClotures  Contrat[]      @relation("ContratCloturePar")
+  semainesCloturees Semaine[]      @relation("SemaineClotureePar")
+  vehiculesModifies Vehicule[]     @relation("VehiculeModifiePar")
+  journal           JournalAudit[]
+}
+
+/// Séquences annuelles (contrats, déclarations).
+model Compteur {
+  /// « CTR-2026 »
+  cle    String @id
+  valeur Int    @default(0)
+}
+
+/// Une seule ligne, id = 1.
+model Parametres {
+  id                              Int     @id @default(1)
+  nomEntreprise                   String  @default("Black Pégasus – American Transports")
+  telephoneAgence                 String
+  horaires                        String
+  fuseauServeur                   String  @default("Europe/Paris")
+  numeroImmatriculationEntreprise String
+  toleranceRetardMin              Int     @default(15)
+  majorationRetard                Float   @default(0.5)
+  seuilDefautRestitutionMin       Int     @default(180)
+  /// CONCEPTION § 9.4 : pénalités encaissées à part (désactivé).
+  penalitesSurCaution             Boolean @default(false)
+  /// Décision D4 : la clôture ouvre ce nombre d'heures avant la fin de semaine (24 = dimanche 00:00).
+  ouvertureClotureHeuresAvantFin  Int     @default(24)
+  /// [{ libelle, montant }]
+  forfaitsDegats                  Json
+  /// Accroche, présentation de la maison, étapes « Comment louer »
+  textesSite                      Json
+  /// { dateMiseAJour, introduction, articles: [{ titre, contenu (markdown) }] }
+  reglement                       Json
+}
+
+model JournalAudit {
+  id       String   @id @default(cuid())
+  date     DateTime @default(now())
+  compteId String
+  compte   Compte   @relation(fields: [compteId], references: [id])
+  /// « contrat.creer », « semaine.cloturer », « compte.desactiver »…
+  action   String
+  /// « Contrat:CTR-2026-0042 »
+  cible    String
+  details  Json?
+
+  @@index([date])
+}
+
+// ── Auth.js (adaptateur Prisma) ─────────────────────────────────────────────
+// Compte reste la table métier ; le lien se fait par l'identifiant Discord (phase 5).
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
 }
