@@ -1,9 +1,9 @@
 import { ErreurMetier } from "./types";
 
-/** Séparateur de milliers : espace fine insécable (U+202F). */
-export const SEPARATEUR_MILLIERS = " ";
+/** Séparateur de milliers : espace insécable (U+00A0). */
+export const SEPARATEUR_MILLIERS = String.fromCharCode(0x00a0);
 /** Signe moins typographique (U+2212). */
-export const SIGNE_MOINS = "−";
+export const SIGNE_MOINS = String.fromCharCode(0x2212);
 
 /** Montant valide : dollars entiers, positif ou nul. */
 export function estMontantValide(n: unknown): n is number {

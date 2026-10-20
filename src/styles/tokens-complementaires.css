@@ -1,0 +1,80 @@
+/* Variantes de couleurs utilisées par les maquettes HTML et absentes de tokens.css
+   (lu en lecture seule). Toutes dérivent des tokens par color-mix, sauf les neutres
+   marqués « valeur maquette ». Toute nouvelle couleur passe par ce fichier. */
+
+:root {
+  /* Neutres de base */
+  --bp-blanc: #fff; /* valeur maquette : voiles blancs du verre */
+  --bp-ombre: #000; /* valeur maquette : ombres portées */
+  --bp-text-off: #a4a4ac; /* valeur maquette : badge « Complet », statut atténué */
+  --bp-placeholder: #6e6e76; /* valeur maquette : texte indicatif des champs du panel */
+
+  /* Voiles blancs */
+  --bp-voile-3: color-mix(in srgb, var(--bp-blanc) 3%, transparent);
+  --bp-voile-4: color-mix(in srgb, var(--bp-blanc) 4%, transparent);
+  --bp-voile-5: color-mix(in srgb, var(--bp-blanc) 5%, transparent);
+  --bp-voile-6: color-mix(in srgb, var(--bp-blanc) 6%, transparent);
+  --bp-voile-8: color-mix(in srgb, var(--bp-blanc) 8%, transparent);
+  --bp-voile-10: color-mix(in srgb, var(--bp-blanc) 10%, transparent);
+  --bp-trait-6: color-mix(in srgb, var(--bp-blanc) 6%, transparent);
+  --bp-trait-8: color-mix(in srgb, var(--bp-blanc) 8%, transparent);
+  --bp-trait-9: color-mix(in srgb, var(--bp-blanc) 9%, transparent);
+  --bp-trait-10: color-mix(in srgb, var(--bp-blanc) 10%, transparent);
+  --bp-trait-12: color-mix(in srgb, var(--bp-blanc) 12%, transparent);
+  --bp-trait-18: color-mix(in srgb, var(--bp-blanc) 18%, transparent);
+  --bp-trait-30: color-mix(in srgb, var(--bp-blanc) 30%, transparent);
+
+  /* Or */
+  --bp-or-8: color-mix(in srgb, var(--bp-gold-2) 8%, transparent);
+  --bp-or-10: color-mix(in srgb, var(--bp-gold-2) 10%, transparent);
+  --bp-or-22: color-mix(in srgb, var(--bp-gold-2) 22%, transparent);
+  --bp-or-30: color-mix(in srgb, var(--bp-gold-2) 30%, transparent);
+  --bp-or-40: color-mix(in srgb, var(--bp-gold-2) 40%, transparent);
+  --bp-or-45: color-mix(in srgb, var(--bp-gold-2) 45%, transparent);
+  --bp-or-55: color-mix(in srgb, var(--bp-gold-2) 55%, transparent);
+  --bp-or-60: color-mix(in srgb, var(--bp-gold-2) 60%, transparent);
+  --bp-or-70: color-mix(in srgb, var(--bp-gold-2) 70%, transparent);
+  --bp-fond-badge-or: color-mix(
+    in srgb,
+    color-mix(in srgb, var(--bp-black) 85%, var(--bp-gold-1)) 55%,
+    transparent
+  );
+
+  /* Argent / texte */
+  --bp-argent-35: color-mix(in srgb, var(--bp-silver-1) 35%, transparent);
+  --bp-argent-50: color-mix(in srgb, var(--bp-silver-1) 50%, transparent);
+  --bp-texte-7: color-mix(in srgb, var(--bp-text) 7%, transparent);
+  --bp-texte-32: color-mix(in srgb, var(--bp-text) 32%, transparent);
+  --bp-texte-70: color-mix(in srgb, var(--bp-text) 70%, transparent);
+  --bp-texte-85: color-mix(in srgb, var(--bp-text) 85%, transparent);
+  --bp-attenue-8: color-mix(in srgb, var(--bp-text-muted) 8%, transparent);
+  --bp-attenue-30: color-mix(in srgb, var(--bp-text-muted) 30%, transparent);
+  --bp-attenue-45: color-mix(in srgb, var(--bp-text-muted) 45%, transparent);
+
+  /* Noir */
+  --bp-noir-35: color-mix(in srgb, var(--bp-black) 35%, transparent);
+  --bp-noir-55: color-mix(in srgb, var(--bp-black) 55%, transparent);
+  --bp-noir-85: color-mix(in srgb, var(--bp-black) 85%, transparent);
+  --bp-surface-55: color-mix(in srgb, var(--bp-surface) 55%, transparent);
+
+  /* Alerte */
+  --bp-alerte-7: color-mix(in srgb, var(--bp-alert) 7%, transparent);
+  --bp-alerte-8: color-mix(in srgb, var(--bp-alert) 8%, transparent);
+  --bp-alerte-18: color-mix(in srgb, var(--bp-alert) 18%, transparent);
+  --bp-alerte-45: color-mix(in srgb, var(--bp-alert) 45%, transparent);
+
+  /* Ombres des boutons or */
+  --bp-ombre-or-site:
+    0 12px 32px -12px var(--bp-or-55),
+    inset 0 1px 0 color-mix(in srgb, var(--bp-blanc) 55%, transparent);
+  --bp-ombre-or-panel:
+    0 10px 26px -12px var(--bp-or-55),
+    inset 0 1px 0 color-mix(in srgb, var(--bp-blanc) 50%, transparent);
+  --bp-ombre-bouton: 0 2px 6px color-mix(in srgb, var(--bp-ombre) 40%, transparent);
+  --bp-ombre-carte:
+    inset 0 1px 0 color-mix(in srgb, var(--bp-gold-2) 28%, transparent),
+    0 30px 60px -28px color-mix(in srgb, var(--bp-ombre) 80%, transparent);
+
+  /* Avatar sans photo */
+  --bp-avatar-fond: linear-gradient(145deg, #4a4a52, #1b1b20); /* valeur maquette */
+}

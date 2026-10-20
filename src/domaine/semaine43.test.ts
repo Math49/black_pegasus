@@ -133,7 +133,7 @@ describe("semaine 43 de démonstration", () => {
       "Clôture possible à partir du dimanche 25/10 à 00:00",
       "5 / 5 dépenses justifiées",
       "35 opérations numérotées, sans trou",
-      "Solde rapproché : $514 630",
+      "Solde rapproché : $514 630",
       "5 contrats encore en cours, dont 1 en retard",
     ]);
 

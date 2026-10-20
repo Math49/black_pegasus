@@ -1,6 +1,8 @@
 @import "tailwindcss";
 /* Seule source des couleurs, ombres, verres et polices : importée telle quelle. */
 @import "../../docs/handoff/design/tokens.css" layer(base);
+@import "../styles/tokens-complementaires.css" layer(base);
+@import "../styles/composants.css";
 
 /* Palette Tailwind par défaut retirée : seules les couleurs des tokens existent. */
 @theme {
@@ -55,43 +57,6 @@
   --spacing-cible: var(--bp-touch);
   --spacing-btn-site: var(--bp-btn-site-h);
   --spacing-btn-admin: var(--bp-btn-admin-h);
-}
-
-/* Recettes de verre (HANDOFF § 2) */
-@utility glass-site {
-  background: var(--bp-glass-site-bg);
-  -webkit-backdrop-filter: var(--bp-glass-site-blur);
-  backdrop-filter: var(--bp-glass-site-blur);
-  border: 1px solid var(--bp-glass-site-border);
-  border-radius: var(--bp-radius-panel);
-  box-shadow: var(--bp-glass-site-shadow);
-}
-
-@utility glass-admin {
-  background: var(--bp-glass-admin-bg);
-  -webkit-backdrop-filter: var(--bp-glass-admin-blur);
-  backdrop-filter: var(--bp-glass-admin-blur);
-  border: 1px solid var(--bp-glass-admin-border);
-  border-radius: var(--bp-radius-panel);
-  box-shadow: var(--bp-glass-admin-shadow);
-}
-
-@utility glass-modal {
-  background: var(--bp-modal-bg);
-  -webkit-backdrop-filter: var(--bp-modal-blur);
-  backdrop-filter: var(--bp-modal-blur);
-  border: 1px solid var(--bp-modal-border);
-  border-radius: var(--bp-radius-panel-lg);
-  box-shadow: var(--bp-modal-shadow);
-}
-
-/* Repli opaque sans backdrop-filter (CONCEPTION § 8) */
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .glass-site,
-  .glass-admin,
-  .glass-modal {
-    background: var(--bp-surface);
-  }
 }
 
 @utility texte-or {
@@ -155,9 +120,9 @@
     -webkit-font-smoothing: antialiased;
   }
 
+  /* Anneau de focus en outline : jamais masqué par les ombres des composants. */
   :focus-visible {
-    outline: none;
-    box-shadow: var(--bp-focus-ring);
-    border-color: var(--bp-focus-border);
+    outline: 2px solid var(--bp-focus-border);
+    outline-offset: 2px;
   }
 }

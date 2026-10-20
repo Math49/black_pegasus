@@ -160,7 +160,7 @@ describe("controlesAvantCloture", () => {
     expect(r.controles.map((c) => [c.cle, c.niveau, c.message])).toEqual([
       ["justificatifs", "ok", "2 / 2 dépenses justifiées"],
       ["numerotation", "ok", "3 opérations numérotées, sans trou"],
-      ["solde", "ok", "Solde rapproché : $1 150"],
+      ["solde", "ok", "Solde rapproché : $1 150"],
       ["contrats", "ok", "Aucun contrat en cours"],
     ]);
   });
@@ -223,7 +223,7 @@ describe("controlesAvantCloture", () => {
     expect(r.controles.find((c) => c.cle === "solde")).toEqual({
       cle: "solde",
       niveau: "bloquant",
-      message: "Écart de solde : registre $1 150, constaté $1 149",
+      message: "Écart de solde : registre $1 150, constaté $1 149",
     });
   });
 

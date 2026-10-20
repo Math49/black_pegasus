@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { estMontantValide, exigerMontant, formaterDollars } from "./argent";
 
-const f = (s: string) => s.replace(/ /g, " ").replace(/-/g, "−");
+const f = (s: string) => s.replace(/ /g, " ").replace(/-/g, "−");
 
 describe("formaterDollars", () => {
   it.each([
@@ -17,9 +17,9 @@ describe("formaterDollars", () => {
     expect(formaterDollars(n)).toBe(f(attendu));
   });
 
-  it("utilise une espace insécable fine, jamais une espace simple", () => {
+  it("utilise une espace insécable, jamais une espace simple", () => {
     expect(formaterDollars(28000)).not.toContain(" ");
-    expect(formaterDollars(28000)).toBe("$28 000");
+    expect(formaterDollars(28000)).toBe("$28 000");
   });
 
   it("affiche le signe + sur demande", () => {

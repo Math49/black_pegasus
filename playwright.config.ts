@@ -5,6 +5,8 @@ const port = Number(process.env.PORT ?? 3000);
 export default defineConfig({
   testDir: "./tests/e2e",
   fullyParallel: true,
+  // Le serveur de dev compile à la demande : un seul worker évite les délais dépassés.
+  workers: process.env.CI ? undefined : 1,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   reporter: process.env.CI ? "github" : "list",
