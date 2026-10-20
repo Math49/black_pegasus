@@ -816,6 +816,56 @@
     gap: 12px;
   }
 
+  /* ── Filtre de prix (flotte) ── */
+  .bp-barre {
+    background: color-mix(in srgb, var(--bp-silver-1) 22%, transparent);
+  }
+  .bp-barre-active {
+    background: linear-gradient(180deg, var(--bp-gold-2), var(--bp-gold-1));
+  }
+  .bp-curseur {
+    width: 100%;
+    height: var(--bp-touch);
+    margin: 0;
+    background: transparent;
+    appearance: none;
+    cursor: pointer;
+  }
+  .bp-curseur::-webkit-slider-runnable-track {
+    height: 2px;
+    border-radius: 2px;
+    background: color-mix(in srgb, var(--bp-silver-1) 20%, transparent);
+  }
+  .bp-curseur::-moz-range-track {
+    height: 2px;
+    border-radius: 2px;
+    background: color-mix(in srgb, var(--bp-silver-1) 20%, transparent);
+  }
+  .bp-curseur::-moz-range-progress {
+    height: 2px;
+    background: var(--bp-gold-gradient);
+  }
+  .bp-curseur::-webkit-slider-thumb {
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    margin-top: -10px;
+    border-radius: 50%;
+    border: 2px solid var(--bp-gold-text);
+    background: var(--bp-black);
+  }
+  .bp-curseur::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid var(--bp-gold-text);
+    background: var(--bp-black);
+  }
+  select.bp-fld option {
+    background: var(--bp-surface);
+    color: var(--bp-text);
+  }
+
   /* ── Carte véhicule (site) ── */
   .bp-vcard {
     display: flex;
@@ -835,9 +885,6 @@
     color: var(--bp-text);
     border-color: var(--bp-or-45);
   }
-  .bp-vcard--complet {
-    opacity: 0.7;
-  }
   .bp-vcard__media {
     position: relative;
     overflow: hidden;
@@ -847,8 +894,10 @@
   .bp-vcard__photo {
     object-fit: cover;
   }
+  /* Maquette : carte entière à 70 % d'opacité ; atténuation limitée à la photo pour garder
+     un contraste de texte ≥ 4,5:1. */
   .bp-vcard--complet .bp-vcard__photo {
-    filter: grayscale(1) brightness(0.7);
+    filter: grayscale(1) brightness(0.55);
   }
   .bp-vcard__fondu {
     position: absolute;

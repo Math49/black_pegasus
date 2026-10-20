@@ -1,11 +1,12 @@
-// Contenus initiaux du site (maquettes 01 et 04), modifiables ensuite dans Paramètres.
+// Contenus initiaux du site (maquettes 01, 03 et 04), modifiables ensuite dans Paramètres.
+// Mise en forme : voir src/lib/texteRiche.ts ; *texte* dans un titre = passage en or.
 // Les valeurs paramétrables sont des variables remplacées à l'affichage :
 //   {{telephone}} {{horaires}} {{toleranceRetardMin}} {{majorationRetardPourcent}}
 //   {{seuilDefautRestitutionHeures}} {{forfait:<libellé exact d'un forfait de dégâts>}}
 
 export const textesSite = {
   accroche: {
-    titre: "Le ciel et l’océan, à votre mesure",
+    titre: "Le ciel et l’océan, *à votre mesure*",
     texte:
       "Bateaux, avions et hélicoptères d’exception, préparés pour vous et remis en main propre. Choisissez votre appareil, appelez l’agence, signez sur place.",
   },
@@ -102,10 +103,14 @@ export const reglement = {
   ],
 };
 
-/** Textes de fiche connus (maquette 03). Les autres véhicules restent sans description. */
+/**
+ * Textes de fiche connus (maquette 03) : premier paragraphe = accroche, « ## » = titre de la
+ * présentation. Les autres véhicules restent sans description.
+ */
 export const descriptions: Record<string, string> = {
   luxor: [
     "Le vaisseau amiral de la flotte aérienne : une cabine de dix places et une autonomie taillée pour traverser San Andreas d’une traite.",
+    "## Un salon privé à dix mille pieds",
     "Le Luxor accueille jusqu’à dix passagers et leurs bagages. Idéal pour un déplacement d’affaires, un départ vers Cayo Perico ou une soirée qui commence au-dessus des nuages.",
   ].join("\n\n"),
 };

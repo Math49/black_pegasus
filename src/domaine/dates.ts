@@ -44,3 +44,10 @@ export function dureeMinutes(a: Date, b: Date, fuseau: string): number {
   const ms = msHorloge(b, fuseau) - msHorloge(a, fuseau);
   return Math.trunc(ms / 60_000) || 0; // || 0 : évite -0
 }
+
+/** Date calendaire « 2026-10-20 » → « 20/10/2026 » (date saisie, sans fuseau). */
+export function formaterDateCourte(iso: string): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
+  if (!m) throw new ErreurMetier(`Date invalide : « ${iso} ».`);
+  return `${m[3]}/${m[2]}/${m[1]}`;
+}

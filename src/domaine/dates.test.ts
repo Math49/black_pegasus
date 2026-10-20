@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   depuisHeureServeur,
+  formaterDateCourte,
   dureeMinutes,
   formaterHeureServeurIso,
   versHeureServeur,
@@ -73,5 +74,13 @@ describe("dureeMinutes", () => {
 
   it("négative si la fin précède le début", () => {
     expect(dureeMinutes(h("2026-10-24T22:00"), h("2026-10-24T21:00"), PARIS)).toBe(-60);
+  });
+});
+
+describe("formaterDateCourte", () => {
+  it("jour/mois/année", () => {
+    expect(formaterDateCourte("2026-10-20")).toBe("20/10/2026");
+    expect(formaterDateCourte("2026-01-05T10:00:00Z")).toBe("05/01/2026");
+    expect(() => formaterDateCourte("20/10/2026")).toThrow(/Date invalide/);
   });
 });

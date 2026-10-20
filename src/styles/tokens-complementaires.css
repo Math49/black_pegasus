@@ -21,6 +21,7 @@
   --bp-trait-9: color-mix(in srgb, var(--bp-blanc) 9%, transparent);
   --bp-trait-10: color-mix(in srgb, var(--bp-blanc) 10%, transparent);
   --bp-trait-12: color-mix(in srgb, var(--bp-blanc) 12%, transparent);
+  --bp-trait-14: color-mix(in srgb, var(--bp-blanc) 14%, transparent);
   --bp-trait-18: color-mix(in srgb, var(--bp-blanc) 18%, transparent);
   --bp-trait-30: color-mix(in srgb, var(--bp-blanc) 30%, transparent);
 
@@ -28,9 +29,12 @@
   --bp-or-8: color-mix(in srgb, var(--bp-gold-2) 8%, transparent);
   --bp-or-10: color-mix(in srgb, var(--bp-gold-2) 10%, transparent);
   --bp-or-22: color-mix(in srgb, var(--bp-gold-2) 22%, transparent);
+  --bp-or-25: color-mix(in srgb, var(--bp-gold-2) 25%, transparent);
   --bp-or-30: color-mix(in srgb, var(--bp-gold-2) 30%, transparent);
+  --bp-or-35: color-mix(in srgb, var(--bp-gold-2) 35%, transparent);
   --bp-or-40: color-mix(in srgb, var(--bp-gold-2) 40%, transparent);
   --bp-or-45: color-mix(in srgb, var(--bp-gold-2) 45%, transparent);
+  --bp-or-50: color-mix(in srgb, var(--bp-gold-2) 50%, transparent);
   --bp-or-55: color-mix(in srgb, var(--bp-gold-2) 55%, transparent);
   --bp-or-60: color-mix(in srgb, var(--bp-gold-2) 60%, transparent);
   --bp-or-70: color-mix(in srgb, var(--bp-gold-2) 70%, transparent);
