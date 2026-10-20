@@ -1,0 +1,7 @@
+docs/
+public/
+src/generated/
+.next/
+package-lock.json
+*.md
+.claude/

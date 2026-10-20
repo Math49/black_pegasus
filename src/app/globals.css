@@ -1,0 +1,163 @@
+@import "tailwindcss";
+/* Seule source des couleurs, ombres, verres et polices : importée telle quelle. */
+@import "../../docs/handoff/design/tokens.css" layer(base);
+
+/* Palette Tailwind par défaut retirée : seules les couleurs des tokens existent. */
+@theme {
+  --color-*: initial;
+  --font-*: initial;
+  --radius-*: initial;
+}
+
+@theme inline {
+  --color-noir: var(--bp-black);
+  --color-surface: var(--bp-surface);
+  --color-texte: var(--bp-text);
+  --color-texte-attenue: var(--bp-text-muted);
+  --color-texte-doux: var(--bp-text-soft);
+  --color-texte-nav: var(--bp-text-nav);
+
+  --color-or-1: var(--bp-gold-1);
+  --color-or-2: var(--bp-gold-2);
+  --color-or-3: var(--bp-gold-3);
+  --color-or-texte: var(--bp-gold-text);
+  --color-or-icone: var(--bp-gold-icon);
+
+  --color-argent-1: var(--bp-silver-1);
+  --color-argent-2: var(--bp-silver-2);
+
+  --color-alerte: var(--bp-alert);
+  --color-alerte-texte: var(--bp-alert-text);
+  --color-alerte-fond: var(--bp-alert-bg);
+  --color-alerte-bordure: var(--bp-alert-border);
+
+  --color-champ-fond: var(--bp-field-bg);
+  --color-champ-bordure: var(--bp-field-border);
+  --color-focus-bordure: var(--bp-focus-border);
+
+  --font-display: var(--bp-font-display);
+  --font-body: var(--bp-font-body);
+  --font-sans: var(--bp-font-body);
+
+  --radius-panneau: var(--bp-radius-panel);
+  --radius-panneau-lg: var(--bp-radius-panel-lg);
+  --radius-controle: var(--bp-radius-control);
+  --radius-pilule: var(--bp-radius-pill);
+
+  --text-h1: var(--bp-h1);
+  --text-h2: var(--bp-h2);
+  --text-h3: var(--bp-h3);
+  --text-corps: var(--bp-body);
+  --text-prix-lg: var(--bp-price-lg);
+
+  --container-site: var(--bp-container);
+  --spacing-barre-laterale: var(--bp-sidebar);
+  --spacing-cible: var(--bp-touch);
+  --spacing-btn-site: var(--bp-btn-site-h);
+  --spacing-btn-admin: var(--bp-btn-admin-h);
+}
+
+/* Recettes de verre (HANDOFF § 2) */
+@utility glass-site {
+  background: var(--bp-glass-site-bg);
+  -webkit-backdrop-filter: var(--bp-glass-site-blur);
+  backdrop-filter: var(--bp-glass-site-blur);
+  border: 1px solid var(--bp-glass-site-border);
+  border-radius: var(--bp-radius-panel);
+  box-shadow: var(--bp-glass-site-shadow);
+}
+
+@utility glass-admin {
+  background: var(--bp-glass-admin-bg);
+  -webkit-backdrop-filter: var(--bp-glass-admin-blur);
+  backdrop-filter: var(--bp-glass-admin-blur);
+  border: 1px solid var(--bp-glass-admin-border);
+  border-radius: var(--bp-radius-panel);
+  box-shadow: var(--bp-glass-admin-shadow);
+}
+
+@utility glass-modal {
+  background: var(--bp-modal-bg);
+  -webkit-backdrop-filter: var(--bp-modal-blur);
+  backdrop-filter: var(--bp-modal-blur);
+  border: 1px solid var(--bp-modal-border);
+  border-radius: var(--bp-radius-panel-lg);
+  box-shadow: var(--bp-modal-shadow);
+}
+
+/* Repli opaque sans backdrop-filter (CONCEPTION § 8) */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass-site,
+  .glass-admin,
+  .glass-modal {
+    background: var(--bp-surface);
+  }
+}
+
+@utility texte-or {
+  background: var(--bp-gold-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility texte-argent {
+  background: var(--bp-silver-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility fond-or {
+  background: var(--bp-gold-gradient);
+}
+
+@utility filet-or {
+  height: 1px;
+  background: var(--bp-gold-rule);
+}
+
+@utility libelle {
+  font-size: var(--bp-label-size);
+  letter-spacing: var(--bp-label-tracking);
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--bp-text-muted);
+}
+
+@utility chiffres {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+@utility titre {
+  font-family: var(--bp-font-display);
+  letter-spacing: var(--bp-display-tracking);
+}
+
+@utility mot-symbole {
+  font-family: var(--bp-font-display);
+  font-weight: 700;
+  letter-spacing: var(--bp-wordmark-tracking);
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    margin: 0;
+    background: var(--bp-black);
+    color: var(--bp-text);
+    font-family: var(--bp-font-body);
+    font-size: var(--bp-body);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: none;
+    box-shadow: var(--bp-focus-ring);
+    border-color: var(--bp-focus-border);
+  }
+}

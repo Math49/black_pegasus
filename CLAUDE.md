@@ -17,7 +17,7 @@ Next.js (App Router, TypeScript strict) · Tailwind v4 · Prisma + PostgreSQL ·
 
 ## Commandes
 - `docker compose up -d` — Postgres de développement
-- Production : push sur `main` → GitHub Actions → image GHCR → webhook Portainer (voir `docs/CONCEPTION.md` § 12). Ne jamais lancer le seed de démonstration en production.
+- Production : déploiement géré à la main par le client ; ne pas créer de CI/CD, Dockerfile ni stack Portainer (le § 12 de la conception ne s'applique pas). Ne jamais lancer le seed de démonstration en production.
 - `npm run dev` · `npm run build` · `npm run lint`
 - `npm test` (Vitest) · `npm run test:e2e` (Playwright)
 - `npm run db:migrate` · `npm run db:seed`

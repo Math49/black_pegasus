@@ -1,0 +1,10 @@
+// Schéma complet en phase 2 (docs/CONCEPTION.md § 4).
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
