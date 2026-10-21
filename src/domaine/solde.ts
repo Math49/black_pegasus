@@ -144,6 +144,19 @@ export function formaterMilliers(n: number): string {
   return `${n < 0 ? SIGNE_MOINS : ""}${String(Math.abs(k)).replace(".", ",")}k`;
 }
 
+/**
+ * Graduation d'un graphique en barres : 4 intervalles « ronds » (25k pour un maximum de
+ * 91,4k → 0, 25k, 50k, 75k, 100k).
+ */
+export function graduation(max: number, intervalles = 4): number[] {
+  if (max <= 0) return Array.from({ length: intervalles + 1 }, (_, i) => i);
+  const puissance = 10 ** Math.floor(Math.log10(max / intervalles));
+  const pas =
+    [1, 2, 2.5, 5, 10].map((f) => f * puissance).find((p) => p * intervalles >= max) ??
+    10 * puissance;
+  return Array.from({ length: intervalles + 1 }, (_, i) => i * pas);
+}
+
 // ── Historique ─────────────────────────────────────────────────────────────
 
 export type MouvementHistorique = {

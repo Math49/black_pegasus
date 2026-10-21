@@ -231,3 +231,22 @@ export async function contrePasserMouvement(acteur: CompteConnecte, id: string) 
     return { numero: cp.numero };
   });
 }
+
+/** Registre des semaines demandées (mouvements réduits au calcul des recettes). */
+export function lireMouvementsDesSemaines(ids: readonly string[]) {
+  return prisma.semaine.findMany({
+    where: { id: { in: [...ids] } },
+    select: {
+      id: true,
+      mouvements: {
+        select: {
+          numero: true,
+          sens: true,
+          categorie: true,
+          montant: true,
+          annuleMouvementId: true,
+        },
+      },
+    },
+  });
+}

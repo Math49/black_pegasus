@@ -187,3 +187,13 @@ export function lignesTarification(
     },
   };
 }
+
+/** Retour prévu du tableau de bord : « 21:00 » le jour même, « Dim. 08:00 » sinon. */
+export function formaterRetourPrevu(fin: Date, maintenant: Date, fuseau: string): string {
+  const f = versHeureServeur(fin, fuseau);
+  const m = versHeureServeur(maintenant, fuseau);
+  const heure = format(f, "HH:mm");
+  if (format(f, "yyyy-MM-dd") === format(m, "yyyy-MM-dd")) return heure;
+  const jour = format(f, "EEE", { locale: fr }).replace(/\.$/, "");
+  return `${jour.charAt(0).toUpperCase()}${jour.slice(1)}. ${heure}`;
+}

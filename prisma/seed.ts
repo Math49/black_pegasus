@@ -62,6 +62,7 @@ type Flotte = {
 };
 
 type Demo = {
+  recettes8Semaines: Record<string, number>;
   parametres: {
     telephoneAgence: string;
     horaires: string;
@@ -257,54 +258,72 @@ async function main() {
       // ── Semaines ──
       const s42Demo = demo.semaines.find((s) => s.numero === 42)!;
       const s43Demo = demo.semaines.find((s) => s.numero === 43)!;
-      const s42 = semaineParNumero(2026, 42, FUSEAU);
       const s43 = semaineParNumero(2026, 43, FUSEAU);
       const vmoretti = compteId(s42Demo.clotureePar!);
 
-      // S42 : seules ses totaux sont connus. Deux opérations de reprise gardent le registre
-      // cohérent (solde d'ouverture S42 + mouvements = solde d'ouverture S43).
-      await tx.semaine.create({
-        data: {
-          id: s42.id,
-          annee: s42.annee,
-          numero: s42.numero,
-          debut: s42.debut,
-          fin: s42.fin,
-          statut: "CLOTUREE",
-          soldeOuverture: s42Demo.soldeOuverture,
-          soldeCloture: s42Demo.soldeCloture,
-          clotureeLe: h(s42Demo.clotureeLe!),
-          clotureeParId: vmoretti,
-          compteurOperations: 2,
-          compteurJustificatifs: 1,
-        },
-      });
-      await tx.mouvement.createMany({
-        data: [
-          {
-            numero: numeroOperationEnBase(2026, 42, 1),
-            semaineId: s42.id,
-            date: h("2026-10-18T23:50"),
-            sens: "ENTREE",
-            categorie: "LOCATION",
-            montant: s42Demo.recettes,
-            motif: "Reprise : recettes de la semaine 42",
-            saisiParId: vmoretti,
+      // S36–S42 : seuls leurs totaux sont connus (recettes8Semaines, S42 complète). Deux
+      // opérations de reprise par semaine gardent le registre cohérent : solde d'ouverture +
+      // mouvements = solde d'ouverture de la suivante, jusqu'à S42 = $349 530. Les dépenses de
+      // S36–S41, absentes des données, sont reconstituées à 26 % des recettes (ratio de S42).
+      const reprises = Object.entries(demo.recettes8Semaines)
+        .map(([cle, recettes]) => ({ numero: Number(cle.slice(1)), recettes }))
+        .filter((r) => r.numero < 43)
+        .map((r) => ({
+          ...r,
+          depenses: r.numero === 42 ? s42Demo.depenses : Math.round((r.recettes * 0.26) / 50) * 50,
+        }));
+      let ouverture =
+        s42Demo.soldeOuverture -
+        reprises.filter((r) => r.numero < 42).reduce((t, r) => t + r.recettes - r.depenses, 0);
+      for (const r of reprises) {
+        const s = semaineParNumero(2026, r.numero, FUSEAU);
+        const cloture = ouverture + r.recettes - r.depenses;
+        const fin = new Date(s.fin.getTime() - 10 * 60_000);
+        await tx.semaine.create({
+          data: {
+            id: s.id,
+            annee: s.annee,
+            numero: s.numero,
+            debut: s.debut,
+            fin: s.fin,
+            statut: "CLOTUREE",
+            soldeOuverture: ouverture,
+            soldeCloture: cloture,
+            clotureeLe:
+              r.numero === 42 ? h(s42Demo.clotureeLe!) : new Date(fin.getTime() + 8 * 60_000),
+            clotureeParId: vmoretti,
+            compteurOperations: 2,
+            compteurJustificatifs: 1,
           },
-          {
-            numero: numeroOperationEnBase(2026, 42, 2),
-            semaineId: s42.id,
-            date: h("2026-10-18T23:50"),
-            sens: "SORTIE",
-            categorie: "DIVERS",
-            montant: s42Demo.depenses,
-            motif: "Reprise : dépenses de la semaine 42",
-            justificatif: JUSTIFICATIF_DEMO,
-            justificatifNumero: "JUST-42-01",
-            saisiParId: vmoretti,
-          },
-        ],
-      });
+        });
+        await tx.mouvement.createMany({
+          data: [
+            {
+              numero: numeroOperationEnBase(2026, r.numero, 1),
+              semaineId: s.id,
+              date: fin,
+              sens: "ENTREE",
+              categorie: "LOCATION",
+              montant: r.recettes,
+              motif: `Reprise : recettes de la semaine ${r.numero}`,
+              saisiParId: vmoretti,
+            },
+            {
+              numero: numeroOperationEnBase(2026, r.numero, 2),
+              semaineId: s.id,
+              date: fin,
+              sens: "SORTIE",
+              categorie: "DIVERS",
+              montant: r.depenses,
+              motif: `Reprise : dépenses de la semaine ${r.numero}`,
+              justificatif: JUSTIFICATIF_DEMO,
+              justificatifNumero: `JUST-${r.numero}-01`,
+              saisiParId: vmoretti,
+            },
+          ],
+        });
+        ouverture = cloture;
+      }
 
       await tx.semaine.create({
         data: {
@@ -448,11 +467,19 @@ async function verifierSeed(prisma: PrismaClient) {
     orderBy: { debut: "asc" },
     include: { mouvements: true },
   });
-  const [s42, s43] = semaines;
+  const s42 = semaines.at(-2)!;
+  const s43 = semaines.at(-1)!;
   verifier(
-    semaines.length === 2 && s42.id === "2026-S42" && s43.id === "2026-S43",
-    "semaines S42 et S43",
+    semaines.length === 8 && s42.id === "2026-S42" && s43.id === "2026-S43",
+    "semaines S36 à S43",
   );
+  for (let i = 1; i < semaines.length; i++) {
+    const prec = semaines[i - 1];
+    const s = synthese(prec.mouvements.map(versComptable), prec.soldeOuverture);
+    verifier(s.solde === prec.soldeCloture, `solde de clôture ${prec.id}`);
+    verifier(semaines[i].soldeOuverture === prec.soldeCloture, `ouverture ${semaines[i].id}`);
+  }
+  verifier(s42.soldeOuverture === 349530, "solde d'ouverture S42 = $349 530");
 
   const synthese42 = synthese(s42.mouvements.map(versComptable), s42.soldeOuverture);
   verifier(synthese42.solde === s42.soldeCloture, "solde de clôture S42");

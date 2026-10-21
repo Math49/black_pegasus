@@ -303,3 +303,41 @@ export function preparerContrePassation(
     motif: `Annulation de ${numeroOperationAffiche(m.numero)}`,
   };
 }
+
+// ── Tableau de bord (maquette 11) ──────────────────────────────────────────
+
+/** Variation d'une semaine à l'autre : « +8,0 % » (null si la référence est nulle). */
+export function variationPourcent(actuel: number, precedent: number): string | null {
+  if (precedent === 0) return null;
+  const p = ((actuel - precedent) / Math.abs(precedent)) * 100;
+  const signe = p < 0 ? String.fromCharCode(0x2212) : "+";
+  return `${signe}${Math.abs(p).toFixed(1).replace(".", ",")}${String.fromCharCode(0xa0)}%`;
+}
+
+export type RecetteSemaine = {
+  numero: number;
+  libelle: string;
+  recettes: number;
+  courante: boolean;
+};
+
+/**
+ * Recettes (locations et pénalités, hors cautions) des `nombre` dernières semaines jusqu'à
+ * la semaine courante incluse ; une semaine sans registre compte pour zéro.
+ */
+export function recettesParSemaine(
+  semaines: readonly { id: string; mouvements: readonly MouvementComptable[] }[],
+  fenetre: readonly { id: string; numero: number }[],
+): RecetteSemaine[] {
+  const parId = new Map(semaines.map((s) => [s.id, s.mouvements]));
+  return fenetre.map((s, i) => ({
+    numero: s.numero,
+    libelle: libelleSemaine(s.numero),
+    recettes: synthese(parId.get(s.id) ?? [], 0).recettes,
+    courante: i === fenetre.length - 1,
+  }));
+}
+
+/** Impôts réglés pendant la semaine (contre-passations déduites). */
+export const impotsReglees = (mouvements: readonly MouvementComptable[]) =>
+  mouvements.filter((m) => m.categorie === "IMPOTS").reduce((t, m) => t - montantSigne(m), 0);

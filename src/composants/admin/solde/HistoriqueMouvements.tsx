@@ -40,7 +40,8 @@ export function HistoriqueMouvements({
   const chemin = usePathname();
   const params = useSearchParams();
   const [recherche, setRecherche] = useState(filtres.q);
-  const [creation, setCreation] = useState(false);
+  // « Nouveau mouvement » du tableau de bord arrive avec ?nouveau=1.
+  const [creation, setCreation] = useState(params.get("nouveau") === "1");
   const [selection, setSelection] = useState<MouvementAffiche | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 

@@ -840,6 +840,21 @@
     border-top: 1px solid var(--bp-trait-8);
   }
 
+  /* ── Barres des recettes hebdomadaires (maquette 11) ── */
+  .bp-histo {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px 8px 3px 3px;
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--bp-silver-2) 38%, transparent),
+      color-mix(in srgb, var(--bp-silver-1) 12%, transparent)
+    );
+  }
+  .bp-histo--courante {
+    background: linear-gradient(180deg, var(--bp-gold-2), var(--bp-gold-1));
+  }
+
   /* ── Dépôt d'un justificatif (maquette 13) ── */
   .bp-depot {
     position: relative;
