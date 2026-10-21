@@ -1,58 +1,62 @@
 # Image de production de Black Pégasus : Next.js + Prisma + Chromium (PDF via Playwright).
-# Construction : docker build -t black-pegasus .
+# Base Debian et non Alpine : Playwright ne fournit pas Chromium pour Alpine.
 
-# ── Dépendances (toutes, pour le build) ───────────────────────────────────
-FROM node:22-bookworm-slim AS deps
+FROM node:22-bookworm-slim AS construction
+
 WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends openssl \
+  && rm -rf /var/lib/apt/lists/*
+
 COPY package.json package-lock.json ./
-RUN npm ci --ignore-scripts
+RUN npm ci --no-audit --no-fund --ignore-scripts
 
-# ── Build ─────────────────────────────────────────────────────────────────
-FROM node:22-bookworm-slim AS build
-WORKDIR /app
-RUN apt-get update && apt-get install -y --no-install-recommends openssl && rm -rf /var/lib/apt/lists/*
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+COPY prisma ./prisma
+COPY prisma.config.ts ./
 # Le build ne se connecte pas à la base ; Prisma exige seulement une URL bien formée.
-ENV DATABASE_URL="postgresql://build:build@localhost:5432/build" \
+ENV DATABASE_URL="postgresql://construction:construction@localhost:5432/construction" \
     NEXT_TELEMETRY_DISABLED=1
-RUN npx prisma generate && npm run build && rm -rf .next/cache
+RUN npx prisma generate
 
-# ── Exécution ─────────────────────────────────────────────────────────────
-FROM node:22-bookworm-slim AS runtime
+COPY . .
+RUN npm run build && rm -rf .next/cache
+
+
+FROM node:22-bookworm-slim AS execution
+
 WORKDIR /app
+
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
-    PORT=3000 \
-    STOCKAGE_DIR=/data \
+    PORT=40520 \
+    STOCKAGE_DIR=/app/donnees/fichiers \
     AUTH_TRUST_HOST=true \
     PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 
-COPY package.json package-lock.json ./
 # Prisma : openssl et moteur de migration, téléchargé ici car l'utilisateur d'exécution
 # n'écrit pas dans node_modules. Chromium (navigateur headless seul, suffisant pour les PDF) :
 # bibliothèques système comprises, à la version de Playwright du package-lock.
+COPY package.json package-lock.json ./
 RUN apt-get update && apt-get install -y --no-install-recommends openssl \
-    && npm ci --omit=dev --ignore-scripts \
-    && node node_modules/@prisma/engines/scripts/postinstall.js \
-    && npx playwright install --with-deps --only-shell chromium \
-    && npm cache clean --force \
-    && rm -rf /var/lib/apt/lists/*
+  && npm ci --omit=dev --no-audit --no-fund --ignore-scripts \
+  && node node_modules/@prisma/engines/scripts/postinstall.js \
+  && npx playwright install --with-deps --only-shell chromium \
+  && npm cache clean --force \
+  && rm -rf /var/lib/apt/lists/*
 
-COPY --from=build --chown=node:node /app/.next ./.next
-COPY --from=build /app/public ./public
-COPY --from=build /app/next.config.ts /app/prisma.config.ts ./
-COPY --from=build /app/prisma ./prisma
-# Client Prisma généré, et domaine pour db:init-prod (lancé depuis la console du conteneur).
-COPY --from=build /app/src/generated ./src/generated
-COPY --from=build /app/src/domaine ./src/domaine
-COPY docker-entrypoint.sh ./
+COPY prisma ./prisma
+COPY prisma.config.ts next.config.ts ./
+COPY --from=construction /app/src/generated ./src/generated
+# Domaine : utilisé par l'initialisation de production (prisma/init-prod.ts).
+COPY --from=construction /app/src/domaine ./src/domaine
+COPY --from=construction /app/public ./public
+COPY --from=construction --chown=node:node /app/.next ./.next
 
-RUN chmod +x docker-entrypoint.sh \
-    && mkdir -p /data && chown node:node /data
+RUN mkdir -p /app/donnees/fichiers && chown -R node:node /app/donnees
+
 USER node
-VOLUME ["/data"]
-EXPOSE 3000
-HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
-  CMD node -e "fetch('http://127.0.0.1:'+(process.env.PORT||3000)+'/api/sante').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
-ENTRYPOINT ["./docker-entrypoint.sh"]
+
+EXPOSE 40520
+
+# Migrations, initialisation de production (sans effet si déjà faite), puis serveur.
+CMD ["sh", "-c", "node_modules/.bin/prisma migrate deploy && npm run --silent db:init-prod && exec node_modules/.bin/next start -H 0.0.0.0 -p \"$PORT\""]

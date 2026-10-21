@@ -16,11 +16,11 @@ import { categoriesInitiales, reglement, reglesInitiales, textesSite } from "./c
 
 const { values: v } = parseArgs({
   options: {
-    telephone: { type: "string" },
-    horaires: { type: "string" },
-    immatriculation: { type: "string" },
-    solde: { type: "string" },
-    fuseau: { type: "string", default: "Europe/Paris" },
+    telephone: { type: "string", default: process.env.AGENCE_TELEPHONE || undefined },
+    horaires: { type: "string", default: process.env.AGENCE_HORAIRES || undefined },
+    immatriculation: { type: "string", default: process.env.AGENCE_IMMATRICULATION || undefined },
+    solde: { type: "string", default: process.env.SOLDE_OUVERTURE || undefined },
+    fuseau: { type: "string", default: process.env.FUSEAU_SERVEUR || "Europe/Paris" },
   },
 });
 
@@ -42,7 +42,9 @@ async function main() {
     const parametres = await prisma.parametres.findUnique({ where: { id: 1 } });
     if (!parametres) {
       if (!v.telephone || !v.horaires || !v.immatriculation)
-        arreter("Paramètres absents : --telephone, --horaires et --immatriculation sont requis.");
+        arreter(
+          "Première initialisation : AGENCE_TELEPHONE, AGENCE_HORAIRES et AGENCE_IMMATRICULATION sont requis.",
+        );
       await prisma.parametres.create({
         data: {
           id: 1,
@@ -81,7 +83,9 @@ async function main() {
     if ((await prisma.semaine.count()) === 0) {
       const solde = Number(v.solde);
       if (!Number.isSafeInteger(solde) || solde < 0)
-        arreter("Première semaine : --solde (dollars entiers, solde de caisse actuel) est requis.");
+        arreter(
+          "Première initialisation : SOLDE_OUVERTURE (solde de caisse, dollars entiers) est requis.",
+        );
       const fuseau = (await prisma.parametres.findUniqueOrThrow({ where: { id: 1 } }))
         .fuseauServeur;
       const s = semaineDe(new Date(), fuseau);

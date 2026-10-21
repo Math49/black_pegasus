@@ -16,8 +16,8 @@ Le dossier `docs/handoff/` est en **lecture seule** : ne pas le modifier.
 Next.js (App Router, TypeScript strict) · Tailwind v4 · Prisma + PostgreSQL · Auth.js (Discord) · Zod · date-fns + @date-fns/tz · Playwright (PDF et tests e2e) · Vitest.
 
 ## Commandes
-- `docker compose up -d` — Postgres de développement
-- Production : image Docker (`Dockerfile`, Chromium inclus pour les PDF) déployée à la main par le client sur son VPS ; voir `docs/DEPLOIEMENT.md`. Ne pas créer de CI/CD ni de stack Portainer. `docker build -t black-pegasus .` · `npm run db:init-prod` au premier lancement. Ne jamais lancer le seed de démonstration en production.
+- `docker compose -f docker-compose.dev.yml up -d` — Postgres de développement (`--profile outils` : pgAdmin)
+- Production : push sur `main` → `.github/workflows/build.yml` (image GHCR `latest` + webhook Portainer) → stack `docker-compose.yml` (postgres, pgadmin, app, sauvegarde) ; voir `docs/DEPLOIEMENT.md`. Même organisation que le projet `centrale_nai_sahp` du client. L'image (Debian, Chromium inclus) lance les migrations puis `db:init-prod` à chaque démarrage. Ne jamais lancer le seed de démonstration en production.
 - `npm run dev` · `npm run build` · `npm run lint`
 - `npm test` (Vitest) · `npm run test:e2e` (Playwright)
 - `npm run db:migrate` · `npm run db:seed`

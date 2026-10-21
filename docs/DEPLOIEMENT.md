@@ -1,145 +1,113 @@
 # Déploiement de Black Pégasus
 
-L'application est livrée sous forme d'**image Docker**, que le client déploie lui-même sur son VPS. Aucun pipeline CI/CD ni aucune stack Portainer n'est fourni.
+```text
+git push sur main
+   └─► GitHub Actions « Build & Push » (.github/workflows/build.yml)
+          docker build (cible execution) ─► ghcr.io/math49/black_pegasus:latest
+          └─► POST du webhook Portainer ─► la stack retélécharge l'image et redémarre
+                 └─► au démarrage : prisma migrate deploy ─► db:init-prod ─► next start
+```
+
+Même organisation que `centrale_nai_sahp` : workflow `build.yml`, `Dockerfile` en deux étapes (`construction`, `execution`), `docker-compose.yml` de production avec `postgres`, `pgadmin`, `app` et `sauvegarde`, scripts `deploiement/`.
+
+## GitHub
+
+- Environnement **`VPS-Mathis`** (Settings → Environments), avec le secret **`PORTAINER_WEBHOOK`** : l'URL du webhook de la stack dans Portainer.
+- L'image est poussée sur GHCR avec le `GITHUB_TOKEN` (permission `packages: write`, déclarée dans le workflow).
+- Si le paquet GHCR est privé, enregistrer `ghcr.io` comme registre dans Portainer (jeton GitHub avec `read:packages`).
+- Le workflow se lance à chaque push sur `main`/`master`, ou à la main (`workflow_dispatch`).
 
 ## L'image
 
-Le `Dockerfile` à la racine produit une image Node 22 (Debian slim). Elle contient :
-- l'application Next.js déjà construite ;
-- Prisma (client, CLI et moteur de migration) et les migrations ;
-- **Chromium en version headless**, avec ses bibliothèques système. Playwright s'en sert pour imprimer les PDF des contrats et des déclarations ; il est installé à la version de Playwright fixée par `package-lock.json` ;
-- le script `db:init-prod`.
+- **Base Debian slim, pas Alpine** : Playwright ne fournit pas Chromium pour Alpine. L'image embarque **Chromium headless** et ses bibliothèques système, à la version de Playwright fixée par `package-lock.json`. Il imprime les PDF des contrats et des déclarations.
+- Elle contient Prisma (client, CLI, moteur de migration) et les migrations. Elle ne contient **ni le seed de démonstration ni les tests** (exclus par `.dockerignore`).
+- Elle tourne avec l'utilisateur `node` et écoute sur le port **40520**. Les fichiers (photos, justificatifs, PDF archivés) vont dans `/app/donnees/fichiers`, monté sur le volume `fichiers`.
+- Commande de démarrage : migrations, puis `db:init-prod`, puis serveur. Si une étape échoue, le conteneur s'arrête plutôt que de servir une base à moitié migrée.
+- Sonde de santé : `/api/sante` (l'application répond et joint la base), utilisée par le healthcheck du compose.
+- Taille : environ 2,3 Go décompressée, dont environ 700 Mo pour Chromium et ses dépendances.
 
-Elle ne contient **ni le seed de démonstration ni les tests** (exclus par `.dockerignore`).
+## La stack (`docker-compose.yml`)
 
-Au démarrage, `docker-entrypoint.sh` applique les migrations (`prisma migrate deploy`), puis lance `next start`. Si une migration échoue, le conteneur s'arrête au lieu de servir une application à moitié migrée.
+| Service | Rôle | Port (local au VPS) |
+|---|---|---|
+| `postgres` | PostgreSQL 17 | `127.0.0.1:40521` |
+| `pgadmin` | Administration de la base | `127.0.0.1:40522` |
+| `app` | Black Pégasus | `127.0.0.1:40520` |
+| `sauvegarde` | `pg_dump` + archive des fichiers, chaque jour à `HEURE_SAUVEGARDE` (UTC), conservés `RETENTION_JOURS` jours | — |
 
-Autres caractéristiques :
-- exécution avec l'utilisateur non root `node` ;
-- port 3000 ;
-- volume `/data` pour les fichiers (photos, justificatifs, PDF archivés) ;
-- `HEALTHCHECK` sur `/api/sante`, qui vérifie aussi la connexion à la base.
+Les ports n'écoutent que sur `127.0.0.1` : le reverse proxy HTTPS du VPS publie `app`, et doit transmettre l'en-tête `X-Forwarded-For` (limitation de débit de la connexion).
 
-Taille : environ 2,3 Go décompressée, dont environ 700 Mo pour Chromium et ses dépendances.
-
-```bash
-docker build -t black-pegasus:1.0.0 .
-```
-
-Pour l'envoyer sur le VPS, deux possibilités :
-- **Avec un registre** : `docker tag` puis `docker push` vers le registre du client.
-- **Sans registre** : `docker save black-pegasus:1.0.0 | gzip > bp.tar.gz`, puis sur le VPS `gunzip -c bp.tar.gz | docker load`.
-
-## Variables d'environnement
+Les variables sont décrites dans **`.env.production.example`** (à copier en `.env` à côté du compose, ou à saisir dans Portainer). Celles marquées `:?` dans le compose sont obligatoires.
 
 | Variable | Rôle |
 |---|---|
-| `DATABASE_URL` | Connexion PostgreSQL. |
-| `AUTH_SECRET` | Secret Auth.js. Le générer avec `npx auth secret` ; ne jamais réutiliser celui du développement. |
-| `AUTH_URL` | Adresse publique du site, par exemple `https://black-pegasus.exemple`. |
-| `AUTH_DISCORD_ID`, `AUTH_DISCORD_SECRET` | Application Discord (OAuth2). Ajouter la redirection `https://<domaine>/api/auth/callback/discord` dans le portail Discord. |
-| `ADMIN_DISCORD_ID` | Identifiant Discord du premier administrateur (utilisé par `db:init-prod`). |
-| `PDF_TOKEN` | Facultatif. Jeton des pages internes imprimées en PDF. Vide, un jeton aléatoire est tiré à chaque démarrage, ce qui suffit pour un conteneur unique. |
-| `DISCORD_BOT_TOKEN` | Facultatif. Permet l'aperçu du compte Discord dans la modale d'ajout de compte. |
-
-Déjà fixées dans l'image : `NODE_ENV=production`, `PORT=3000`, `STOCKAGE_DIR=/data`, `AUTH_TRUST_HOST=true` (l'application tourne derrière un reverse proxy) et `PLAYWRIGHT_BROWSERS_PATH`. `HORLOGE_DEMO` est ignorée en production.
-
-Le reverse proxy HTTPS doit transmettre `X-Forwarded-For`, utilisé par la limitation de débit de la connexion.
-
-## Exemple de `docker-compose.yml` sur le VPS
-
-```yaml
-services:
-  app:
-    image: black-pegasus:1.0.0
-    restart: unless-stopped
-    env_file: .env.production
-    environment:
-      DATABASE_URL: postgresql://bp:${POSTGRES_PASSWORD}@db:5432/black_pegasus
-    volumes:
-      - fichiers:/data
-    ports:
-      - "127.0.0.1:3000:3000"   # exposé au seul reverse proxy local
-    depends_on:
-      db:
-        condition: service_healthy
-  db:
-    image: postgres:16
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: bp
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: black_pegasus
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U bp -d black_pegasus"]
-      interval: 5s
-      retries: 10
-volumes:
-  pgdata:
-  fichiers:
-```
-
-Postgres n'est pas publié à l'extérieur.
+| `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` | Base de production. |
+| `PGADMIN_EMAIL`, `PGADMIN_PASSWORD` | Connexion à pgAdmin. |
+| `AUTH_URL` | Adresse publique du site. Dans le portail Discord, ajouter la redirection `<AUTH_URL>/api/auth/callback/discord`. |
+| `AUTH_SECRET` | Secret Auth.js (`npx auth secret`), différent de celui du développement. |
+| `AUTH_DISCORD_ID`, `AUTH_DISCORD_SECRET` | Application Discord (OAuth2). |
+| `ADMIN_DISCORD_ID` | Premier administrateur. |
+| `AGENCE_TELEPHONE`, `AGENCE_HORAIRES`, `AGENCE_IMMATRICULATION`, `SOLDE_OUVERTURE`, `FUSEAU_SERVEUR` | **Première initialisation uniquement.** Ensuite, tout se modifie dans Paramètres et ces variables sont ignorées. |
+| `DISCORD_BOT_TOKEN`, `PDF_TOKEN` | Facultatifs. |
+| `APP_IMAGE`, `HEURE_SAUVEGARDE`, `RETENTION_JOURS` | Valeurs par défaut fournies. |
 
 ## Premier lancement
 
-```bash
-docker compose up -d
-docker compose exec app npm run db:init-prod -- --telephone 555-0100 --horaires "Tous les jours · 14h – 02h" --immatriculation "SA-000000" --solde 250000
-```
+1. Créer la stack dans Portainer à partir de `docker-compose.yml`. Les scripts du dossier `deploiement/` doivent être présents à côté (stack depuis le dépôt Git, ou fichiers copiés sur le VPS).
+2. Renseigner les variables, y compris celles de première initialisation.
+3. Démarrer la stack. Au premier démarrage, `db:init-prod` crée :
+   - la ligne `Parametres` ;
+   - les textes et le règlement de départ ;
+   - les catégories ;
+   - le premier administrateur ;
+   - la semaine en cours, ouverte sur `SOLDE_OUVERTURE`.
 
-`db:init-prod` crée uniquement ce qui manque, et sa relance ne modifie rien :
-- la ligne `Parametres` (téléphone, horaires, n° d'immatriculation, fuseau via `--fuseau`, `Europe/Paris` par défaut) ;
-- les textes et le règlement de départ ;
-- les catégories ;
-- le premier administrateur (`ADMIN_DISCORD_ID`) ;
-- la semaine en cours, ouverte sur le solde de caisse indiqué par `--solde`.
+   Aux démarrages suivants, il ne modifie rien.
+4. L'administrateur :
+   1. se connecte avec Discord ;
+   2. relit **Paramètres** (textes, règlement, règles et forfaits) ;
+   3. saisit la flotte dans **Véhicules** ;
+   4. ajoute les gestionnaires dans **Comptes**.
 
-**Ne jamais lancer le seed de démonstration en production.** Il n'est d'ailleurs pas présent dans l'image.
+**Ne jamais lancer le seed de démonstration en production** : il n'est pas dans l'image.
 
-Ensuite, l'administrateur :
-1. se connecte avec Discord ;
-2. relit **Paramètres** (textes, règlement, règles et forfaits de dégâts) ;
-3. saisit la flotte dans **Véhicules** ;
-4. ajoute les gestionnaires dans **Comptes**.
+## Mises à jour et retour arrière
 
-## Mise à jour
+Un push sur `main` reconstruit l'image et déclenche le webhook : Portainer retélécharge `latest` et redémarre `app`, et les migrations s'appliquent au démarrage. Une migration déjà appliquée n'est jamais annulée automatiquement : avant de revenir à une version antérieure (re-push d'un ancien commit), vérifier `prisma/migrations`.
 
-Construire et transférer la nouvelle image, changer l'étiquette dans le `docker-compose.yml`, puis lancer `docker compose up -d`. Les migrations s'appliquent au démarrage.
+## Sauvegardes et restauration
 
-Pour revenir en arrière, relancer avec l'étiquette précédente. Une migration déjà appliquée n'est jamais annulée automatiquement : vérifier `prisma/migrations` avant de revenir au-delà d'un changement de schéma.
+Le service `sauvegarde` écrit chaque jour, dans le volume `sauvegardes` :
+- `AAAAMMJJTHHMMSSZ.dump` : la base ;
+- `AAAAMMJJTHHMMSSZ.fichiers.tar.gz` : les fichiers.
 
-## Sauvegardes
-
-Sauvegarder chaque jour **la base et le volume `fichiers`**, et conserver 14 jours d'archives. Les PDF de déclaration archivés et leur empreinte SHA-256 font foi auprès du FISC.
-
-Exemple de tâche cron sur le VPS, lancée depuis le dossier du `docker-compose.yml` :
+Les PDF de déclaration archivés et leur empreinte SHA-256 font foi auprès du FISC : les fichiers sont sauvegardés avec la base.
 
 ```bash
-0 5 * * * cd /srv/black-pegasus && docker compose exec -T db pg_dump -U bp -Fc black_pegasus > /sauvegardes/bp-$(date +\%F).dump && docker run --rm -v black-pegasus_fichiers:/data -v /sauvegardes:/s debian:bookworm-slim tar -czf /s/fichiers-$(date +\%F).tar.gz -C /data . && find /sauvegardes -mtime +14 -delete
-```
+# Sauvegarde immédiate
+docker compose exec sauvegarde sh /usr/local/bin/sauvegarder.sh maintenant
 
-Le nom du volume (`black-pegasus_fichiers`) dépend du nom du dossier du projet : vérifier avec `docker volume ls`.
-
-## Restauration
-
-```bash
+# Restauration (liste les sauvegardes si aucun horodatage n'est donné)
 docker compose stop app
-docker compose exec -T db dropdb -U bp black_pegasus
-docker compose exec -T db createdb -U bp black_pegasus
-docker compose exec -T db pg_restore -U bp --no-owner -d black_pegasus < /sauvegardes/bp-AAAA-MM-JJ.dump
-docker run --rm -v black-pegasus_fichiers:/data -v /sauvegardes:/s debian:bookworm-slim tar -xzf /s/fichiers-AAAA-MM-JJ.tar.gz -C /data
+docker compose run --rm -v black-pegasus_fichiers:/cible/fichiers \
+  --entrypoint /bin/sh sauvegarde /usr/local/bin/restaurer.sh 20261021T030000Z
 docker compose start app
 ```
 
-La restauration `pg_dump -Fc` puis `pg_restore` a été testée en développement le 21/10/2026 : mêmes mouvements, mêmes contrats et même solde. La tester une fois sur le VPS avant l'ouverture.
+`restaurer.sh` :
+- refuse d'écraser une base qui contient déjà des mouvements, sauf avec `FORCER=1` (ajouter `-e FORCER=1` au `run`) ;
+- vérifie ensuite que chaque fichier cité par la base est présent dans le volume : photos, justificatifs, PDF de contrat et déclarations.
+
+Tout le circuit a été testé en local le 21/10/2026 : image `execution`, stack complète sous Postgres 17, initialisation automatique puis redémarrage sans effet, sauvegarde, restauration cohérente.
+
+## Développement
+
+`docker compose -f docker-compose.dev.yml up -d` lance le Postgres de développement. `--profile outils` ajoute pgAdmin sur `127.0.0.1:40522`.
 
 ## Contrôles après déploiement
 
-- `docker compose ps` affiche l'application `healthy`.
+- Le service `app` est `healthy` dans Portainer.
 - Le site public s'affiche, et le téléphone et les horaires sont ceux de Paramètres.
 - La connexion Discord aboutit au tableau de bord.
-- Créer un contrat de test, puis ouvrir son PDF : cela vérifie Chromium et le volume `/data`. Annuler ensuite ce contrat (administrateur).
-- Les en-têtes de sécurité (CSP, `X-Frame-Options`, HSTS) sont présents dans les réponses.
+- Créer un contrat de test, puis ouvrir son PDF : cela vérifie Chromium et le volume de fichiers. Annuler ensuite ce contrat (administrateur).
+- Lancer une sauvegarde immédiate et vérifier les deux archives.

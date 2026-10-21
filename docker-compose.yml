@@ -1,21 +1,101 @@
-# Développement uniquement : Postgres local.
+name: black-pegasus
+
 services:
-  db:
-    image: postgres:16
+  postgres:
+    image: postgres:17-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_USER: bp
-      POSTGRES_PASSWORD: bp
-      POSTGRES_DB: black_pegasus
-    ports:
-      - "${DB_PORT:-5432}:5432"
+      POSTGRES_USER: ${POSTGRES_USER:?renseigner POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?renseigner POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:?renseigner POSTGRES_DB}
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - donnees_postgres:/var/lib/postgresql/data
+    ports:
+      - '127.0.0.1:${POSTGRES_PORT:-40521}:5432'
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U bp -d black_pegasus"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  pgadmin:
+    image: dpage/pgadmin4:8
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:?renseigner PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:?renseigner PGADMIN_PASSWORD}
+      PGADMIN_CONFIG_SERVER_MODE: 'True'
+    ports:
+      - '127.0.0.1:${PGADMIN_PORT:-40522}:80'
+    volumes:
+      - pgadmin_donnees:/var/lib/pgadmin
+
+  app:
+    image: ${APP_IMAGE:-ghcr.io/math49/black_pegasus:latest}
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: '40520'
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
+      AUTH_URL: ${AUTH_URL:?renseigner AUTH_URL}
+      AUTH_SECRET: ${AUTH_SECRET:?renseigner AUTH_SECRET}
+      AUTH_DISCORD_ID: ${AUTH_DISCORD_ID:?renseigner AUTH_DISCORD_ID}
+      AUTH_DISCORD_SECRET: ${AUTH_DISCORD_SECRET:?renseigner AUTH_DISCORD_SECRET}
+      DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN:-}
+      ADMIN_DISCORD_ID: ${ADMIN_DISCORD_ID:?renseigner ADMIN_DISCORD_ID}
+      PDF_TOKEN: ${PDF_TOKEN:-}
+      STOCKAGE_DIR: /app/donnees/fichiers
+      # Première initialisation uniquement (ignorées une fois la base initialisée).
+      AGENCE_TELEPHONE: ${AGENCE_TELEPHONE:-}
+      AGENCE_HORAIRES: ${AGENCE_HORAIRES:-}
+      AGENCE_IMMATRICULATION: ${AGENCE_IMMATRICULATION:-}
+      SOLDE_OUVERTURE: ${SOLDE_OUVERTURE:-}
+      FUSEAU_SERVEUR: ${FUSEAU_SERVEUR:-Europe/Paris}
+    ports:
+      - '127.0.0.1:${APP_PORT:-40520}:40520'
+    volumes:
+      - fichiers:/app/donnees/fichiers
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:40520/api/sante').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+
+  sauvegarde:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGUSER: ${POSTGRES_USER}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      PGDATABASE: ${POSTGRES_DB}
+      PGHOST: postgres
+      RETENTION_JOURS: ${RETENTION_JOURS:-14}
+      HEURE_SAUVEGARDE: ${HEURE_SAUVEGARDE:-03}
+    volumes:
+      - fichiers:/source/fichiers:ro
+      - sauvegardes:/sauvegardes
+      - ./deploiement/sauvegarder.sh:/usr/local/bin/sauvegarder.sh:ro
+      - ./deploiement/restaurer.sh:/usr/local/bin/restaurer.sh:ro
+    entrypoint: ['/bin/sh', '/usr/local/bin/sauvegarder.sh', 'boucle']
 
 volumes:
-  pgdata:
+  donnees_postgres:
+  pgadmin_donnees:
+  fichiers:
+  sauvegardes:

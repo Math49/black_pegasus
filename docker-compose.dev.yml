@@ -1,0 +1,41 @@
+# Développement uniquement : Postgres local (et pgAdmin). Production : docker-compose.yml.
+# Le nom de projet reste « black_pegasus » pour conserver le volume de données existant.
+name: black_pegasus
+
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: bp
+      POSTGRES_PASSWORD: bp
+      POSTGRES_DB: black_pegasus
+    ports:
+      - "127.0.0.1:${DB_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bp -d black_pegasus"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  pgadmin:
+    image: dpage/pgadmin4:8
+    restart: unless-stopped
+    profiles: ["outils"]
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@black-pegasus.local
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    ports:
+      - "127.0.0.1:40522:80"
+    volumes:
+      - pgadmin_donnees:/var/lib/pgadmin
+
+volumes:
+  pgdata:
+  pgadmin_donnees:
