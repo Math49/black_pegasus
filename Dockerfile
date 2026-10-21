@@ -13,6 +13,7 @@ RUN npm ci --no-audit --no-fund --ignore-scripts
 
 COPY prisma ./prisma
 COPY prisma.config.ts ./
+COPY src/lib/urlBase.ts ./src/lib/urlBase.ts
 # Le build ne se connecte pas à la base ; Prisma exige seulement une URL bien formée.
 ENV DATABASE_URL="postgresql://construction:construction@localhost:5432/construction" \
     NEXT_TELEMETRY_DISABLED=1
@@ -49,6 +50,8 @@ COPY prisma.config.ts next.config.ts ./
 COPY --from=construction /app/src/generated ./src/generated
 # Domaine : utilisé par l'initialisation de production (prisma/init-prod.ts).
 COPY --from=construction /app/src/domaine ./src/domaine
+# Adresse de la base, lue par prisma.config.ts, l'application et init-prod.
+COPY --from=construction /app/src/lib/urlBase.ts ./src/lib/urlBase.ts
 COPY --from=construction /app/public ./public
 COPY --from=construction --chown=node:node /app/.next ./.next
 

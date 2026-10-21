@@ -12,6 +12,7 @@ import { PrismaClient } from "../src/generated/prisma/client";
 import { estIdentifiantDiscord } from "../src/domaine/comptes";
 import { estFuseauValide } from "../src/domaine/parametres";
 import { semaineDe } from "../src/domaine/semaine";
+import { urlBase } from "../src/lib/urlBase";
 import { categoriesInitiales, reglement, reglesInitiales, textesSite } from "./contenus";
 
 const { values: v } = parseArgs({
@@ -35,7 +36,7 @@ async function main() {
   if (!estFuseauValide(v.fuseau!)) arreter(`Fuseau inconnu : ${v.fuseau}`);
 
   const prisma = new PrismaClient({
-    adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
+    adapter: new PrismaPg({ connectionString: urlBase() }),
   });
   try {
     // Garde-fou : une base contenant déjà des mouvements n'est jamais réinitialisée.

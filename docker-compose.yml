@@ -42,7 +42,12 @@ services:
     environment:
       NODE_ENV: production
       PORT: '40530'
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
+      # L'application assemble l'adresse de la base et encode le mot de passe
+      # (caractères spéciaux autorisés).
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
       AUTH_URL: ${AUTH_URL:?renseigner AUTH_URL}
       AUTH_SECRET: ${AUTH_SECRET:?renseigner AUTH_SECRET}
       AUTH_DISCORD_ID: ${AUTH_DISCORD_ID:?renseigner AUTH_DISCORD_ID}
