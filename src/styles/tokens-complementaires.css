@@ -86,6 +86,12 @@
   --bp-encre-attenuee: #5e5e66;
   --bp-filet-papier: #dad6cc;
   --bp-or-encre: #8a6a24;
+  /* Déclaration FISC (31–32) : feuille blanche, gris neutres */
+  --bp-feuille: #fff;
+  --bp-encre-grise: #55555c;
+  --bp-encre-grise-foncee: #3c3c42;
+  --bp-filet-gris: #dcdce0;
+  --bp-filet-gris-clair: #e2e2e6;
 
   /* Avatar sans photo */
   --bp-avatar-fond: linear-gradient(145deg, #4a4a52, #1b1b20); /* valeur maquette */

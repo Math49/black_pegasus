@@ -341,3 +341,148 @@ export function recettesParSemaine(
 /** Impôts réglés pendant la semaine (contre-passations déduites). */
 export const impotsReglees = (mouvements: readonly MouvementComptable[]) =>
   mouvements.filter((m) => m.categorie === "IMPOTS").reduce((t, m) => t - montantSigne(m), 0);
+
+// ── Registre hebdomadaire (maquettes 19 et 32) ─────────────────────────────
+
+export type OngletRegistre = "toutes" | "recettes" | "depenses" | "cautions";
+
+const NATURE_ONGLET: Record<Exclude<OngletRegistre, "toutes">, Nature> = {
+  recettes: "RECETTE",
+  depenses: "DEPENSE",
+  cautions: "CAUTION",
+};
+
+export function filtrerRegistre<M extends Pick<MouvementComptable, "categorie">>(
+  mouvements: readonly M[],
+  onglet: OngletRegistre,
+): M[] {
+  if (onglet === "toutes") return [...mouvements];
+  return mouvements.filter((m) => natureMouvement(m.categorie) === NATURE_ONGLET[onglet]);
+}
+
+export function compteursOnglets(mouvements: readonly Pick<MouvementComptable, "categorie">[]) {
+  return {
+    toutes: mouvements.length,
+    recettes: filtrerRegistre(mouvements, "recettes").length,
+    depenses: filtrerRegistre(mouvements, "depenses").length,
+    cautions: filtrerRegistre(mouvements, "cautions").length,
+  };
+}
+
+/**
+ * Colonne et montant d'une ligne du registre : recette (+), dépense (montant payé) ou caution
+ * (signée). Une contre-passation apparaît en négatif dans la colonne de la ligne annulée.
+ */
+export function colonneRegistre(m: Pick<MouvementComptable, "sens" | "categorie" | "montant">): {
+  colonne: "recette" | "depense" | "caution" | "apport";
+  montant: number;
+} {
+  const s = montantSigne(m);
+  switch (natureMouvement(m.categorie)) {
+    case "RECETTE":
+      return { colonne: "recette", montant: s };
+    case "DEPENSE":
+      return { colonne: "depense", montant: -s };
+    case "CAUTION":
+      return { colonne: "caution", montant: s };
+    case "APPORT":
+      return { colonne: "apport", montant: s };
+  }
+}
+
+/** Totaux des colonnes du registre (lignes affichées). */
+export function totauxRegistre(
+  mouvements: readonly Pick<MouvementComptable, "sens" | "categorie" | "montant">[],
+) {
+  const t = { recette: 0, depense: 0, caution: 0, apport: 0 };
+  for (const m of mouvements) {
+    const c = colonneRegistre(m);
+    t[c.colonne] += c.montant;
+  }
+  return t;
+}
+
+/** Ventilation de la synthèse de la déclaration (maquette 31). */
+export function ventilation(
+  mouvements: readonly (Pick<MouvementComptable, "sens" | "categorie" | "montant"> & {
+    contratId?: string | null;
+  })[],
+) {
+  const somme = (c: CategorieMouvement, signe = 1) =>
+    mouvements.filter((m) => m.categorie === c).reduce((t, m) => t + signe * montantSigne(m), 0);
+  const contrats = new Set(
+    mouvements.filter((m) => m.categorie === "LOCATION" && m.contratId).map((m) => m.contratId),
+  );
+  return {
+    locations: somme("LOCATION"),
+    contratsLoues: contrats.size,
+    penalites: somme("PENALITE"),
+    impots: somme("IMPOTS", -1),
+    entretien: somme("ENTRETIEN", -1),
+    achats: somme("ACHAT_VEHICULE", -1),
+    divers: somme("DIVERS", -1),
+  };
+}
+
+/** Pièce abrégée du registre imprimé : « CTR-2026-0031 » → « CTR-0031 ». */
+export const pieceAbregee = (piece: string) => piece.replace(/^CTR-\d{4}-/, "CTR-");
+
+// ── Export CSV du registre ─────────────────────────────────────────────────
+
+export type LigneCsv = {
+  numero: string;
+  /** « 2026-10-19 09:15 », heure du serveur */
+  date: string;
+  categorie: string;
+  libelle: string;
+  piece: string;
+  sens: Sens;
+  categorieCode: CategorieMouvement;
+  montant: number;
+  mention?: string;
+};
+
+const champCsv = (v: string | number) => {
+  const t = String(v);
+  // Neutralise les formules pour les tableurs (« =… », « +… »…).
+  const sur = /^[=+\-@\t\r]/.test(t) && typeof v === "string" ? `'${t}` : t;
+  return /[;"\n\r]/.test(sur) ? `"${sur.replaceAll('"', '""')}"` : sur;
+};
+
+/**
+ * Registre au format CSV (séparateur « ; », montants entiers sans symbole, UTF-8 avec BOM
+ * pour l'ouverture directe dans un tableur français).
+ */
+export function registreCsv(lignes: readonly LigneCsv[]): string {
+  const entete = [
+    "N°",
+    "Date",
+    "Catégorie",
+    "Libellé",
+    "Pièce",
+    "Recette",
+    "Dépense",
+    "Caution",
+    "Apport",
+    "Mention",
+  ];
+  const corps = lignes.map((l) => {
+    const c = colonneRegistre({ sens: l.sens, categorie: l.categorieCode, montant: l.montant });
+    const col = (nom: typeof c.colonne) => (c.colonne === nom ? c.montant : "");
+    return [
+      l.numero,
+      l.date,
+      l.categorie,
+      l.libelle,
+      l.piece,
+      col("recette"),
+      col("depense"),
+      col("caution"),
+      col("apport"),
+      l.mention ?? "",
+    ]
+      .map(champCsv)
+      .join(";");
+  });
+  return `\uFEFF${[entete.join(";"), ...corps].join("\r\n")}\r\n`;
+}

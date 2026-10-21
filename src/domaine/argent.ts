@@ -24,8 +24,16 @@ export function exigerMontant(n: unknown, libelle = "Montant"): number {
  * et zéro reste sans signe.
  */
 export function formaterDollars(n: number, options: { signe?: boolean } = {}): string {
+  return formaterMontant(n, { ...options, devise: true });
+}
+
+/** Montant sans symbole (registre imprimé « montants en $ ») : `12 600`, `+1 000`, `−1 000`. */
+export function formaterMontant(
+  n: number,
+  { signe = false, devise = false }: { signe?: boolean; devise?: boolean } = {},
+): string {
   if (!Number.isSafeInteger(n)) throw new ErreurMetier("Montant non entier.");
   const chiffres = String(Math.abs(n)).replace(/\B(?=(\d{3})+(?!\d))/g, SEPARATEUR_MILLIERS);
-  const prefixe = n < 0 ? SIGNE_MOINS : options.signe && n > 0 ? "+" : "";
-  return `${prefixe}$${chiffres}`;
+  const prefixe = n < 0 ? SIGNE_MOINS : signe && n > 0 ? "+" : "";
+  return `${prefixe}${devise ? "$" : ""}${chiffres}`;
 }

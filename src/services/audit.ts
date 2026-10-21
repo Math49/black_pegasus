@@ -29,4 +29,5 @@ export const LIBELLES_ACTIONS: Record<string, string> = {
   "mouvement.creer": "Mouvement saisi",
   "mouvement.modifier": "Mouvement corrigé",
   "mouvement.contrePasser": "Mouvement contre-passé",
+  "semaine.cloturer": "Semaine clôturée",
 };

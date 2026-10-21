@@ -1,8 +1,8 @@
 import "server-only";
-import { randomBytes } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 import type { Browser } from "playwright";
 import { prisma } from "@/lib/prisma";
-import { enregistrerFichier, lireFichier } from "./stockage";
+import { enregistrerFichier, lireFichier, supprimerFichier } from "./stockage";
 
 // PDF (CONCEPTION § 8) : Playwright imprime en A4 une page HTML interne (/interne/pdf/…).
 // Ces pages ne répondent qu'avec le jeton PDF_TOKEN, transmis en en-tête par ce service.
@@ -73,3 +73,33 @@ export async function pdfContrat(contratId: string) {
   const fichier = await lireFichier(cle);
   return fichier ? { numero: contrat.numero, contenu: fichier.contenu } : null;
 }
+
+/**
+ * PDF de déclaration d'une semaine clôturée (§ 6.6) : généré une seule fois, puis servi tel
+ * quel. L'empreinte SHA-256 est calculée sur les octets archivés.
+ */
+export async function pdfDeclaration(semaineId: string) {
+  const s = await prisma.semaine.findUnique({ where: { id: semaineId } });
+  if (!s || s.statut !== "CLOTUREE") return null;
+  if (s.declarationPdf) {
+    const archive = await lireFichier(s.declarationPdf);
+    if (archive) return { contenu: archive.contenu, sha256: s.declarationSha256 };
+  }
+  const pdf = await imprimer(`/interne/pdf/declaration/${semaineId}`);
+  const sha256 = createHash("sha256").update(pdf).digest("hex");
+  const cle = await enregistrerFichier("pdf", new Uint8Array(pdf), "pdf");
+  // Garde-fou : une archive déjà posée par une génération concurrente n'est jamais remplacée.
+  const pose = await prisma.semaine.updateMany({
+    where: { id: semaineId, declarationPdf: null },
+    data: { declarationPdf: cle, declarationSha256: sha256 },
+  });
+  if (pose.count === 0) {
+    await supprimerFichier(cle);
+    return pdfDeclaration(semaineId);
+  }
+  return { contenu: pdf, sha256 };
+}
+
+/** Brouillon filigrané d'une semaine ouverte : jamais archivé. */
+export const pdfBrouillonDeclaration = (semaineId: string) =>
+  imprimer(`/interne/pdf/declaration/${semaineId}?brouillon=1`);

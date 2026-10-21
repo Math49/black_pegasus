@@ -81,3 +81,121 @@ body:has(.pdf-feuille) {
 .pdf-attenue {
   color: var(--bp-encre-attenuee);
 }
+
+/* ── Déclaration FISC (31–32) ── */
+.pdf-feuille--fisc {
+  background: var(--bp-feuille);
+  padding: 36px 48px 26px;
+  gap: 14px;
+}
+.pdf-feuille--fisc.pdf-suite {
+  padding: 40px 44px 28px;
+}
+.pdf-titre {
+  font-family: var(--bp-font-display);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.pdf-rubrique {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 800;
+  color: var(--bp-encre);
+  padding-bottom: 6px;
+  border-bottom: 1.5px solid var(--bp-encre);
+}
+.pdf-cle {
+  font-size: 12px;
+  color: var(--bp-encre-grise);
+}
+.pdf-valeur {
+  font-size: 13px;
+  font-weight: 700;
+}
+.pdf-ligne {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--bp-filet-gris);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.pdf-ligne--sous {
+  padding-left: 16px;
+  color: var(--bp-encre-grise);
+  font-size: 12.5px;
+}
+.pdf-cg,
+.pdf-rg {
+  display: grid;
+  column-gap: 8px;
+  align-items: baseline;
+  font-variant-numeric: tabular-nums;
+}
+.pdf-cg {
+  grid-template-columns: 104px 1fr 120px 166px 66px 64px;
+  padding: 3px 0;
+  border-bottom: 1px solid var(--bp-filet-gris);
+  font-size: 12px;
+}
+.pdf-rg {
+  grid-template-columns: 30px 86px 104px minmax(0, 1fr) 92px 58px 58px 62px;
+  padding: 1.5px 0;
+  border-bottom: 1px solid var(--bp-filet-gris-clair);
+  font-size: 12px;
+  line-height: 1.2;
+}
+.pdf-rg > span {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.pdf-entete-tableau {
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 800;
+  color: var(--bp-encre-grise);
+  border-bottom: 1.5px solid var(--bp-encre);
+}
+.pdf-rg.pdf-entete-tableau {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  padding: 4px 0;
+}
+.pdf-rg--total {
+  font-weight: 800;
+  border-bottom: 0;
+  border-top: 1.5px solid var(--bp-encre);
+  padding-top: 5px;
+}
+.pdf-d {
+  text-align: right;
+}
+.pdf-pied {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--bp-filet-gris);
+  font-size: 11px;
+  color: var(--bp-encre-grise);
+}
+/* Brouillon : filigrane diagonal, jamais archivé. */
+.pdf-filigrane {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  font-family: var(--bp-font-display);
+  font-size: 150px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: color-mix(in srgb, var(--bp-encre) 7%, transparent);
+  transform: rotate(-32deg);
+}

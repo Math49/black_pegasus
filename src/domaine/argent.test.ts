@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { estMontantValide, exigerMontant, formaterDollars } from "./argent";
+import { estMontantValide, exigerMontant, formaterDollars, formaterMontant } from "./argent";
 
 const f = (s: string) => s.replace(/ /g, " ").replace(/-/g, "−");
 
@@ -43,5 +43,12 @@ describe("validation des montants", () => {
   it.each([-1, 1.5, Number.NaN, Infinity, "300", null])("refuse %s", (v) => {
     expect(estMontantValide(v)).toBe(false);
     expect(() => exigerMontant(v, "Caution")).toThrow(/Caution invalide/);
+  });
+
+  it("montant sans symbole pour le registre imprimé", () => {
+    expect(formaterMontant(12600)).toBe(`12${String.fromCharCode(0xa0)}600`);
+    expect(formaterMontant(1000, { signe: true })).toBe(`+1${String.fromCharCode(0xa0)}000`);
+    expect(formaterMontant(-1000)).toBe(`−1${String.fromCharCode(0xa0)}000`);
+    expect(() => formaterMontant(1.5)).toThrow();
   });
 });
