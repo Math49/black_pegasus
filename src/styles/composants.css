@@ -781,6 +781,8 @@
 
   /* ── Modale (dialog natif) ── */
   .bp-modale {
+    /* Le reset de Tailwind annule la marge automatique qui centre <dialog>. */
+    margin: auto;
     width: min(560px, calc(100vw - 32px));
     max-height: calc(100dvh - 32px);
     padding: 0;
@@ -815,6 +817,63 @@
     flex-wrap: wrap;
     justify-content: flex-end;
     gap: 12px;
+  }
+
+  .bp-modale__actions--pied {
+    align-items: center;
+    justify-content: space-between;
+  }
+  .bp-modale--decoupee .bp-modale__corps {
+    padding: 0;
+    gap: 0;
+  }
+  .bp-modale--decoupee .bp-modale__entete {
+    align-items: center;
+    padding: 24px 28px 20px;
+    border-bottom: 1px solid var(--bp-trait-8);
+  }
+  .bp-modale--decoupee .bp-modale__contenu {
+    padding: 24px 28px;
+  }
+  .bp-modale--decoupee .bp-modale__actions {
+    padding: 18px 28px 24px;
+    border-top: 1px solid var(--bp-trait-8);
+  }
+
+  /* ── Dépôt d'un justificatif (maquette 13) ── */
+  .bp-depot {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 140px;
+    padding: 20px;
+    border-radius: 16px;
+    border: 1.5px dashed var(--bp-or-45);
+    background: color-mix(in srgb, var(--bp-gold-2) 4%, transparent);
+    text-align: center;
+    cursor: pointer;
+  }
+  .bp-depot:hover,
+  .bp-depot[data-survol] {
+    border-color: var(--bp-gold-2);
+    background: var(--bp-or-8);
+  }
+  .bp-depot:has(input:focus-visible) {
+    outline: 2px solid var(--bp-focus-border);
+    outline-offset: 2px;
+  }
+  .bp-depot__icone {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 1px solid var(--bp-or-45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--bp-gold-icon);
   }
 
   /* ── Filtre de prix (flotte) ── */

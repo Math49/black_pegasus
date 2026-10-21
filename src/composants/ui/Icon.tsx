@@ -163,6 +163,12 @@ const TRACES = {
   sortie: <path d="M7 17L17 7M9 7h8v8" />,
   hausse: <path d="M3 17l6-6 4 4 8-8M15 7h6v6" />,
   baisse: <path d="M3 7l6 6 4-4 8 8M15 17h6v-6" />,
+  televerser: (
+    <>
+      <path d="M12 16V4M7 9l5-5 5 5" />
+      <path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" />
+    </>
+  ),
   trombone: (
     <path d="M21 11.5l-8.5 8.5a5 5 0 0 1-7-7L14 4.5a3.5 3.5 0 0 1 5 5L10.5 18a2 2 0 0 1-3-3L15 7.5" />
   ),

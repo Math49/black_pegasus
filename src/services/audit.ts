@@ -26,4 +26,7 @@ export const LIBELLES_ACTIONS: Record<string, string> = {
   "contrat.creer": "Contrat créé",
   "contrat.cloturer": "Contrat clôturé",
   "contrat.annuler": "Contrat annulé",
+  "mouvement.creer": "Mouvement saisi",
+  "mouvement.modifier": "Mouvement corrigé",
+  "mouvement.contrePasser": "Mouvement contre-passé",
 };

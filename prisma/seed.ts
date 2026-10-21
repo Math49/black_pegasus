@@ -27,6 +27,8 @@ if (process.env.NODE_ENV === "production") {
 const FUSEAU = "Europe/Paris";
 const DONNEES = path.join(process.cwd(), "docs/handoff/data");
 const PHOTO_PROVISOIRE = "photos/vehicule-placeholder.jpg";
+/** Image de démonstration servie comme justificatif des dépenses du seed. */
+const JUSTIFICATIF_DEMO = "justificatifs/justificatif-demo.jpg";
 
 // Corrections CONCEPTION § 9.4 (D7a, D7b).
 const RENOMMAGES: [string, string][] = [["Streamer 2026", "Streamer216"]];
@@ -138,11 +140,13 @@ async function main() {
 
   // Photo provisoire commune, déposée dans le stockage local.
   const stockage = path.resolve(process.env.STOCKAGE_DIR ?? "./data");
-  await mkdir(path.join(stockage, "photos"), { recursive: true });
-  await copyFile(
-    path.join(process.cwd(), "docs/handoff/assets/images/vehicule-placeholder.jpg"),
-    path.join(stockage, PHOTO_PROVISOIRE),
-  );
+  for (const cle of [PHOTO_PROVISOIRE, JUSTIFICATIF_DEMO]) {
+    await mkdir(path.dirname(path.join(stockage, cle)), { recursive: true });
+    await copyFile(
+      path.join(process.cwd(), "docs/handoff/assets/images/vehicule-placeholder.jpg"),
+      path.join(stockage, cle),
+    );
+  }
 
   await prisma.$transaction(
     async (tx) => {
@@ -295,6 +299,7 @@ async function main() {
             categorie: "DIVERS",
             montant: s42Demo.depenses,
             motif: "Reprise : dépenses de la semaine 42",
+            justificatif: JUSTIFICATIF_DEMO,
             justificatifNumero: "JUST-42-01",
             saisiParId: vmoretti,
           },
@@ -414,6 +419,7 @@ async function main() {
             montant: m.montant,
             motif: MOTIFS[m.numero] ?? renommer(m.motif),
             contratId: m.contrat ? contrats.get(m.contrat) : null,
+            justificatif: m.justificatif ? JUSTIFICATIF_DEMO : null,
             justificatifNumero: m.justificatif,
             automatique: m.contrat !== null,
             saisiParId: compteId(m.saisiPar),

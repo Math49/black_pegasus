@@ -1,5 +1,6 @@
 // Contrôle des fichiers envoyés (CONCEPTION § 7) : type réel lu dans les premiers octets,
 // pas dans l'extension ni le type déclaré par le navigateur.
+import { ErreurMetier } from "@/domaine/types";
 
 export const TAILLE_MAX_FICHIER = 10 * 1024 * 1024;
 
@@ -25,4 +26,17 @@ export function verifierImage(octets: Uint8Array): string | null {
   if (octets.length > TAILLE_MAX_FICHIER) return "Fichier trop lourd : 10 Mo maximum.";
   if (!detecterTypeImage(octets)) return "Format refusé : PNG, JPG ou WEBP uniquement.";
   return null;
+}
+
+export type ImageEnvoyee = { octets: Uint8Array; extension: TypeImage["extension"] };
+
+/** Champ fichier d'un FormData → image vérifiée, ou null si aucun fichier n'est joint. */
+export async function lireImageEnvoyee(
+  fichier: FormDataEntryValue | null,
+): Promise<ImageEnvoyee | null> {
+  if (!(fichier instanceof File) || fichier.size === 0) return null;
+  const octets = new Uint8Array(await fichier.arrayBuffer());
+  const erreur = verifierImage(octets);
+  if (erreur) throw new ErreurMetier(erreur);
+  return { octets, extension: detecterTypeImage(octets)!.extension };
 }

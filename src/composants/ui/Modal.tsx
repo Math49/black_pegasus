@@ -16,6 +16,8 @@ export function Modal({
   children,
   actions,
   largeur,
+  pied,
+  decoupee = false,
   className,
 }: {
   ouvert: boolean;
@@ -26,6 +28,10 @@ export function Modal({
   actions?: ReactNode;
   /** Largeur maximale en pixels (560 par défaut). */
   largeur?: number;
+  /** Mention à gauche des actions (« Saisi par … »). */
+  pied?: ReactNode;
+  /** En-tête, corps et actions séparés par des filets (maquette 13). */
+  decoupee?: boolean;
   className?: string;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
@@ -46,7 +52,7 @@ export function Modal({
       onClick={(e) => {
         if (e.target === e.currentTarget) onFermer(); // clic sur le fond
       }}
-      className={cx("bp-modale", className)}
+      className={cx("bp-modale", decoupee && "bp-modale--decoupee", className)}
       style={largeur ? { width: `min(${largeur}px, calc(100vw - 32px))` } : undefined}
     >
       {ouvert && (
@@ -62,8 +68,13 @@ export function Modal({
             </div>
             <IconButton libelle="Fermer" icone="fermer" onClick={onFermer} />
           </div>
-          {children}
-          {actions && <div className="bp-modale__actions">{actions}</div>}
+          {decoupee ? <div className="bp-modale__contenu">{children}</div> : children}
+          {actions && (
+            <div className={cx("bp-modale__actions", pied ? "bp-modale__actions--pied" : null)}>
+              {pied}
+              <div className="flex flex-wrap gap-3">{actions}</div>
+            </div>
+          )}
         </div>
       )}
     </dialog>

@@ -1,16 +1,10 @@
 "use server";
 
 import { z } from "zod";
-import { verifierImage, detecterTypeImage } from "@/lib/fichiers";
+import { lireImageEnvoyee } from "@/lib/fichiers";
 import { exigerRole } from "@/lib/garde";
 import { executer } from "@/lib/resultat";
-import {
-  changerVisibilite,
-  enregistrerVehicule,
-  supprimerVehicule,
-  type PhotoEnvoyee,
-} from "@/services/vehicules";
-import { ErreurMetier } from "@/domaine/types";
+import { changerVisibilite, enregistrerVehicule, supprimerVehicule } from "@/services/vehicules";
 
 const entier = (libelle: string, min: number, max: number) =>
   z.coerce
@@ -46,21 +40,13 @@ const schemaVehicule = z.object({
     .min(1, "Ajoutez au moins un exemplaire."),
 });
 
-async function lirePhoto(fichier: FormDataEntryValue | null): Promise<PhotoEnvoyee | null> {
-  if (!(fichier instanceof File) || fichier.size === 0) return null;
-  const octets = new Uint8Array(await fichier.arrayBuffer());
-  const erreur = verifierImage(octets);
-  if (erreur) throw new ErreurMetier(erreur);
-  return { octets, extension: detecterTypeImage(octets)!.extension };
-}
-
 /** Formulaire véhicule (maquette 15) : données en JSON + photo facultative. */
 export async function actionEnregistrerVehicule(formulaire: FormData) {
   return executer(async () => {
     const id = String(formulaire.get("id") ?? "") || null;
     const acteur = await exigerRole(id ? "vehicule.modifier" : "vehicule.creer");
     const donnees = schemaVehicule.parse(JSON.parse(String(formulaire.get("donnees") ?? "{}")));
-    const photo = await lirePhoto(formulaire.get("photo"));
+    const photo = await lireImageEnvoyee(formulaire.get("photo"));
     return enregistrerVehicule(acteur, id, donnees, photo);
   });
 }
