@@ -1,0 +1,23 @@
+# Contexte de l'image : uniquement ce qui sert au build et à l'exécution.
+.git
+.claude
+.next
+node_modules
+coverage
+test-results
+playwright-report
+data
+tests
+# docs : seuls les jetons de design servent au build (importés par globals.css).
+docs/*
+!docs/handoff
+docs/handoff/*
+!docs/handoff/design
+.env
+.env.*
+!.env.example
+*.log
+tsconfig.tsbuildinfo
+# Tests et seed de démonstration : jamais dans l'image de production.
+**/*.test.ts
+prisma/seed.ts

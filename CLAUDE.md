@@ -17,7 +17,7 @@ Next.js (App Router, TypeScript strict) · Tailwind v4 · Prisma + PostgreSQL ·
 
 ## Commandes
 - `docker compose up -d` — Postgres de développement
-- Production : déploiement géré à la main par le client ; ne pas créer de CI/CD, Dockerfile ni stack Portainer (le § 12 de la conception ne s'applique pas). Ne jamais lancer le seed de démonstration en production.
+- Production : image Docker (`Dockerfile`, Chromium inclus pour les PDF) déployée à la main par le client sur son VPS ; voir `docs/DEPLOIEMENT.md`. Ne pas créer de CI/CD ni de stack Portainer. `docker build -t black-pegasus .` · `npm run db:init-prod` au premier lancement. Ne jamais lancer le seed de démonstration en production.
 - `npm run dev` · `npm run build` · `npm run lint`
 - `npm test` (Vitest) · `npm run test:e2e` (Playwright)
 - `npm run db:migrate` · `npm run db:seed`

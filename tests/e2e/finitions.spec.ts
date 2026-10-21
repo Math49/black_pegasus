@@ -16,6 +16,12 @@ test.describe("finitions du site public", () => {
     });
   }
 
+  test("sonde de santé du conteneur", async ({ request }) => {
+    const r = await request.get("/api/sante");
+    expect(r.status()).toBe(200);
+    expect(await r.json()).toEqual({ etat: "ok" });
+  });
+
   test("en-têtes de sécurité", async ({ request }) => {
     const r = await request.get("/");
     const h = r.headers();
