@@ -1,3 +1,4 @@
+import { ChargementPanel } from "@/composants/admin/ChargementPanel";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { EnTetePanel } from "@/composants/admin/EnTetePanel";
@@ -244,7 +245,7 @@ async function Contenu({
 
 export default function PageContrats({ searchParams }: PageProps<"/admin/contrats">) {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<ChargementPanel />}>
       <Contenu searchParams={searchParams} />
     </Suspense>
   );

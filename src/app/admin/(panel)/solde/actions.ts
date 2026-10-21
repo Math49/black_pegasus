@@ -6,6 +6,7 @@ import { depuisHeureServeur } from "@/domaine/dates";
 import { CATEGORIES } from "@/domaine/solde";
 import { lireImageEnvoyee } from "@/lib/fichiers";
 import { exigerRole } from "@/lib/garde";
+import { exigerQuotaEnvoi } from "@/lib/limites";
 import { prisma } from "@/lib/prisma";
 import { executer } from "@/lib/resultat";
 import { contrePasserMouvement, creerMouvement, modifierMouvement } from "@/services/solde";
@@ -34,6 +35,7 @@ const fuseau = async () =>
 export async function actionCreerMouvement(formulaire: FormData) {
   return executer(async () => {
     const acteur = await exigerRole("mouvement.creer");
+    if (formulaire.get("justificatif")) exigerQuotaEnvoi(acteur.id);
     const d = schemaSaisie.parse(Object.fromEntries(formulaire));
     const image = await lireImageEnvoyee(formulaire.get("justificatif"));
     const resultat = await creerMouvement(
@@ -56,6 +58,7 @@ export async function actionCreerMouvement(formulaire: FormData) {
 export async function actionModifierMouvement(formulaire: FormData) {
   return executer(async () => {
     const acteur = await exigerRole("mouvement.modifier");
+    if (formulaire.get("justificatif")) exigerQuotaEnvoi(acteur.id);
     const d = z
       .object({ id: z.string().min(1), motif: z.string().trim().max(160, "Motif trop long.") })
       .parse({ id: formulaire.get("id"), motif: formulaire.get("motif") });

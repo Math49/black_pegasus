@@ -1,3 +1,4 @@
+import { ChargementPanel } from "@/composants/admin/ChargementPanel";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { EnTetePanel } from "@/composants/admin/EnTetePanel";
@@ -53,7 +54,7 @@ async function Contenu() {
 
 export default function PageNouveauVehicule() {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<ChargementPanel />}>
       <Contenu />
     </Suspense>
   );

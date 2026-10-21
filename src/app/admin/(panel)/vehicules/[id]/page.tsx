@@ -1,3 +1,4 @@
+import { ChargementPanel } from "@/composants/admin/ChargementPanel";
 import { format } from "date-fns";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -68,7 +69,7 @@ async function Contenu({ params }: { params: PageProps<"/admin/vehicules/[id]">[
 
 export default function PageModifierVehicule({ params }: PageProps<"/admin/vehicules/[id]">) {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<ChargementPanel />}>
       <Contenu params={params} />
     </Suspense>
   );

@@ -1,3 +1,4 @@
+import { ChargementPanel } from "@/composants/admin/ChargementPanel";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -134,7 +135,7 @@ async function Contenu({
 
 export default function PageCloture({ params }: PageProps<"/admin/contrats/[id]/cloturer">) {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<ChargementPanel />}>
       <Contenu params={params} />
     </Suspense>
   );

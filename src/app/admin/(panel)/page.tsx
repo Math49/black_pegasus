@@ -1,3 +1,4 @@
+import { ChargementPanel } from "@/composants/admin/ChargementPanel";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import type { Metadata } from "next";
@@ -280,7 +281,7 @@ async function Contenu() {
 
 export default function PageTableauDeBord() {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<ChargementPanel />}>
       <Contenu />
     </Suspense>
   );

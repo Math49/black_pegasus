@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { lireImageEnvoyee } from "@/lib/fichiers";
 import { exigerRole } from "@/lib/garde";
+import { exigerQuotaEnvoi } from "@/lib/limites";
 import { executer } from "@/lib/resultat";
 import { changerVisibilite, enregistrerVehicule, supprimerVehicule } from "@/services/vehicules";
 
@@ -45,6 +46,7 @@ export async function actionEnregistrerVehicule(formulaire: FormData) {
   return executer(async () => {
     const id = String(formulaire.get("id") ?? "") || null;
     const acteur = await exigerRole(id ? "vehicule.modifier" : "vehicule.creer");
+    if (formulaire.get("photo")) exigerQuotaEnvoi(acteur.id);
     const donnees = schemaVehicule.parse(JSON.parse(String(formulaire.get("donnees") ?? "{}")));
     const photo = await lireImageEnvoyee(formulaire.get("photo"));
     return enregistrerVehicule(acteur, id, donnees, photo);

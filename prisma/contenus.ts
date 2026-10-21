@@ -114,3 +114,23 @@ export const descriptions: Record<string, string> = {
     "Le Luxor accueille jusqu’à dix passagers et leurs bagages. Idéal pour un déplacement d’affaires, un départ vers Cayo Perico ou une soirée qui commence au-dessus des nuages.",
   ].join("\n\n"),
 };
+
+// Valeurs de départ de la production (db:init-prod), toutes modifiables dans Paramètres.
+// Règles et forfaits : décision D5 (valeurs par défaut de la conception), à confirmer.
+export const reglesInitiales = {
+  toleranceRetardMin: 15,
+  majorationRetard: 0.5,
+  seuilDefautRestitutionMin: 180,
+  forfaitsDegats: [
+    { libelle: "Rayures ou éraflures légères", montant: 500 },
+    { libelle: "Réservoir non refait", montant: 250 },
+    { libelle: "Dégât important (coque, moteur)", montant: 1000 },
+  ],
+};
+
+/** Catégories de la flotte des maquettes, dans l'ordre d'affichage. */
+export const categoriesInitiales = {
+  BATEAU: ["Jet-ski", "Semi-rigide", "Vedette", "Remorqueur"],
+  AVION: ["Hydravion", "Jet privé", "Sport"],
+  HELICOPTERE: ["Affaires"],
+} as const;

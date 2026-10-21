@@ -52,7 +52,9 @@ async function Contenu({
       {error && (
         <p role="alert" className="bp-erreur m-0 text-left">
           <Icon nom="alerte" taille={14} />
-          La connexion avec Discord n’a pas abouti. Réessayez.
+          {error === "trop"
+            ? "Trop de tentatives de connexion : patientez une minute."
+            : "La connexion avec Discord n’a pas abouti. Réessayez."}
         </p>
       )}
       <form action={connexionDiscord} className="w-full">

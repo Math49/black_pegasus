@@ -6,9 +6,11 @@ import { redirect } from "next/navigation";
 import { decisionConnexion } from "@/domaine/permissions";
 import { DUREE_SESSION_S, signIn, signOut } from "@/lib/auth";
 import { maintenant } from "@/lib/horloge";
+import { connexionAutorisee } from "@/lib/limites";
 import { prisma } from "@/lib/prisma";
 
 export async function connexionDiscord() {
+  if (!(await connexionAutorisee())) redirect("/admin/connexion?error=trop");
   await signIn("discord", { redirectTo: "/admin" });
 }
 

@@ -1,3 +1,4 @@
+import { ChargementPanel } from "@/composants/admin/ChargementPanel";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -86,7 +87,7 @@ async function Contenu() {
 
 export default function PageParametres() {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<ChargementPanel />}>
       <Contenu />
     </Suspense>
   );

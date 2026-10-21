@@ -1,3 +1,4 @@
+import { ChargementPanel } from "@/composants/admin/ChargementPanel";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -191,7 +192,7 @@ async function Contenu({
 
 export default function PageComptes({ searchParams }: PageProps<"/admin/comptes">) {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<ChargementPanel />}>
       <Contenu searchParams={searchParams} />
     </Suspense>
   );

@@ -1,3 +1,4 @@
+import { ChargementPanel } from "@/composants/admin/ChargementPanel";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { Suspense } from "react";
@@ -210,7 +211,7 @@ async function Contenu({
 
 export default function PageVehicules({ searchParams }: PageProps<"/admin/vehicules">) {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<ChargementPanel />}>
       <Contenu searchParams={searchParams} />
     </Suspense>
   );
