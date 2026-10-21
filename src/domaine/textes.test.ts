@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { decouperTitre, segmenterTexte, texteBrut, type ContexteTextes } from "./textes";
+import {
+  decouperTitre,
+  numerosTelephone,
+  segmenterTexte,
+  texteBrut,
+  type ContexteTextes,
+} from "./textes";
 
 const NBSP = String.fromCharCode(0xa0);
 const ctx: ContexteTextes = {
@@ -64,5 +70,19 @@ describe("decouperTitre", () => {
   it("sans accent", () => {
     expect(decouperTitre("Règlement")).toEqual([{ texte: "Règlement", accent: false }]);
     expect(decouperTitre("a ** b")).toEqual([{ texte: "a ** b", accent: false }]);
+  });
+});
+
+describe("numéros de téléphone", () => {
+  it("un ou plusieurs numéros", () => {
+    expect(numerosTelephone("555-0100")).toEqual(["555-0100"]);
+    expect(numerosTelephone("205-3953 / 602-5376")).toEqual(["205-3953", "602-5376"]);
+    expect(numerosTelephone("205-3953/602-5376")).toEqual(["205-3953", "602-5376"]);
+    expect(numerosTelephone("205-3953, 602-5376 ou 555-0000")).toEqual([
+      "205-3953",
+      "602-5376",
+      "555-0000",
+    ]);
+    expect(numerosTelephone("  ")).toEqual([""]);
   });
 });

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { NumerosTelephone } from "@/composants/site/NumerosTelephone";
 import Link from "next/link";
 import { lireParametresSite } from "@/services/site";
 import { Rule } from "../ui/Rule";
@@ -52,7 +53,10 @@ export async function PiedDePage() {
           </nav>
           <div className="flex flex-col gap-3">
             <h2 className="m-0 mb-1.5 libelle text-texte-doux">Contact</h2>
-            <span className="w-fit texte-or text-2xl font-extrabold chiffres">{telephone}</span>
+            <NumerosTelephone
+              telephone={telephone}
+              className="w-fit texte-or text-2xl font-extrabold"
+            />
             <span className="text-sm text-texte-attenue">{horaires}</span>
             <span className="text-sm text-texte-attenue">
               Réservation uniquement par téléphone en jeu

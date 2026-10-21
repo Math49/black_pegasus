@@ -57,7 +57,7 @@ export async function EnTete() {
             </Button>
             <BoutonAppeler
               telephone={telephone}
-              libelle={telephone}
+              libelle="{numero}"
               taille="site-petit"
               className="min-h-[46px] px-5"
             />

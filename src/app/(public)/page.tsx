@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { NumerosTelephone } from "@/composants/site/NumerosTelephone";
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -64,9 +65,10 @@ function BlocTelephone({ p, className }: { p: ParametresSite; className?: string
         <span className="flex size-[46px] flex-none items-center justify-center rounded-full border border-[var(--bp-or-55)] text-or-icone">
           <Icon nom="telephone" trait={1.5} />
         </span>
-        <span className="texte-or text-[34px] font-extrabold tracking-[0.02em] chiffres">
-          {p.telephone}
-        </span>
+        <NumerosTelephone
+          telephone={p.telephone}
+          className="min-w-0 texte-or text-[clamp(26px,7vw,34px)] leading-tight font-extrabold tracking-[0.02em]"
+        />
       </div>
       <div className="h-px bg-[var(--bp-trait-10)]" />
       <div className="flex items-center gap-2.5 text-sm text-texte-doux">
@@ -405,9 +407,10 @@ async function Accueil() {
             </div>
             <div className="glass-site flex min-w-[min(300px,100%)] flex-col gap-4 px-7 py-[26px]">
               <span className="libelle">Téléphone en jeu</span>
-              <span className="texte-or text-[42px] leading-none font-extrabold chiffres">
-                {p.telephone}
-              </span>
+              <NumerosTelephone
+                telephone={p.telephone}
+                className="texte-or text-[clamp(30px,8vw,42px)] leading-[1.1] font-extrabold"
+              />
               <span className="flex items-center gap-2.5 text-sm text-texte-doux">
                 <Icon nom="horloge" taille={15} />
                 {p.horaires}

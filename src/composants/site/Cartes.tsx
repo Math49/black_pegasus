@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { NumerosTelephone } from "@/composants/site/NumerosTelephone";
 import { cx } from "@/lib/classes";
 import { CadreIcone } from "../ui/Chip";
 import { GlassCard } from "../ui/GlassCard";
@@ -47,7 +48,10 @@ export function CarteTelephone({
     >
       <span className="libelle">Réservez par téléphone en jeu</span>
       {/* Numéro en jeu : pas de lien tel:, il ouvrirait le vrai téléphone du visiteur. */}
-      <span className="w-fit texte-or text-[28px] font-extrabold chiffres">{telephone}</span>
+      <NumerosTelephone
+        telephone={telephone}
+        className="w-fit texte-or text-[28px] leading-tight font-extrabold"
+      />
       <span className="text-[13px] text-texte-doux">{horaires}</span>
     </GlassCard>
   );

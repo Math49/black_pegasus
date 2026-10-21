@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { NumerosTelephone } from "@/composants/site/NumerosTelephone";
 import { Suspense } from "react";
 import { BoutonAppeler } from "@/composants/site/BoutonAppeler";
 import { CarteVehicule } from "@/composants/site/CarteVehicule";
@@ -102,7 +103,10 @@ async function Flotte({ searchParams }: { searchParams: PageProps<"/flotte">["se
           <span className="flex flex-col gap-1">
             <span className="libelle">Réservez par téléphone en jeu</span>
             <span className="flex flex-wrap items-baseline gap-x-3">
-              <span className="texte-or text-2xl font-extrabold chiffres">{p.telephone}</span>
+              <NumerosTelephone
+                telephone={p.telephone}
+                className="texte-or text-2xl font-extrabold"
+              />
               <span className="text-[13px] text-texte-doux">{p.horaires}</span>
             </span>
           </span>

@@ -77,3 +77,15 @@ export function decouperTitre(titre: string): { texte: string; accent: boolean }
         : { texte: partie, accent: false },
     );
 }
+
+/**
+ * Numéros du champ « Téléphone en jeu » : « 205-3953 / 602-5376 » → deux numéros. Séparateurs
+ * acceptés : « / », « , », « ; », « ou », « et ». Chaque numéro s'affiche et se copie seul.
+ */
+export function numerosTelephone(telephone: string): string[] {
+  const numeros = telephone
+    .split(/\s*(?:[/,;]|\s(?:ou|et)\s)\s*/i)
+    .map((n) => n.trim())
+    .filter(Boolean);
+  return numeros.length ? numeros : [telephone.trim()];
+}

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { NumerosTelephone } from "@/composants/site/NumerosTelephone";
 import { Suspense } from "react";
 import { BoutonAppeler } from "@/composants/site/BoutonAppeler";
 import {
@@ -67,9 +68,10 @@ async function Reglement() {
           <div className="mx-3 my-3.5 h-px bg-[var(--bp-trait-8)]" />
           <div className="flex flex-col gap-1.5 px-3">
             <span className="libelle">Une question ?</span>
-            <span className="w-fit texte-or text-[22px] font-extrabold chiffres">
-              {p.telephone}
-            </span>
+            <NumerosTelephone
+              telephone={p.telephone}
+              className="w-fit texte-or text-[22px] font-extrabold"
+            />
             <span className="text-[13px] text-texte-attenue">{p.horaires}</span>
           </div>
         </GlassCard>
