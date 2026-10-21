@@ -30,4 +30,12 @@ export const LIBELLES_ACTIONS: Record<string, string> = {
   "mouvement.modifier": "Mouvement corrigé",
   "mouvement.contrePasser": "Mouvement contre-passé",
   "semaine.cloturer": "Semaine clôturée",
+  "parametres.agence": "Agence modifiée",
+  "parametres.textes": "Textes du site modifiés",
+  "parametres.reglement": "Règlement modifié",
+  "parametres.regles": "Règles de location modifiées",
+  "parametres.categorie.ajouter": "Catégorie ajoutée",
+  "parametres.categorie.renommer": "Catégorie renommée",
+  "parametres.categorie.ordre": "Ordre des catégories modifié",
+  "parametres.categorie.supprimer": "Catégorie supprimée",
 };
