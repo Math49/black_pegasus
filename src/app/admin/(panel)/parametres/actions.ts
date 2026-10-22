@@ -1,12 +1,16 @@
 "use server";
 
 import { z } from "zod";
+import { ErreurMetier } from "@/domaine/types";
+import { lireImageEnvoyee } from "@/lib/fichiers";
 import { exigerRole } from "@/lib/garde";
+import { exigerQuotaEnvoi } from "@/lib/limites";
 import { executer } from "@/lib/resultat";
 import {
   ajouterCategorie,
   deplacerCategorie,
   enregistrerAgence,
+  enregistrerPhotoAccueil,
   enregistrerReglement,
   enregistrerRegles,
   enregistrerTextes,
@@ -114,4 +118,17 @@ export async function actionSupprimerCategorie(c: string) {
   return executer(async () =>
     supprimerCategorie(await exigerRole("parametres.gerer"), id.parse(c)),
   );
+}
+
+/** Photo d'une carte de l'accueil : `photo` envoyée, ou `retirer=1` pour revenir au visuel par défaut. */
+export async function actionPhotoAccueil(formulaire: FormData) {
+  return executer(async () => {
+    const acteur = await exigerRole("parametres.gerer");
+    const t = type.parse(formulaire.get("type"));
+    if (formulaire.get("retirer") === "1") return enregistrerPhotoAccueil(acteur, t, null);
+    exigerQuotaEnvoi(acteur.id);
+    const image = await lireImageEnvoyee(formulaire.get("photo"));
+    if (!image) throw new ErreurMetier("Choisissez une photo (PNG, JPG ou WEBP, 10 Mo maximum).");
+    return enregistrerPhotoAccueil(acteur, t, image);
+  });
 }

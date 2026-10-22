@@ -2,14 +2,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { deconnexion } from "@/app/admin/actions-session";
 import { formaterJourCourt } from "@/domaine/dates";
-import { peut } from "@/domaine/permissions";
+import { pageAccueilPanel, peut } from "@/domaine/permissions";
 import { exigerSession } from "@/lib/garde";
 import { lireDonneesPanel } from "@/services/panel";
 import { GlassCard } from "../ui/GlassCard";
 import { Icon } from "../ui/Icon";
 import { NavPanel, type LienPanel } from "./NavPanel";
 
-function Cadre({ children }: { children: React.ReactNode }) {
+function Cadre({ accueil, children }: { accueil: string; children: React.ReactNode }) {
   return (
     <GlassCard
       as="aside"
@@ -17,12 +17,12 @@ function Cadre({ children }: { children: React.ReactNode }) {
       aria-label="Navigation du panel"
       className="flex flex-[1_1_236px] flex-col gap-7 rounded-[24px] px-3 pt-[22px] pb-4 lg:sticky lg:top-5 lg:h-[calc(100dvh-40px)] lg:max-w-[256px] lg:overflow-y-auto"
     >
-      <Link href="/admin" className="flex items-center gap-3 px-2 text-texte">
+      <Link href={accueil} className="flex items-center gap-3 px-2 text-texte">
         <Image src="/images/bp-logo.png" alt="" width={42} height={42} className="object-contain" />
         <span className="flex flex-col gap-[3px]">
           <span className="texte-or mot-symbole text-[13px]">BLACK PÉGASUS</span>
           <span className="libelle text-[9.5px] tracking-[0.2em]">Administration</span>
-          <span className="sr-only">– Tableau de bord</span>
+          <span className="sr-only">– Accueil du panel</span>
         </span>
       </Link>
       {children}
@@ -32,10 +32,24 @@ function Cadre({ children }: { children: React.ReactNode }) {
 
 export async function BarreLaterale() {
   const [compte, d] = await Promise.all([exigerSession(), lireDonneesPanel()]);
+  const r = compte.role;
   const liens: LienPanel[] = [
-    { href: "/admin", libelle: "Tableau de bord", icone: "tableauDeBord" },
-    { href: "/admin/solde", libelle: "Solde", icone: "solde" },
-    { href: "/admin/vehicules", libelle: "Véhicules", icone: "avion", compteur: d.vehicules },
+    ...(peut(r, "tableauDeBord.consulter")
+      ? [{ href: "/admin", libelle: "Tableau de bord", icone: "tableauDeBord" as const }]
+      : []),
+    ...(peut(r, "solde.consulter")
+      ? [{ href: "/admin/solde", libelle: "Solde", icone: "solde" as const }]
+      : []),
+    ...(peut(r, "vehicule.consulter")
+      ? [
+          {
+            href: "/admin/vehicules",
+            libelle: "Véhicules",
+            icone: "avion" as const,
+            compteur: d.vehicules,
+          },
+        ]
+      : []),
     {
       href: "/admin/contrats",
       libelle: "Contrats",
@@ -56,7 +70,7 @@ export async function BarreLaterale() {
   const ouverte = d.semaine.statut === "OUVERTE";
 
   return (
-    <Cadre>
+    <Cadre accueil={pageAccueilPanel(r)}>
       <NavPanel liens={liens} />
       <div className="mt-auto flex flex-col gap-2.5">
         <Link
@@ -96,7 +110,7 @@ export async function BarreLaterale() {
 /** Squelette pendant le chargement de la session. */
 export function BarreLateraleSquelette() {
   return (
-    <Cadre>
+    <Cadre accueil="/admin">
       <span />
     </Cadre>
   );

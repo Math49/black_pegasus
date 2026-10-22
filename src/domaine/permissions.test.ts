@@ -1,9 +1,19 @@
 import { describe, expect, it } from "vitest";
-import { ACTIONS, peut, verifierModificationCompte, type Action } from "./permissions";
+import {
+  ACTIONS,
+  pageAccueilPanel,
+  peut,
+  verifierModificationCompte,
+  type Action,
+} from "./permissions";
 
 describe("peut (HANDOFF § 7.9)", () => {
   const tableau: [Action, boolean, boolean][] = [
     // action, administrateur, gestionnaire
+    ["tableauDeBord.consulter", true, true],
+    ["contrat.consulter", true, true],
+    ["vehicule.consulter", true, true],
+    ["solde.consulter", true, true],
     ["contrat.creer", true, true],
     ["contrat.cloturer", true, true],
     ["contrat.pdf", true, true],
@@ -93,5 +103,58 @@ describe("verifierModificationCompte", () => {
         adminsActifs: 1,
       }),
     ).not.toThrow();
+  });
+});
+
+describe("rôle FISC (consultation seule)", () => {
+  it("consulte contrats, solde et comptabilité, sans rien modifier", () => {
+    for (const a of [
+      "contrat.consulter",
+      "contrat.pdf",
+      "solde.consulter",
+      "comptabilite.consulter",
+      "comptabilite.exporterCsv",
+      "declaration.brouillon",
+      "declaration.exporter",
+    ] as const)
+      expect(peut("FISC", a), a).toBe(true);
+    for (const a of ACTIONS.filter(
+      (x) =>
+        !x.endsWith(".consulter") &&
+        ![
+          "contrat.pdf",
+          "comptabilite.exporterCsv",
+          "declaration.brouillon",
+          "declaration.exporter",
+        ].includes(x),
+    ))
+      expect(peut("FISC", a), a).toBe(false);
+    expect(peut("FISC", "tableauDeBord.consulter")).toBe(false);
+    expect(peut("FISC", "vehicule.consulter")).toBe(false);
+  });
+
+  it("page d'arrivée du panel", () => {
+    expect(pageAccueilPanel("ADMIN")).toBe("/admin");
+    expect(pageAccueilPanel("GESTIONNAIRE")).toBe("/admin");
+    expect(pageAccueilPanel("FISC")).toBe("/admin/comptabilite");
+  });
+
+  it("passer le dernier administrateur en FISC est refusé, comme en gestionnaire", () => {
+    expect(() =>
+      verifierModificationCompte({
+        acteur: { id: "a", role: "ADMIN" },
+        cible: { id: "b", role: "ADMIN", actif: true },
+        modification: { role: "FISC" },
+        adminsActifs: 1,
+      }),
+    ).toThrow("au moins un administrateur");
+    expect(() =>
+      verifierModificationCompte({
+        acteur: { id: "a", role: "ADMIN" },
+        cible: { id: "a", role: "ADMIN", actif: true },
+        modification: { role: "FISC" },
+        adminsActifs: 3,
+      }),
+    ).toThrow("propre rôle");
   });
 });

@@ -50,6 +50,9 @@ async function Contenu({
     id: c.id,
     discordId: c.discordId,
     nom: nomCompte(c),
+    nomRp: c.nomRp,
+    // Nom Discord rappelé seulement s'il diffère du nom RP.
+    nomDiscord: c.nomAffiche !== c.nomRp ? c.nomAffiche : "",
     pseudo: c.pseudo,
     avatarUrl: c.avatarUrl,
     role: c.role,
@@ -93,7 +96,7 @@ async function Contenu({
         <TableauComptes comptes={lignes} />
       </GlassCard>
 
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(min(360px,100%),1fr))] gap-5">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))] gap-5">
         <GlassCard variante="admin" className="flex flex-col gap-3 rounded-[24px] p-6">
           <Statut ton="or" className="self-start">
             Administrateur
@@ -110,6 +113,15 @@ async function Contenu({
           <p className="m-0 text-sm leading-[1.6] text-texte-doux">
             Contrats, véhicules et mouvements du solde. Ne peut ni clôturer une semaine, ni gérer
             les comptes.
+          </p>
+        </GlassCard>
+        <GlassCard variante="admin" className="flex flex-col gap-3 rounded-[24px] p-6">
+          <Statut ton="attenue" className="self-start">
+            FISC
+          </Statut>
+          <p className="m-0 text-sm leading-[1.6] text-texte-doux">
+            Consultation seule des contrats, du solde et de la comptabilité : PDF, justificatifs,
+            export CSV et déclarations. Aucune saisie ni modification.
           </p>
         </GlassCard>
       </div>

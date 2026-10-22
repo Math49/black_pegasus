@@ -12,12 +12,15 @@ import {
   FormulaireReglement,
   FormulaireTextes,
 } from "@/composants/admin/parametres/FormulairesTextes";
+import { PhotosAccueil } from "@/composants/admin/parametres/PhotosAccueil";
+import { FONDS_TYPES } from "@/composants/site/Mise";
 import { GlassCard } from "@/composants/ui/GlassCard";
 import { majorationEnPourcent } from "@/domaine/parametres";
 import type { ForfaitDegats, TypeVehicule } from "@/domaine/types";
 import { exigerPermission } from "@/lib/garde";
 import { lireParametresAdmin } from "@/services/parametres";
-import type { Reglement, TextesSite } from "@/services/site";
+import { schemaPhotosAccueil, type Reglement, type TextesSite } from "@/services/site";
+import { urlPhoto } from "@/services/stockage";
 
 export const metadata: Metadata = { title: "Paramètres" };
 
@@ -27,11 +30,13 @@ const SOMMAIRE = [
   ["reglement", "Règlement"],
   ["regles", "Règles de location"],
   ["categories", "Catégories"],
+  ["photos", "Photos de l’accueil"],
 ] as const;
 
 async function Contenu() {
   await exigerPermission("parametres.gerer");
   const { p, categories } = await lireParametresAdmin();
+  const photos = schemaPhotosAccueil.parse(p.photosAccueil);
   return (
     <>
       <EnTetePanel
@@ -80,6 +85,12 @@ async function Contenu() {
           nom: c.nom,
           vehicules: c._count.vehicules,
         }))}
+      />
+      <PhotosAccueil
+        photos={(["BATEAU", "AVION", "HELICOPTERE"] as const).map((type) => {
+          const cle = photos[type];
+          return { type, url: cle ? urlPhoto(cle) : null, parDefaut: FONDS_TYPES[type] };
+        })}
       />
     </>
   );

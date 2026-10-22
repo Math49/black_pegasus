@@ -58,6 +58,8 @@ enum StatutSemaine {
 enum Role {
   ADMIN
   GESTIONNAIRE
+  /// Consultation seule : contrats, solde, comptabilité.
+  FISC
 }
 
 // ── Flotte ──────────────────────────────────────────────────────────────────
@@ -223,6 +225,8 @@ model Compte {
   discordId         String         @unique
   pseudo            String
   nomAffiche        String
+  /// Nom RP (personnage en jeu) : utilisé partout s'il est renseigné (PDF, registre, en-tête).
+  nomRp             String         @default("")
   avatarUrl         String?
   role              Role           @default(GESTIONNAIRE)
   actif             Boolean        @default(true)
@@ -267,6 +271,8 @@ model Parametres {
   textesSite                      Json
   /// { dateMiseAJour, introduction, articles: [{ titre, contenu (markdown) }] }
   reglement                       Json
+  /// Photos des cartes « Trois éléments » de l'accueil : { BATEAU?, AVION?, HELICOPTERE? } (clés de stockage).
+  photosAccueil                   Json    @default("{}")
 }
 
 model JournalAudit {

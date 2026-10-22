@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { nomCompte } from "@/domaine/comptes";
+import { pageAccueilPanel } from "@/domaine/permissions";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { CarteAcces, NoteAcces } from "@/composants/admin/CarteAcces";
@@ -26,7 +28,7 @@ async function ConnexionDeveloppement() {
             value={c.id}
             className="bp-btn bp-btn--verre bp-btn--panel justify-between"
           >
-            <span>{c.nomAffiche || `Compte ${c.discordId}`}</span>
+            <span>{nomCompte(c)}</span>
             <span className="text-xs font-semibold text-texte-attenue">
               {LIBELLES_ROLE[c.role]}
               {!c.actif && " · inactif"}
@@ -43,7 +45,8 @@ async function Contenu({
 }: {
   searchParams: PageProps<"/admin/connexion">["searchParams"];
 }) {
-  if (await lireCompteConnecte()) redirect("/admin");
+  const connecte = await lireCompteConnecte();
+  if (connecte) redirect(pageAccueilPanel(connecte.role));
   const { error } = await searchParams;
   const discordConfigure = Boolean(process.env.AUTH_DISCORD_ID && process.env.AUTH_DISCORD_SECRET);
 

@@ -23,7 +23,17 @@ const schemaReglement = z.object({
   articles: z.array(z.object({ titre: z.string(), contenu: z.string() })),
 });
 
+/** Photos des cartes « Trois éléments » de l'accueil, par type (clés de stockage). */
+export const schemaPhotosAccueil = z
+  .object({
+    BATEAU: z.string().optional(),
+    AVION: z.string().optional(),
+    HELICOPTERE: z.string().optional(),
+  })
+  .catch({});
+
 export type TextesSite = z.infer<typeof schemaTextes>;
+export type PhotosAccueil = z.infer<typeof schemaPhotosAccueil>;
 export type Reglement = z.infer<typeof schemaReglement>;
 
 export type ParametresSite = ContexteTextes & {
@@ -31,6 +41,7 @@ export type ParametresSite = ContexteTextes & {
   fuseauServeur: string;
   textesSite: TextesSite;
   reglement: Reglement;
+  photosAccueil: PhotosAccueil;
 };
 
 /** Dédupliqué par requête (en-tête, page et pied de page le lisent). */
@@ -48,6 +59,7 @@ export const lireParametresSite = cache(async (): Promise<ParametresSite> => {
     forfaitsDegats: schemaForfaits.parse(p.forfaitsDegats),
     textesSite: schemaTextes.parse(p.textesSite),
     reglement: schemaReglement.parse(p.reglement),
+    photosAccueil: schemaPhotosAccueil.parse(p.photosAccueil),
   };
 });
 

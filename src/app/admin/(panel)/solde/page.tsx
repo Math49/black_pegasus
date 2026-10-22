@@ -27,7 +27,7 @@ import {
   paginer,
 } from "@/domaine/solde";
 import type { CategorieMouvement } from "@/domaine/types";
-import { exigerSession } from "@/lib/garde";
+import { exigerPermission } from "@/lib/garde";
 import { lireDonneesPanel } from "@/services/panel";
 import {
   lireContratsLiables,
@@ -74,7 +74,8 @@ async function Contenu({
 }: {
   searchParams: PageProps<"/admin/solde">["searchParams"];
 }) {
-  const compte = await exigerSession();
+  const compte = await exigerPermission("solde.consulter");
+  const peutModifier = peut(compte.role, "mouvement.modifier");
   const params = await searchParams;
   const d = await lireDonneesPanel();
   const [s, contrats] = await Promise.all([
@@ -125,7 +126,7 @@ async function Contenu({
   ): MouvementAffiche => {
     const barre = m.annuleMouvementId !== null || m.annulePar !== null;
     const ouverte = m.semaine.statut === "OUVERTE";
-    const modifiable = !barre && champsModifiables(m, m.semaine.statut).length > 0;
+    const modifiable = peutModifier && !barre && champsModifiables(m, m.semaine.statut).length > 0;
     const report = mentionReport(m.date, m.semaine, d.fuseau);
     return {
       id: m.id,
@@ -158,11 +159,13 @@ async function Contenu({
       modifiable,
       verrou: modifiable
         ? null
-        : barre
-          ? "Mouvement contre-passé : plus aucune correction possible."
-          : !ouverte
-            ? "Semaine clôturée : le registre est en lecture seule."
-            : "Mouvement généré par un contrat : il se corrige en annulant le contrat.",
+        : !peutModifier
+          ? "Consultation seule : votre rôle ne permet pas de modifier le registre."
+          : barre
+            ? "Mouvement contre-passé : plus aucune correction possible."
+            : !ouverte
+              ? "Semaine clôturée : le registre est en lecture seule."
+              : "Mouvement généré par un contrat : il se corrige en annulant le contrat.",
       contrePassable: peutContrePasser && ouverte && !barre && !m.automatique,
     };
   };
@@ -230,12 +233,20 @@ async function Contenu({
           ...CATEGORIES.map((c) => ({ valeur: c, libelle: LIBELLES_CATEGORIE[c] })),
         ]}
         periodes={periodes}
-        nouveau={{
-          semaine: courante.numero,
-          dateParDefaut: formaterHeureServeurIso(d.maintenant, d.fuseau),
-          contrats: contrats.map((c) => ({ id: c.id, numero: c.numero, clientNom: c.clientNom })),
-          acteur: { nom: nomCompte(compte), avatarUrl: compte.avatarUrl },
-        }}
+        nouveau={
+          peut(compte.role, "mouvement.creer")
+            ? {
+                semaine: courante.numero,
+                dateParDefaut: formaterHeureServeurIso(d.maintenant, d.fuseau),
+                contrats: contrats.map((c) => ({
+                  id: c.id,
+                  numero: c.numero,
+                  clientNom: c.clientNom,
+                })),
+                acteur: { nom: nomCompte(compte), avatarUrl: compte.avatarUrl },
+              }
+            : null
+        }
       />
     </>
   );

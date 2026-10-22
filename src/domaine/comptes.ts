@@ -1,3 +1,4 @@
+import { ErreurMetier } from "./types";
 import { format } from "date-fns";
 import { versHeureServeur } from "./dates";
 
@@ -33,6 +34,22 @@ export function formaterDerniereConnexion(
   return format(versHeureServeur(derniere, fuseau), "dd/MM/yyyy");
 }
 
-/** Nom affiché d'un compte, même s'il n'est pas encore passé par Discord. */
-export const nomCompte = (c: { nomAffiche: string; pseudo: string; discordId: string }) =>
-  c.nomAffiche || c.pseudo || `Compte ${c.discordId}`;
+/**
+ * Nom d'un compte partout dans l'application (PDF, registre, en-tête) : le nom RP s'il est
+ * renseigné, sinon le nom Discord, sinon le pseudo.
+ */
+export const nomCompte = (c: {
+  nomRp?: string | null;
+  nomAffiche: string;
+  pseudo: string;
+  discordId: string;
+}) => c.nomRp?.trim() || c.nomAffiche || c.pseudo || `Compte ${c.discordId}`;
+
+/** Nom RP saisi par un administrateur : espaces normalisés, 2 à 60 caractères (vide accepté). */
+export function normaliserNomRp(nom: string): string {
+  const n = nom.trim().replace(/\s+/g, " ");
+  if (n && (n.length < 2 || n.length > 60)) {
+    throw new ErreurMetier("Nom RP : 2 à 60 caractères.");
+  }
+  return n;
+}

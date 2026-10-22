@@ -11,7 +11,8 @@ services:
       POSTGRES_PASSWORD: bp
       POSTGRES_DB: black_pegasus
     ports:
-      - "127.0.0.1:${DB_PORT:-5432}:5432"
+      # Toutes les interfaces : « localhost » se résout parfois en ::1 (IPv6) sous Windows.
+      - "${DB_PORT:-5432}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:

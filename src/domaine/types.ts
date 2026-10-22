@@ -17,7 +17,7 @@ export type CategorieMouvement =
   | "APPORT"
   | "DIVERS";
 export type StatutSemaine = "OUVERTE" | "CLOTUREE";
-export type Role = "ADMIN" | "GESTIONNAIRE";
+export type Role = "ADMIN" | "GESTIONNAIRE" | "FISC";
 
 export type ForfaitDegats = { libelle: string; montant: number };
 

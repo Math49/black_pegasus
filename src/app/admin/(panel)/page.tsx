@@ -1,4 +1,7 @@
 import { ChargementPanel } from "@/composants/admin/ChargementPanel";
+import { redirect } from "next/navigation";
+import { nomCompte } from "@/domaine/comptes";
+import { pageAccueilPanel, peut } from "@/domaine/permissions";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import type { Metadata } from "next";
@@ -29,6 +32,7 @@ const SEMAINES_GRAPHIQUE = 8;
 
 async function Contenu() {
   const [compte, d] = await Promise.all([exigerSession(), lireDonneesPanel()]);
+  if (!peut(compte.role, "tableauDeBord.consulter")) redirect(pageAccueilPanel(compte.role));
   const [s, contrats] = await Promise.all([
     lireSyntheseSolde(d.maintenant, d.fuseau),
     lireContrats(),
@@ -51,7 +55,7 @@ async function Contenu() {
   const evolution = evolutionSolde(s.soldeOuverture, s.solde);
   const impots = impotsReglees(s.mouvements);
 
-  const prenom = (compte.nomAffiche || compte.pseudo).split(/\s+/)[0];
+  const prenom = nomCompte(compte).split(/\s+/)[0];
   const date = formaterDateLongue(d.maintenant, d.fuseau);
   const lundi = format(versHeureServeur(courante.debut, d.fuseau), "dd/MM");
 

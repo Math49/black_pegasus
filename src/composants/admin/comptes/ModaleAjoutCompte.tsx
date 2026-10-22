@@ -9,12 +9,14 @@ import type { Role } from "@/domaine/types";
 import type { VerificationIdentifiant } from "@/services/comptes";
 import { Avatar } from "../../ui/Avatar";
 import { Button } from "../../ui/Button";
+import { Field } from "../../ui/Field";
 import { Icon } from "../../ui/Icon";
 import { Modal } from "../../ui/Modal";
 
 const ROLES: { valeur: Role; titre: string; texte: string }[] = [
   { valeur: "GESTIONNAIRE", titre: "Gestionnaire", texte: "Contrats, véhicules et mouvements." },
   { valeur: "ADMIN", titre: "Administrateur", texte: "Accès complet, comptes et clôtures." },
+  { valeur: "FISC", titre: "FISC", texte: "Consultation des contrats, du solde et des comptes." },
 ];
 
 function Apercu({ v }: { v: VerificationIdentifiant }) {
@@ -73,6 +75,7 @@ export function ModaleAjoutCompte() {
   const [ouvert, setOuvert] = useState(false);
   const [discordId, setDiscordId] = useState("");
   const [role, setRole] = useState<Role>("GESTIONNAIRE");
+  const [nomRp, setNomRp] = useState("");
   const [verification, setVerification] = useState<VerificationIdentifiant | null>(null);
   const [erreur, setErreur] = useState<string | null>(null);
   const [enCours, demarrer] = useTransition();
@@ -81,6 +84,7 @@ export function ModaleAjoutCompte() {
     setOuvert(false);
     setDiscordId("");
     setRole("GESTIONNAIRE");
+    setNomRp("");
     setVerification(null);
     setErreur(null);
   };
@@ -96,7 +100,7 @@ export function ModaleAjoutCompte() {
   const ajouter = () =>
     demarrer(async () => {
       setErreur(null);
-      const r = await actionAjouterCompte({ discordId, role });
+      const r = await actionAjouterCompte({ discordId, role, nomRp });
       if (r.ok) fermer();
       else setErreur(r.erreur);
     });
@@ -108,7 +112,13 @@ export function ModaleAjoutCompte() {
       <Button taille="panel" icone="plus" onClick={() => setOuvert(true)}>
         Ajouter un compte
       </Button>
-      <Modal ouvert={ouvert} onFermer={fermer} surtitre="Comptes" titre="Ajouter un compte">
+      <Modal
+        ouvert={ouvert}
+        onFermer={fermer}
+        surtitre="Comptes"
+        titre="Ajouter un compte"
+        largeur={640}
+      >
         <form
           className="flex flex-col gap-5"
           onSubmit={(e) => {
@@ -152,9 +162,18 @@ export function ModaleAjoutCompte() {
 
           <div aria-live="polite">{verification && <Apercu v={verification} />}</div>
 
+          <Field
+            label="Nom RP"
+            value={nomRp}
+            maxLength={60}
+            autoComplete="off"
+            onChange={(e) => setNomRp(e.target.value)}
+            aide="Nom du personnage en jeu, utilisé sur les contrats, le registre et les déclarations. Sinon, le nom Discord."
+          />
+
           <fieldset className="m-0 border-0 p-0">
             <legend className="mb-2.5 p-0 text-[12.5px] font-semibold text-texte-doux">Rôle</legend>
-            <div className="flex gap-3 max-sm:flex-col">
+            <div className="grid grid-cols-3 gap-3 max-sm:grid-cols-1">
               {ROLES.map((r) => (
                 <label key={r.valeur} className="bp-choix relative">
                   <input

@@ -30,7 +30,7 @@ import { peut } from "@/domaine/permissions";
 import { semaineDe, semaineParId, semainePrecedente, semaineSuivante } from "@/domaine/semaine";
 import { LIBELLES_CATEGORIE, mentionReport } from "@/domaine/solde";
 import { cx } from "@/lib/classes";
-import { exigerSession } from "@/lib/garde";
+import { exigerPermission } from "@/lib/garde";
 import { lireBornesSemaines, lireEtatSemaine } from "@/services/comptabilite";
 import { lireDonneesPanel } from "@/services/panel";
 
@@ -106,7 +106,7 @@ async function Contenu({
 }: {
   searchParams: PageProps<"/admin/comptabilite">["searchParams"];
 }) {
-  const compte = await exigerSession();
+  const compte = await exigerPermission("comptabilite.consulter");
   const params = await searchParams;
   const d = await lireDonneesPanel();
   const courante = semaineDe(d.maintenant, d.fuseau);

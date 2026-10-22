@@ -22,7 +22,9 @@ import { enregistrerFichier, supprimerFichier } from "./stockage";
 
 const AVEC_LIENS = {
   contrat: { select: { id: true, numero: true, clientNom: true, statut: true } },
-  saisiPar: { select: { nomAffiche: true, pseudo: true, discordId: true, avatarUrl: true } },
+  saisiPar: {
+    select: { nomRp: true, nomAffiche: true, pseudo: true, discordId: true, avatarUrl: true },
+  },
   semaine: {
     select: { id: true, annee: true, numero: true, statut: true, debut: true, fin: true },
   },

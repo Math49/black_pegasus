@@ -247,7 +247,7 @@ export async function lireVehiculeAdmin(id: string) {
     where: { id, supprimeLe: null },
     include: {
       categorie: true,
-      modifiePar: { select: { nomAffiche: true, pseudo: true, discordId: true } },
+      modifiePar: { select: { nomRp: true, nomAffiche: true, pseudo: true, discordId: true } },
       ...inclureExemplaires,
     },
   });

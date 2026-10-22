@@ -2,11 +2,15 @@
 
 import { useState, useTransition } from "react";
 import { actionModifierCompte } from "@/app/admin/(panel)/comptes/actions";
+import { LIBELLES_ROLE } from "@/domaine/permissions";
 import type { Role } from "@/domaine/types";
 import { Avatar } from "../../ui/Avatar";
+import { Button } from "../../ui/Button";
 import { DataGrid } from "../../ui/DataGrid";
+import { Field } from "../../ui/Field";
 import { Icon } from "../../ui/Icon";
 import { MenuActions } from "../../ui/MenuActions";
+import { Modal } from "../../ui/Modal";
 import { Statut } from "../../ui/Statut";
 import { Switch } from "../../ui/Switch";
 
@@ -14,6 +18,9 @@ export type LigneCompte = {
   id: string;
   discordId: string;
   nom: string;
+  nomRp: string;
+  /** Nom Discord, rappelé sous le nom RP. */
+  nomDiscord: string;
   pseudo: string;
   avatarUrl: string | null;
   role: Role;
@@ -29,11 +36,19 @@ export function TableauComptes({ comptes }: { comptes: LigneCompte[] }) {
   const [erreur, setErreur] = useState<string | null>(null);
   const [enCours, demarrer] = useTransition();
 
-  const modifier = (compteId: string, modification: { role?: Role; actif?: boolean }) =>
+  const [edition, setEdition] = useState<LigneCompte | null>(null);
+  const [nomRp, setNomRp] = useState("");
+
+  const modifier = (
+    compteId: string,
+    modification: { role?: Role; actif?: boolean; nomRp?: string },
+    apres?: () => void,
+  ) =>
     demarrer(async () => {
       setErreur(null);
       const r = await actionModifierCompte({ compteId, ...modification });
       if (!r.ok) setErreur(r.erreur);
+      else apres?.();
     });
 
   return (
@@ -75,6 +90,7 @@ export function TableauComptes({ comptes }: { comptes: LigneCompte[] }) {
                     </span>
                     <span className="text-[12.5px] text-texte-attenue">
                       {c.pseudo ? `@${c.pseudo}` : "Première connexion attendue"}
+                      {c.nomRp && c.nomDiscord && ` · ${c.nomDiscord}`}
                     </span>
                   </span>
                 </span>
@@ -85,8 +101,8 @@ export function TableauComptes({ comptes }: { comptes: LigneCompte[] }) {
                 </span>
               ),
               role: (
-                <Statut ton={c.role === "ADMIN" ? "or" : "ok"}>
-                  {c.role === "ADMIN" ? "Administrateur" : "Gestionnaire"}
+                <Statut ton={c.role === "ADMIN" ? "or" : c.role === "FISC" ? "attenue" : "ok"}>
+                  {LIBELLES_ROLE[c.role]}
                 </Statut>
               ),
               statut: (
@@ -109,18 +125,23 @@ export function TableauComptes({ comptes }: { comptes: LigneCompte[] }) {
                 <MenuActions
                   libelle={`Plus d’actions pour ${c.nom}`}
                   elements={[
-                    c.role === "ADMIN"
-                      ? {
-                          libelle: "Passer gestionnaire",
-                          icone: "personne",
-                          desactive: c.estMoi,
-                          onSelect: () => modifier(c.id, { role: "GESTIONNAIRE" }),
-                        }
-                      : {
-                          libelle: "Passer administrateur",
-                          icone: "bouclier",
-                          onSelect: () => modifier(c.id, { role: "ADMIN" }),
-                        },
+                    {
+                      libelle: c.nomRp ? "Modifier le nom RP" : "Ajouter un nom RP",
+                      icone: "crayon",
+                      onSelect: () => {
+                        setNomRp(c.nomRp);
+                        setEdition(c);
+                      },
+                    },
+                    ...(["ADMIN", "GESTIONNAIRE", "FISC"] as const)
+                      .filter((r) => r !== c.role)
+                      .map((r) => ({
+                        libelle: `Passer ${r === "ADMIN" ? "administrateur" : r === "FISC" ? "FISC" : "gestionnaire"}`,
+                        icone: r === "ADMIN" ? ("bouclier" as const) : ("personne" as const),
+                        // On ne retire pas son propre rôle d'administrateur.
+                        desactive: c.estMoi && c.role === "ADMIN",
+                        onSelect: () => modifier(c.id, { role: r }),
+                      })),
                     c.actif
                       ? {
                           libelle: "Désactiver le compte",
@@ -140,6 +161,40 @@ export function TableauComptes({ comptes }: { comptes: LigneCompte[] }) {
           }))}
         />
       </div>
+
+      <Modal
+        ouvert={edition !== null}
+        onFermer={() => setEdition(null)}
+        surtitre={edition ? `Compte ${edition.discordId}` : undefined}
+        titre="Nom RP"
+        actions={
+          <>
+            <Button type="button" variante="verre" taille="panel" onClick={() => setEdition(null)}>
+              Annuler
+            </Button>
+            <Button type="submit" form="nom-rp" taille="panel" icone="valider" disabled={enCours}>
+              Enregistrer
+            </Button>
+          </>
+        }
+      >
+        <form
+          id="nom-rp"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (edition) modifier(edition.id, { nomRp }, () => setEdition(null));
+          }}
+        >
+          <Field
+            label="Nom du personnage"
+            value={nomRp}
+            maxLength={60}
+            autoComplete="off"
+            onChange={(e) => setNomRp(e.target.value)}
+            aide="Utilisé partout : contrats, registre, déclarations. Vide : le nom Discord est repris."
+          />
+        </form>
+      </Modal>
     </div>
   );
 }

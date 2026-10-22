@@ -41,6 +41,13 @@ export const FONDS = {
   coucher: "/images/bg-coucher-de-soleil.jpg",
 } as const;
 
+/** Visuel par défaut des cartes « Trois éléments » de l'accueil, remplaçable dans Paramètres. */
+export const FONDS_TYPES = {
+  BATEAU: FONDS.mer,
+  AVION: FONDS.piste,
+  HELICOPTERE: FONDS.skyline,
+} as const;
+
 /** Hauteur de l'en-tête (24 px de marge + pilule de 68 px) : les fonds remontent derrière lui. */
 export const HAUTEUR_EN_TETE = 92;
 

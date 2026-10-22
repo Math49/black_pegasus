@@ -13,7 +13,9 @@ import type { CompteConnecte } from "@/lib/garde";
 import { prisma } from "@/lib/prisma";
 import { enTransaction, type Tx } from "@/lib/transaction";
 import { journaliser } from "./audit";
-import type { Reglement, TextesSite } from "./site";
+import type { ImageEnvoyee } from "@/lib/fichiers";
+import { schemaPhotosAccueil, type PhotosAccueil, type Reglement, type TextesSite } from "./site";
+import { enregistrerFichier, supprimerFichier } from "./stockage";
 
 // Paramètres du site (CONCEPTION § 9.1). Chaque enregistrement est journalisé et revalide
 // le site public, dont les pages lisent Parametres à chaque requête.
@@ -203,4 +205,37 @@ export function supprimerCategorie(acteur: CompteConnecte, id: string) {
     await tx.categorie.delete({ where: { id } });
     return { nom: c.nom, type: c.type };
   });
+}
+
+// ── Photos de l'accueil ────────────────────────────────────────────────────
+
+/**
+ * Photo d'une carte « Trois éléments » de l'accueil : remplacée par `image`, ou retirée
+ * (`null`, retour au visuel par défaut). L'ancien fichier est supprimé s'il n'est plus utilisé.
+ */
+export async function enregistrerPhotoAccueil(
+  acteur: CompteConnecte,
+  type: TypeVehicule,
+  image: ImageEnvoyee | null,
+) {
+  const cle = image ? await enregistrerFichier("photos", image.octets, image.extension) : null;
+  let ancienne: string | undefined;
+  try {
+    await ecrire(acteur, "parametres.photoAccueil", async (tx) => {
+      const p = await tx.parametres.findUniqueOrThrow({ where: { id: 1 } });
+      const photos: PhotosAccueil = schemaPhotosAccueil.parse(p.photosAccueil);
+      ancienne = photos[type];
+      const suivantes = { ...photos, [type]: cle ?? undefined };
+      if (!cle) delete suivantes[type];
+      await tx.parametres.update({ where: { id: 1 }, data: { photosAccueil: suivantes } });
+      return { type, photo: cle ? "remplacée" : "retirée" };
+    });
+  } catch (e) {
+    if (cle) await supprimerFichier(cle);
+    throw e;
+  }
+  if (ancienne && ancienne !== cle) {
+    const encoreUtilisee = await prisma.vehicule.count({ where: { photo: ancienne } });
+    if (!encoreUtilisee) await supprimerFichier(ancienne);
+  }
 }

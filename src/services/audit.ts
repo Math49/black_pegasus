@@ -16,6 +16,7 @@ export async function journaliser(
 export const LIBELLES_ACTIONS: Record<string, string> = {
   "compte.ajouter": "Compte ajouté",
   "compte.role": "Rôle modifié",
+  "compte.nom": "Nom RP modifié",
   "compte.activer": "Compte réactivé",
   "compte.desactiver": "Compte désactivé",
   "vehicule.creer": "Véhicule créé",
@@ -34,6 +35,7 @@ export const LIBELLES_ACTIONS: Record<string, string> = {
   "parametres.textes": "Textes du site modifiés",
   "parametres.reglement": "Règlement modifié",
   "parametres.regles": "Règles de location modifiées",
+  "parametres.photoAccueil": "Photo de l’accueil modifiée",
   "parametres.categorie.ajouter": "Catégorie ajoutée",
   "parametres.categorie.renommer": "Catégorie renommée",
   "parametres.categorie.ordre": "Ordre des catégories modifié",

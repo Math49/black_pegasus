@@ -181,6 +181,8 @@ async function main() {
             discordId: c.discordId,
             pseudo: c.pseudo,
             nomAffiche: c.nomAffiche,
+            // Les noms des maquettes sont des noms de personnages : ils servent de nom RP.
+            nomRp: c.nomAffiche,
             role: c.role,
             actif: c.actif,
             ajouteLe: h(c.ajouteLe),
@@ -197,6 +199,18 @@ async function main() {
           });
         }
       }
+      // Compte FISC de démonstration (consultation seule), absent des données des maquettes.
+      await tx.compte.create({
+        data: {
+          discordId: "700000000000000001",
+          pseudo: "agent.fisc",
+          nomAffiche: "Agent du FISC",
+          nomRp: "Inspecteur Daniel Hart",
+          role: "FISC",
+          ajouteLe: h("2026-10-20T10:00"),
+          ajouteParId: comptes.get("318574920163840001"),
+        },
+      });
       const adminDiscordId = process.env.ADMIN_DISCORD_ID?.trim();
       if (adminDiscordId && !comptes.has(adminDiscordId)) {
         // Pseudo, nom et avatar seront mis à jour depuis Discord à la première connexion.

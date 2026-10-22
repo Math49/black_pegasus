@@ -29,19 +29,20 @@ export function HistoriqueMouvements({
   filtres: { q: string; categorie: string; periode: string };
   categories: Option[];
   periodes: Option[];
+  /** Absent : rôle en consultation seule (FISC), pas de saisie. */
   nouveau: {
     semaine: number;
     dateParDefaut: string;
     contrats: ContratLiable[];
     acteur: { nom: string; avatarUrl: string | null };
-  };
+  } | null;
 }) {
   const router = useRouter();
   const chemin = usePathname();
   const params = useSearchParams();
   const [recherche, setRecherche] = useState(filtres.q);
   // « Nouveau mouvement » du tableau de bord arrive avec ?nouveau=1.
-  const [creation, setCreation] = useState(params.get("nouveau") === "1");
+  const [creation, setCreation] = useState(nouveau !== null && params.get("nouveau") === "1");
   const [selection, setSelection] = useState<MouvementAffiche | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -114,9 +115,11 @@ export function HistoriqueMouvements({
               <Icon nom="chevronBas" taille={16} className="bp-select-chevron" />
             </span>
           ))}
-          <Button type="button" taille="panel" icone="plus" onClick={() => setCreation(true)}>
-            Nouveau mouvement
-          </Button>
+          {nouveau && (
+            <Button type="button" taille="panel" icone="plus" onClick={() => setCreation(true)}>
+              Nouveau mouvement
+            </Button>
+          )}
         </div>
       </div>
 
@@ -268,16 +271,18 @@ export function HistoriqueMouvements({
         </nav>
       </div>
 
-      <ModaleNouveauMouvement
-        ouvert={creation}
-        onFermer={() => setCreation(false)}
-        onEnregistre={(numero) => {
-          setCreation(false);
-          setMessage(`${numero.replace(/^\d{4}-/, "")} enregistré au registre.`);
-          router.refresh();
-        }}
-        {...nouveau}
-      />
+      {nouveau && (
+        <ModaleNouveauMouvement
+          ouvert={creation}
+          onFermer={() => setCreation(false)}
+          onEnregistre={(numero) => {
+            setCreation(false);
+            setMessage(`${numero.replace(/^\d{4}-/, "")} enregistré au registre.`);
+            router.refresh();
+          }}
+          {...nouveau}
+        />
+      )}
       {selection && (
         <ModaleMouvement
           key={selection.id}

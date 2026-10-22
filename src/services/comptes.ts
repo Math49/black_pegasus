@@ -1,5 +1,5 @@
 import "server-only";
-import { estIdentifiantDiscord, nomCompte } from "@/domaine/comptes";
+import { estIdentifiantDiscord, nomCompte, normaliserNomRp } from "@/domaine/comptes";
 import { verifierModificationCompte } from "@/domaine/permissions";
 import { ErreurMetier, type Role } from "@/domaine/types";
 import type { CompteConnecte } from "@/lib/garde";
@@ -27,8 +27,14 @@ export async function verifierIdentifiant(discordId: string): Promise<Verificati
   return { statut: "trouve", profil };
 }
 
-export async function ajouterCompte(acteur: CompteConnecte, discordId: string, role: Role) {
+export async function ajouterCompte(
+  acteur: CompteConnecte,
+  discordId: string,
+  role: Role,
+  nomRp = "",
+) {
   const id = discordId.trim();
+  const rp = normaliserNomRp(nomRp);
   if (!estIdentifiantDiscord(id))
     throw new ErreurMetier("Identifiant Discord invalide (17 à 20 chiffres).");
   const profil = await rechercherProfilDiscord(id);
@@ -46,6 +52,7 @@ export async function ajouterCompte(acteur: CompteConnecte, discordId: string, r
         role,
         pseudo: connu?.pseudo ?? "",
         nomAffiche: connu?.nom ?? "",
+        nomRp: rp,
         avatarUrl: connu?.avatarUrl ?? null,
         ajouteParId: acteur.id,
       },
@@ -63,8 +70,9 @@ export async function ajouterCompte(acteur: CompteConnecte, discordId: string, r
 export async function modifierCompte(
   acteur: CompteConnecte,
   compteId: string,
-  modification: { role?: Role; actif?: boolean },
+  modification: { role?: Role; actif?: boolean; nomRp?: string },
 ) {
+  const nomRp = modification.nomRp === undefined ? undefined : normaliserNomRp(modification.nomRp);
   await enTransaction(async (tx) => {
     const cible = await tx.compte.findUnique({ where: { id: compteId } });
     if (!cible) throw new ErreurMetier("Compte introuvable.");
@@ -73,13 +81,15 @@ export async function modifierCompte(
 
     const changeRole = modification.role !== undefined && modification.role !== cible.role;
     const changeActif = modification.actif !== undefined && modification.actif !== cible.actif;
-    if (!changeRole && !changeActif) return;
+    const changeNom = nomRp !== undefined && nomRp !== cible.nomRp;
+    if (!changeRole && !changeActif && !changeNom) return;
 
     await tx.compte.update({
       where: { id: compteId },
       data: {
         ...(changeRole && { role: modification.role }),
         ...(changeActif && { actif: modification.actif }),
+        ...(changeNom && { nomRp }),
       },
     });
     // Un compte désactivé perd aussitôt ses sessions ouvertes.
@@ -93,6 +103,14 @@ export async function modifierCompte(
         action: "compte.role",
         cible: cibleJournal,
         details: { nom: nomCompte(cible), avant: cible.role, apres: modification.role! },
+      });
+    }
+    if (changeNom) {
+      await journaliser(tx, {
+        compteId: acteur.id,
+        action: "compte.nom",
+        cible: cibleJournal,
+        details: { avant: nomCompte(cible), apres: nomCompte({ ...cible, nomRp }) },
       });
     }
     if (changeActif) {
@@ -110,7 +128,9 @@ export const TAILLE_PAGE_JOURNAL = 15;
 
 export async function lireComptes() {
   return prisma.compte.findMany({
-    include: { ajoutePar: { select: { nomAffiche: true, pseudo: true, discordId: true } } },
+    include: {
+      ajoutePar: { select: { nomRp: true, nomAffiche: true, pseudo: true, discordId: true } },
+    },
     orderBy: [{ actif: "desc" }, { ajouteLe: "asc" }],
   });
 }
@@ -119,7 +139,9 @@ export async function lireJournal(page: number) {
   const [total, lignes] = await Promise.all([
     prisma.journalAudit.count(),
     prisma.journalAudit.findMany({
-      include: { compte: { select: { nomAffiche: true, pseudo: true, discordId: true } } },
+      include: {
+        compte: { select: { nomRp: true, nomAffiche: true, pseudo: true, discordId: true } },
+      },
       orderBy: { date: "desc" },
       skip: (page - 1) * TAILLE_PAGE_JOURNAL,
       take: TAILLE_PAGE_JOURNAL,

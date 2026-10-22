@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { cache } from "react";
 import { peut, type Action } from "@/domaine/permissions";
-import { ErreurMetier } from "@/domaine/types";
+import { ErreurMetier, type Role } from "@/domaine/types";
 import { auth } from "./auth";
 import { prisma } from "./prisma";
 
@@ -15,8 +15,9 @@ export type CompteConnecte = {
   discordId: string;
   pseudo: string;
   nomAffiche: string;
+  nomRp: string;
   avatarUrl: string | null;
-  role: "ADMIN" | "GESTIONNAIRE";
+  role: Role;
 };
 
 /** Compte de la session, relu en base à chaque requête (un compte désactivé perd l'accès aussitôt). */
@@ -28,8 +29,8 @@ export const lireCompteConnecte = cache(async (): Promise<CompteConnecte | null>
   if (!userId) return null;
   const compte = await prisma.compte.findUnique({ where: { userId } });
   if (!compte?.actif) return null;
-  const { id, discordId, pseudo, nomAffiche, avatarUrl, role } = compte;
-  return { id, discordId, pseudo, nomAffiche, avatarUrl, role };
+  const { id, discordId, pseudo, nomAffiche, nomRp, avatarUrl, role } = compte;
+  return { id, discordId, pseudo, nomAffiche, nomRp, avatarUrl, role };
 });
 
 /** Pages : session obligatoire, sinon connexion (ou refus si le compte est désactivé). */

@@ -17,7 +17,7 @@ import { TYPES } from "@/domaine/flotte";
 import type { TypeVehicule } from "@/domaine/types";
 import { formaterContenance, libelleType } from "@/domaine/unites";
 import { compteursFlotte } from "@/domaine/vehicules";
-import { exigerSession } from "@/lib/garde";
+import { exigerPermission } from "@/lib/garde";
 import { urlPhoto } from "@/services/stockage";
 import { lireVehiculesAdmin } from "@/services/vehicules";
 
@@ -38,7 +38,7 @@ async function Contenu({
 }: {
   searchParams: PageProps<"/admin/vehicules">["searchParams"];
 }) {
-  await exigerSession();
+  await exigerPermission("vehicule.consulter");
   const params = await searchParams;
   const type = TYPES.includes(params.type as TypeVehicule) ? (params.type as TypeVehicule) : null;
   const q = String(params.q ?? "").trim();

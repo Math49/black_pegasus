@@ -12,7 +12,8 @@ import { Statut } from "@/composants/ui/Statut";
 import { formaterDollars } from "@/domaine/argent";
 import { echeance, formaterJourHeure } from "@/domaine/contrats";
 import { contientInstant, semaineDe } from "@/domaine/semaine";
-import { exigerSession } from "@/lib/garde";
+import { peut } from "@/domaine/permissions";
+import { exigerPermission } from "@/lib/garde";
 import { lireContrats } from "@/services/contrats";
 import { lireDonneesPanel } from "@/services/panel";
 
@@ -23,7 +24,9 @@ async function Contenu({
 }: {
   searchParams: PageProps<"/admin/contrats">["searchParams"];
 }) {
-  await exigerSession();
+  const compte = await exigerPermission("contrat.consulter");
+  const peutCreer = peut(compte.role, "contrat.creer");
+  const peutCloturer = peut(compte.role, "contrat.cloturer");
   const params = await searchParams;
   const onglet = params.onglet === "termines" ? "termines" : "en-cours";
   const q = String(params.q ?? "").trim();
@@ -117,9 +120,11 @@ async function Contenu({
                 className="bp-fld bp-fld--panel bp-fld--avec-icone h-11"
               />
             </form>
-            <Button href="/admin/contrats/nouveau" taille="panel" icone="plus">
-              Nouveau contrat
-            </Button>
+            {peutCreer && (
+              <Button href="/admin/contrats/nouveau" taille="panel" icone="plus">
+                Nouveau contrat
+              </Button>
+            )}
           </div>
         </div>
 
@@ -215,7 +220,7 @@ async function Contenu({
                         icone="pdf"
                         taille="tableau"
                       />
-                      {c.statut === "EN_COURS" && (
+                      {c.statut === "EN_COURS" && peutCloturer && (
                         <Button
                           href={`/admin/contrats/${c.id}/cloturer`}
                           variante="verre"

@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { estIdentifiantDiscord, formaterDerniereConnexion, nomCompte } from "./comptes";
+import {
+  estIdentifiantDiscord,
+  formaterDerniereConnexion,
+  nomCompte,
+  normaliserNomRp,
+} from "./comptes";
 import { depuisHeureServeur } from "./dates";
 
 const PARIS = "Europe/Paris";
@@ -42,5 +47,21 @@ describe("identifiants et noms", () => {
     expect(nomCompte({ nomAffiche: "", pseudo: "", discordId: "734205918846263296" })).toBe(
       "Compte 734205918846263296",
     );
+  });
+});
+
+describe("nom RP", () => {
+  it("prioritaire sur le nom Discord", () => {
+    const c = { nomAffiche: "vince", pseudo: "vmoretti", discordId: "1" };
+    expect(nomCompte({ ...c, nomRp: "Vincent Moretti" })).toBe("Vincent Moretti");
+    expect(nomCompte({ ...c, nomRp: "  " })).toBe("vince");
+    expect(nomCompte({ ...c, nomRp: null })).toBe("vince");
+  });
+
+  it("saisie normalisée", () => {
+    expect(normaliserNomRp("  Vincent   Moretti ")).toBe("Vincent Moretti");
+    expect(normaliserNomRp("")).toBe("");
+    expect(() => normaliserNomRp("V")).toThrow("2 à 60");
+    expect(() => normaliserNomRp("x".repeat(61))).toThrow("2 à 60");
   });
 });

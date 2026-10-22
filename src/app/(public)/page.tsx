@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { urlPhoto } from "@/services/stockage";
 import { NumerosTelephone } from "@/composants/site/NumerosTelephone";
 import Image from "next/image";
 import Link from "next/link";
@@ -7,6 +8,7 @@ import { BoutonAppeler } from "@/composants/site/BoutonAppeler";
 import { CarteVehicule } from "@/composants/site/CarteVehicule";
 import {
   FONDS,
+  FONDS_TYPES,
   FondAmbiance,
   HAUTEUR_EN_TETE,
   noir,
@@ -38,17 +40,17 @@ export const metadata: Metadata = {
 const ELEMENTS: Record<TypeVehicule, { icone: NomIcone; fond: string; voile: string }> = {
   BATEAU: {
     icone: "bateau",
-    fond: FONDS.mer,
+    fond: FONDS_TYPES.BATEAU,
     voile: `linear-gradient(180deg, ${noir(5)} 0%, ${noir(30)} 45%, ${noir(85)} 100%)`,
   },
   AVION: {
     icone: "avion",
-    fond: FONDS.piste,
+    fond: FONDS_TYPES.AVION,
     voile: `linear-gradient(180deg, ${noir(0)} 0%, ${noir(25)} 45%, ${noir(85)} 100%)`,
   },
   HELICOPTERE: {
     icone: "helicoptere",
-    fond: FONDS.skyline,
+    fond: FONDS_TYPES.HELICOPTERE,
     voile: `linear-gradient(180deg, ${noir(0)} 0%, ${noir(20)} 45%, ${noir(85)} 100%)`,
   },
 };
@@ -198,7 +200,12 @@ async function Accueil() {
                 className="relative block h-[340px] text-texte sm:h-[460px]"
               >
                 <span className="absolute inset-0 overflow-hidden rounded-[24px] border border-[var(--bp-trait-8)]">
-                  <FondAmbiance image={e.fond} voile={e.voile} priorite={false} />
+                  {/* Photo choisie dans Paramètres, sinon le visuel d'ambiance par défaut. */}
+                  <FondAmbiance
+                    image={p.photosAccueil[type] ? urlPhoto(p.photosAccueil[type]!) : e.fond}
+                    voile={e.voile}
+                    priorite={false}
+                  />
                 </span>
                 <span className="glass-site absolute inset-x-4 bottom-4 flex flex-col gap-4 px-[22px] pt-[22px] pb-5">
                   {/* Le compteur passe à la ligne au besoin (chevauchement corrigé, CONCEPTION § 9.4). */}

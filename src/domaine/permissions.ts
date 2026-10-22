@@ -2,24 +2,31 @@ import { ErreurMetier, type Role } from "./types";
 
 // HANDOFF § 7.9, complété par la CONCEPTION (§ 6.5, 6.6, 7, 9.1, 9.2).
 
+/** Équipe de l'agence : saisie et gestion courante. */
 const TOUS: readonly Role[] = ["ADMIN", "GESTIONNAIRE"];
+/** Lecture : l'équipe et le FISC (consultation seule des contrats, du solde et des comptes). */
+const LECTURE: readonly Role[] = ["ADMIN", "GESTIONNAIRE", "FISC"];
 const ADMIN: readonly Role[] = ["ADMIN"];
 
 const MATRICE = {
+  "tableauDeBord.consulter": TOUS,
+  "contrat.consulter": LECTURE,
   "contrat.creer": TOUS,
   "contrat.cloturer": TOUS,
-  "contrat.pdf": TOUS,
+  "contrat.pdf": LECTURE,
   "contrat.annuler": ADMIN,
+  "vehicule.consulter": TOUS,
   "vehicule.creer": TOUS,
   "vehicule.modifier": TOUS,
   "vehicule.supprimer": ADMIN,
+  "solde.consulter": LECTURE,
   "mouvement.creer": TOUS,
   "mouvement.modifier": TOUS,
   "mouvement.contrePasser": ADMIN,
-  "comptabilite.consulter": TOUS,
-  "comptabilite.exporterCsv": TOUS,
-  "declaration.brouillon": TOUS,
-  "declaration.exporter": ADMIN,
+  "comptabilite.consulter": LECTURE,
+  "comptabilite.exporterCsv": LECTURE,
+  "declaration.brouillon": LECTURE,
+  "declaration.exporter": ["ADMIN", "FISC"],
   "semaine.cloturer": ADMIN,
   "compte.gerer": ADMIN,
   "journal.consulter": ADMIN,
@@ -54,13 +61,12 @@ export function verifierModificationCompte(p: {
   if (soiMeme && modification.actif === false) {
     throw new ErreurMetier("Vous ne pouvez pas désactiver votre propre compte.");
   }
-  if (soiMeme && modification.role === "GESTIONNAIRE" && cible.role === "ADMIN") {
+  const retraitAdmin = modification.role !== undefined && modification.role !== "ADMIN";
+  if (soiMeme && retraitAdmin && cible.role === "ADMIN") {
     throw new ErreurMetier("Vous ne pouvez pas retirer votre propre rôle d'administrateur.");
   }
   const retireUnAdminActif =
-    cible.role === "ADMIN" &&
-    cible.actif &&
-    (modification.actif === false || modification.role === "GESTIONNAIRE");
+    cible.role === "ADMIN" && cible.actif && (modification.actif === false || retraitAdmin);
   if (retireUnAdminActif && p.adminsActifs <= 1) {
     throw new ErreurMetier("Il doit rester au moins un administrateur actif.");
   }
@@ -77,4 +83,9 @@ export const decisionConnexion = (compte: { actif: boolean } | null): DecisionCo
 export const LIBELLES_ROLE: Record<Role, string> = {
   ADMIN: "Administrateur",
   GESTIONNAIRE: "Gestionnaire",
+  FISC: "FISC",
 };
+
+/** Page d'arrivée du panel : le FISC n'a pas de tableau de bord. */
+export const pageAccueilPanel = (role: Role) =>
+  peut(role, "tableauDeBord.consulter") ? "/admin" : "/admin/comptabilite";

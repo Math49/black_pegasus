@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { nomCompte } from "@/domaine/comptes";
 import type { ReactNode } from "react";
 import { LIBELLES_ROLE } from "@/domaine/permissions";
 import { exigerSession } from "@/lib/garde";
@@ -29,7 +30,7 @@ export async function EnTetePanel({
   retour?: { href: string; libelle: string };
 }) {
   const [compte, d] = await Promise.all([exigerSession(), lireDonneesPanel()]);
-  const nom = compte.nomAffiche || compte.pseudo || "Compte";
+  const nom = nomCompte(compte);
 
   return (
     <GlassCard
@@ -73,7 +74,7 @@ export async function EnTetePanel({
               )}
             </span>
             <Statut
-              ton={compte.role === "ADMIN" ? "or" : "ok"}
+              ton={compte.role === "ADMIN" ? "or" : compte.role === "FISC" ? "attenue" : "ok"}
               className="h-5 self-start text-[10.5px]"
             >
               {LIBELLES_ROLE[compte.role]}

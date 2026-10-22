@@ -3,7 +3,8 @@
 import { randomUUID } from "node:crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { decisionConnexion } from "@/domaine/permissions";
+import { nomCompte } from "@/domaine/comptes";
+import { decisionConnexion, pageAccueilPanel } from "@/domaine/permissions";
 import { DUREE_SESSION_S, signIn, signOut } from "@/lib/auth";
 import { maintenant } from "@/lib/horloge";
 import { connexionAutorisee } from "@/lib/limites";
@@ -33,7 +34,7 @@ export async function connexionDeveloppement(formData: FormData) {
     compte.userId ??
     (
       await prisma.user.create({
-        data: { name: compte.nomAffiche || compte.pseudo, image: compte.avatarUrl },
+        data: { name: nomCompte(compte), image: compte.avatarUrl },
       })
     ).id;
   const expires = new Date(Date.now() + DUREE_SESSION_S * 1000);
@@ -51,5 +52,5 @@ export async function connexionDeveloppement(formData: FormData) {
     path: "/",
     expires,
   });
-  redirect("/admin");
+  redirect(pageAccueilPanel(compte.role));
 }
