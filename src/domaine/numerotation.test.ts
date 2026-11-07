@@ -13,10 +13,10 @@ import {
 
 describe("numérotation", () => {
   it("contrats", () => {
-    expect(numeroContrat(2026, 42)).toBe("CTR-2026-0042");
-    expect(numeroContrat(2026, 1)).toBe("CTR-2026-0001");
-    expect(numeroContrat(2026, 12345)).toBe("CTR-2026-12345");
-    expect(cleCompteurContrats(2026)).toBe("CTR-2026");
+    expect(numeroContrat(2026, 42)).toBe("BPL-2026-0042");
+    expect(numeroContrat(2026, 1)).toBe("BPL-2026-0001");
+    expect(numeroContrat(2026, 12345)).toBe("BPL-2026-12345");
+    expect(cleCompteurContrats(2026)).toBe("BPL-2026");
   });
 
   it("opérations", () => {

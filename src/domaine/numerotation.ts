@@ -7,11 +7,14 @@ const pad = (n: number, largeur: number) => {
   return String(n).padStart(largeur, "0");
 };
 
-/** Clé du compteur annuel des contrats : `CTR-2026`. */
-export const cleCompteurContrats = (annee: number) => `CTR-${annee}`;
+/**
+ * Clé du compteur annuel des contrats de Black Pégasus Location : `BPL-2026`. Les contrats
+ * antérieurs aux filiales gardent leur numéro `CTR-2026-…` ; la séquence continue.
+ */
+export const cleCompteurContrats = (annee: number) => `BPL-${annee}`;
 
-/** `CTR-2026-0042` */
-export const numeroContrat = (annee: number, n: number) => `CTR-${annee}-${pad(n, 4)}`;
+/** `BPL-2026-0042` */
+export const numeroContrat = (annee: number, n: number) => `BPL-${annee}-${pad(n, 4)}`;
 
 /** `OP-43-007` (numéro affiché) */
 export const numeroOperation = (semaine: number, n: number) => `OP-${pad(semaine, 2)}-${pad(n, 3)}`;

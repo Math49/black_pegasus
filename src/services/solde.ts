@@ -8,7 +8,12 @@ import {
 import { numeroJustificatif } from "@/domaine/numerotation";
 import { semaineDe } from "@/domaine/semaine";
 import { verifierContrePassation, verifierSaisieMouvement } from "@/domaine/solde";
-import { ErreurMetier, type CategorieMouvement, type Sens } from "@/domaine/types";
+import {
+  ErreurMetier,
+  type CategorieMouvement,
+  type CodeFiliale,
+  type Sens,
+} from "@/domaine/types";
 import type { ImageEnvoyee } from "@/lib/fichiers";
 import type { CompteConnecte } from "@/lib/garde";
 import { maintenant } from "@/lib/horloge";
@@ -104,6 +109,7 @@ export type SaisieMouvementManuel = {
   motif: string;
   date: Date;
   contratId: string | null;
+  filiale: CodeFiliale | null;
 };
 
 /** Le fichier n'est supprimé que si aucun autre mouvement ne le référence. */
@@ -221,7 +227,13 @@ export async function contrePasserMouvement(acteur: CompteConnecte, id: string) 
     const { fuseau } = await lireRegles(tx);
     const cp = await inscrireMouvement(
       tx,
-      { ...inverse, date: await maintenant(), contratId: m.contratId, saisiParId: acteur.id },
+      {
+        ...inverse,
+        date: await maintenant(),
+        contratId: m.contratId,
+        filiale: m.filiale,
+        saisiParId: acteur.id,
+      },
       fuseau,
     );
     await journaliser(tx, {

@@ -13,6 +13,7 @@ import { Statut } from "@/composants/ui/Statut";
 import { formaterDollars } from "@/domaine/argent";
 import { champsModifiables, montantSigne } from "@/domaine/comptabilite";
 import { nomCompte } from "@/domaine/comptes";
+import { libelleFiliale } from "@/domaine/filiales";
 import { formaterHeureServeurIso, versHeureServeur } from "@/domaine/dates";
 import { numeroOperationAffiche } from "@/domaine/numerotation";
 import { peut } from "@/domaine/permissions";
@@ -134,6 +135,7 @@ async function Contenu({
       date: format(versHeureServeur(m.date, d.fuseau), "EEE dd/MM '·' HH:mm", { locale: fr }),
       sens: m.sens,
       categorie: LIBELLES_CATEGORIE[m.categorie],
+      filiale: libelleFiliale(m.filiale),
       montant: formaterDollars(montantSigne(m), { signe: true }),
       motif: m.motif,
       contrat: m.contrat && {

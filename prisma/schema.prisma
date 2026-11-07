@@ -48,6 +48,19 @@ enum CategorieMouvement {
   IMPOTS
   APPORT
   DIVERS
+  /// Recette de Black Pégasus Formation
+  FORMATION
+  /// Recette de Black Pégasus Cards
+  VENTE_CARTES
+  /// Dépense de Black Pégasus Cards
+  ACHAT_STOCK
+}
+
+/// Filiales du groupe (docs/CONCEPTION-FILIALES.md) : Location, Formation, Cards.
+enum CodeFiliale {
+  BPL
+  BPF
+  BPC
 }
 
 enum StatutSemaine {
@@ -119,10 +132,12 @@ model Exemplaire {
 
 model Contrat {
   id               String        @id @default(cuid())
-  /// CTR-2026-0042
+  /// BPL-2026-0042 (CTR-2026-… avant les filiales)
   numero           String        @unique
   clientNom        String
   clientTelephone  String
+  /// N° de licence du client (facultatif), délivrée par l'État
+  numeroLicence    String?
   exemplaireId     String
   exemplaire       Exemplaire    @relation(fields: [exemplaireId], references: [id])
   // Instantanés figés à la signature : le contrat ne bouge pas si les tarifs changent.
@@ -182,6 +197,8 @@ model Mouvement {
   annuleMouvementId  String?            @unique
   annuleMouvement    Mouvement?         @relation("ContrePassation", fields: [annuleMouvementId], references: [id])
   annulePar          Mouvement?         @relation("ContrePassation")
+  /// Filiale concernée ; null = Groupe (frais communs, impôts)
+  filiale            CodeFiliale?
   saisiParId         String
   saisiPar           Compte             @relation(fields: [saisiParId], references: [id])
   creeLe             DateTime           @default(now())
@@ -251,11 +268,28 @@ model Compteur {
 }
 
 /// Une seule ligne, id = 1.
+/// Filiale du groupe : identité et contact. Ses données métier (flotte, permis, cartes) sont
+/// dans leurs propres tables.
+model Filiale {
+  code      CodeFiliale @id
+  /// Adresse de sa section du site : /location, /formation, /cards
+  slug      String      @unique
+  nom       String
+  accroche  String      @default("")
+  /// Chemin public du logo (public/images/logos)
+  logo      String
+  telephone String
+  horaires  String
+  ordre     Int         @default(0)
+  /// Section affichée sur le site public
+  visible   Boolean     @default(true)
+}
+
+/// Groupe Black Pégasus Compagnie (une seule ligne) ; règles et textes de location (BPL)
+/// en attendant les paramètres par filiale (phase F-6).
 model Parametres {
   id                              Int     @id @default(1)
-  nomEntreprise                   String  @default("Black Pégasus – American Transports")
-  telephoneAgence                 String
-  horaires                        String
+  nomEntreprise                   String  @default("Black Pégasus Compagnie")
   fuseauServeur                   String  @default("Europe/Paris")
   numeroImmatriculationEntreprise String
   toleranceRetardMin              Int     @default(15)

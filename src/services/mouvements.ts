@@ -2,7 +2,13 @@ import "server-only";
 import { montantSigne } from "@/domaine/comptabilite";
 import { numeroJustificatif, numeroOperationEnBase } from "@/domaine/numerotation";
 import { semaineImputation, type SemaineFiscale } from "@/domaine/semaine";
-import { ErreurMetier, type CategorieMouvement, type Sens } from "@/domaine/types";
+import { verifierFilialeMouvement } from "@/domaine/filiales";
+import {
+  ErreurMetier,
+  type CategorieMouvement,
+  type CodeFiliale,
+  type Sens,
+} from "@/domaine/types";
 import type { Tx } from "@/lib/transaction";
 
 // Inscription des mouvements (CONCEPTION § 6.3 et § 6.4). Toujours appelée dans une
@@ -50,11 +56,14 @@ export type NouveauMouvement = {
   /** Clé de stockage du justificatif (dépense) : un numéro JUST-SS-NN lui est attribué. */
   justificatif?: string | null;
   annuleMouvementId?: string | null;
+  /** Filiale concernée ; null ou absente = Groupe (frais communs). */
+  filiale?: CodeFiliale | null;
 };
 
 export async function inscrireMouvement(tx: Tx, m: NouveauMouvement, fuseau: string) {
   if (!Number.isSafeInteger(m.montant) || m.montant <= 0)
     throw new ErreurMetier("Montant invalide.");
+  verifierFilialeMouvement(m.categorie, m.filiale ?? null);
   const cloturees = new Set(
     (await tx.semaine.findMany({ where: { statut: "CLOTUREE" }, select: { id: true } })).map(
       (s) => s.id,
@@ -88,6 +97,7 @@ export async function inscrireMouvement(tx: Tx, m: NouveauMouvement, fuseau: str
         ? numeroJustificatif(semaine.numero, semaine.compteurJustificatifs)
         : null,
       annuleMouvementId: m.annuleMouvementId ?? null,
+      filiale: m.filiale ?? null,
       saisiParId: m.saisiParId,
     },
   });

@@ -18,7 +18,7 @@ import type {
   StatutExemplaire,
   TypeVehicule,
 } from "../src/domaine/types";
-import { descriptions, reglement, textesSite } from "./contenus";
+import { descriptions, filialesInitiales, reglement, textesSite } from "./contenus";
 
 if (process.env.NODE_ENV === "production") {
   throw new Error("Le seed de démonstration ne doit jamais être lancé en production.");
@@ -153,16 +153,21 @@ async function main() {
     async (tx) => {
       await tx.$executeRawUnsafe(
         `TRUNCATE "JournalAudit", "Mouvement", "Contrat", "Semaine", "Exemplaire", "Vehicule",
-         "Categorie", "Compteur", "Parametres", "Session", "Account", "User", "VerificationToken",
+         "Categorie", "Compteur", "Parametres", "Filiale", "Session", "Account", "User", "VerificationToken",
          "Compte" RESTART IDENTITY CASCADE`,
       );
 
       // ── Paramètres ──
       const p = demo.parametres;
+      await tx.filiale.createMany({
+        data: filialesInitiales.map((f) => ({
+          ...f,
+          telephone: p.telephoneAgence,
+          horaires: p.horaires,
+        })),
+      });
       await tx.parametres.create({
         data: {
-          telephoneAgence: p.telephoneAgence,
-          horaires: p.horaires,
           fuseauServeur: FUSEAU,
           numeroImmatriculationEntreprise: p.numeroImmatriculationEntreprise,
           toleranceRetardMin: p.toleranceRetardMin,
@@ -320,6 +325,7 @@ async function main() {
               categorie: "LOCATION",
               montant: r.recettes,
               motif: `Reprise : recettes de la semaine ${r.numero}`,
+              filiale: "BPL",
               saisiParId: vmoretti,
             },
             {
@@ -332,6 +338,7 @@ async function main() {
               motif: `Reprise : dépenses de la semaine ${r.numero}`,
               justificatif: JUSTIFICATIF_DEMO,
               justificatifNumero: `JUST-${r.numero}-01`,
+              filiale: "BPL",
               saisiParId: vmoretti,
             },
           ],
@@ -437,7 +444,13 @@ async function main() {
         contrats.set(c.numero, cree.id);
         dernierContrat = Math.max(dernierContrat, Number(c.numero.slice(-4)));
       }
-      await tx.compteur.create({ data: { cle: "CTR-2026", valeur: dernierContrat } });
+      // Contrats des maquettes en CTR- ; les nouveaux continuent la séquence en BPL-.
+      await tx.compteur.createMany({
+        data: [
+          { cle: "CTR-2026", valeur: dernierContrat },
+          { cle: "BPL-2026", valeur: dernierContrat },
+        ],
+      });
 
       // ── Mouvements S43 ──
       await tx.mouvement.createMany({
@@ -455,6 +468,8 @@ async function main() {
             justificatif: m.justificatif ? JUSTIFICATIF_DEMO : null,
             justificatifNumero: m.justificatif,
             automatique: m.contrat !== null,
+            // Seule Location existait ; les impôts relèvent du groupe.
+            filiale: m.categorie === "IMPOTS" ? null : "BPL",
             saisiParId: compteId(m.saisiPar),
           };
         }),

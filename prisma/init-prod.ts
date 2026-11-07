@@ -13,7 +13,13 @@ import { estIdentifiantDiscord } from "../src/domaine/comptes";
 import { estFuseauValide } from "../src/domaine/parametres";
 import { semaineDe } from "../src/domaine/semaine";
 import { urlBase } from "../src/lib/urlBase";
-import { categoriesInitiales, reglement, reglesInitiales, textesSite } from "./contenus";
+import {
+  categoriesInitiales,
+  filialesInitiales,
+  reglement,
+  reglesInitiales,
+  textesSite,
+} from "./contenus";
 
 const { values: v } = parseArgs({
   options: {
@@ -42,15 +48,11 @@ async function main() {
     // Garde-fou : une base contenant déjà des mouvements n'est jamais réinitialisée.
     const parametres = await prisma.parametres.findUnique({ where: { id: 1 } });
     if (!parametres) {
-      if (!v.telephone || !v.horaires || !v.immatriculation)
-        arreter(
-          "Première initialisation : AGENCE_TELEPHONE, AGENCE_HORAIRES et AGENCE_IMMATRICULATION sont requis.",
-        );
+      if (!v.immatriculation)
+        arreter("Première initialisation : AGENCE_IMMATRICULATION (n° du groupe) est requis.");
       await prisma.parametres.create({
         data: {
           id: 1,
-          telephoneAgence: v.telephone,
-          horaires: v.horaires,
           numeroImmatriculationEntreprise: v.immatriculation,
           fuseauServeur: v.fuseau,
           ...reglesInitiales,
@@ -58,8 +60,22 @@ async function main() {
           reglement: { ...reglement, dateMiseAJour: new Date().toISOString().slice(0, 10) },
         },
       });
-      console.log("✓ Paramètres créés (textes et règlement de départ, à relire dans Paramètres).");
-    } else console.log("· Paramètres déjà présents : inchangés.");
+      console.log("✓ Groupe créé (textes et règlement de départ, à relire dans Paramètres).");
+    } else console.log("· Paramètres du groupe déjà présents : inchangés.");
+
+    // Filiales : créées une fois, avec le contact de l'agence (modifiable ensuite).
+    if ((await prisma.filiale.count()) < filialesInitiales.length) {
+      if (!v.telephone || !v.horaires)
+        arreter("Première initialisation : AGENCE_TELEPHONE et AGENCE_HORAIRES sont requis.");
+      for (const f of filialesInitiales) {
+        await prisma.filiale.upsert({
+          where: { code: f.code },
+          create: { ...f, telephone: v.telephone, horaires: v.horaires },
+          update: {},
+        });
+      }
+      console.log("✓ Filiales créées (Location visible ; Formation et Cards masquées).");
+    } else console.log("· Filiales déjà présentes : inchangées.");
 
     for (const [type, noms] of Object.entries(categoriesInitiales)) {
       for (const [ordre, nom] of noms.entries()) {

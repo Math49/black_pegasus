@@ -134,3 +134,37 @@ export const categoriesInitiales = {
   AVION: ["Hydravion", "Jet privé", "Sport"],
   HELICOPTERE: ["Affaires"],
 } as const;
+
+/**
+ * Filiales du groupe (docs/CONCEPTION-FILIALES.md). Formation et Cards démarrent masquées
+ * jusqu'à la livraison de leurs sections ; leur contact reprend celui de Location.
+ */
+export const filialesInitiales = [
+  {
+    code: "BPL",
+    slug: "location",
+    nom: "Black Pégasus Location",
+    accroche: "Location d’avions, d’hélicoptères et de bateaux",
+    logo: "/images/logos/bp-location.png",
+    ordre: 1,
+    visible: true,
+  },
+  {
+    code: "BPF",
+    slug: "formation",
+    nom: "Black Pégasus Formation",
+    accroche: "Centre de formation au pilotage et à la navigation, agréé par l’État",
+    logo: "/images/logos/bp-formation.webp",
+    ordre: 2,
+    visible: false,
+  },
+  {
+    code: "BPC",
+    slug: "cards",
+    nom: "Black Pégasus Cards",
+    accroche: "Cartes TCG à l’unité",
+    logo: "/images/logos/bp-cards.webp",
+    ordre: 3,
+    visible: false,
+  },
+] as const;

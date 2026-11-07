@@ -4,7 +4,13 @@ import { useState, useTransition } from "react";
 import { actionCreerMouvement } from "@/app/admin/(panel)/solde/actions";
 import { SEPARATEUR_MILLIERS } from "@/domaine/argent";
 import { categoriesDuSens, exigeJustificatif, LIBELLES_CATEGORIE } from "@/domaine/solde";
-import type { CategorieMouvement, Sens } from "@/domaine/types";
+import {
+  CODES_FILIALE,
+  filialeImposee,
+  filialeParDefaut,
+  LIBELLES_FILIALE,
+} from "@/domaine/filiales";
+import type { CategorieMouvement, CodeFiliale, Sens } from "@/domaine/types";
 import { Avatar } from "../../ui/Avatar";
 import { Button } from "../../ui/Button";
 import { Field, Select } from "../../ui/Field";
@@ -47,15 +53,23 @@ export function ModaleNouveauMouvement({
   const [motif, setMotif] = useState("");
   const [date, setDate] = useState(dateParDefaut);
   const [contratId, setContratId] = useState("");
+  const [filiale, setFiliale] = useState<CodeFiliale | "">(filialeParDefaut("ENTRETIEN") ?? "");
   const [fichier, setFichier] = useState<File | null>(null);
   const [erreur, setErreur] = useState<string | null>(null);
   const [erreurJustificatif, setErreurJustificatif] = useState<string | null>(null);
   const [enCours, demarrer] = useTransition();
 
   const exige = exigeJustificatif(sens, categorie);
+  // La filiale suit la catégorie : proposée par défaut, verrouillée si la catégorie l'impose.
+  const changerCategorie = (c: CategorieMouvement) => {
+    setCategorie(c);
+    setFiliale(filialeParDefaut(c) ?? "");
+  };
+  const imposee = filialeImposee(categorie);
+
   const changerSens = (s: Sens) => {
     setSens(s);
-    if (!categoriesDuSens(s).includes(categorie)) setCategorie(categoriesDuSens(s)[0]);
+    if (!categoriesDuSens(s).includes(categorie)) changerCategorie(categoriesDuSens(s)[0]);
   };
 
   const enregistrer = () => {
@@ -66,8 +80,8 @@ export function ModaleNouveauMouvement({
       return;
     }
     const f = new FormData();
-    Object.entries({ sens, categorie, montant, motif, date, contratId }).forEach(([k, v]) =>
-      f.set(k, v),
+    Object.entries({ sens, categorie, montant, motif, date, contratId, filiale }).forEach(
+      ([k, v]) => f.set(k, v),
     );
     if (fichier) f.set("justificatif", fichier);
     demarrer(async () => {
@@ -169,7 +183,7 @@ export function ModaleNouveauMouvement({
           <Select
             label="Catégorie"
             value={categorie}
-            onChange={(e) => setCategorie(e.target.value as CategorieMouvement)}
+            onChange={(e) => changerCategorie(e.target.value as CategorieMouvement)}
             options={categoriesDuSens(sens).map((c) => ({
               valeur: c,
               libelle: LIBELLES_CATEGORIE[c],
@@ -177,14 +191,27 @@ export function ModaleNouveauMouvement({
           />
         </div>
 
-        <Field
-          label="Motif"
-          required
-          minLength={3}
-          maxLength={160}
-          value={motif}
-          onChange={(e) => setMotif(e.target.value)}
-        />
+        <div className="grid grid-cols-[minmax(0,1fr)_190px] gap-4 max-sm:grid-cols-1">
+          <Field
+            label="Motif"
+            required
+            minLength={3}
+            maxLength={160}
+            value={motif}
+            onChange={(e) => setMotif(e.target.value)}
+          />
+          <Select
+            label="Filiale"
+            value={filiale}
+            disabled={imposee !== null}
+            aide={imposee ? "Imposée par la catégorie" : undefined}
+            onChange={(e) => setFiliale(e.target.value as CodeFiliale | "")}
+            options={[
+              { valeur: "", libelle: "Groupe (commun)" },
+              ...CODES_FILIALE.map((c) => ({ valeur: c, libelle: LIBELLES_FILIALE[c] })),
+            ]}
+          />
+        </div>
 
         <div className="grid grid-cols-2 gap-4 max-sm:grid-cols-1">
           <Field

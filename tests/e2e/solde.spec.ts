@@ -178,3 +178,34 @@ test.describe("solde et mouvements", () => {
     await verifier("détail");
   });
 });
+
+test.describe("filiales dans la saisie", () => {
+  test.afterAll(async () => {
+    // Le compteur de la semaine revient en arrière : la numérotation reste sans trou.
+    await sql(
+      `UPDATE "Semaine" s SET "compteurOperations" = s."compteurOperations" - 1
+       FROM "Mouvement" m WHERE m."semaineId" = s.id AND m.motif = 'Essai e2e : vente de cartes'`,
+    );
+    await sql(`DELETE FROM "Mouvement" WHERE motif = 'Essai e2e : vente de cartes'`);
+  });
+
+  test("la catégorie impose la filiale ; le mouvement la porte", async ({ page }) => {
+    await connexion(page, "Vincent Moretti");
+    await page.goto("/admin/solde");
+    await page.getByRole("button", { name: "Nouveau mouvement" }).click();
+    const modale = page.getByRole("dialog", { name: "Nouveau mouvement" });
+    await expect(modale.getByLabel("Filiale")).toHaveValue("BPL"); // Entretien → Location
+    await modale.getByText("Entrée", { exact: true }).click();
+    await modale.getByLabel("Catégorie").selectOption({ label: "Vente de cartes" });
+    await expect(modale.getByLabel("Filiale")).toHaveValue("BPC");
+    await expect(modale.getByLabel("Filiale")).toBeDisabled();
+    await modale.getByLabel("Montant").fill("450");
+    await modale.getByLabel("Motif").fill("Essai e2e : vente de cartes");
+    await modale.getByRole("button", { name: "Enregistrer le mouvement" }).click();
+    await expect(page.getByRole("status")).toContainText("enregistré");
+    const [m] = await sql<{ filiale: string; categorie: string }>(
+      `SELECT filiale, categorie FROM "Mouvement" WHERE motif = 'Essai e2e : vente de cartes'`,
+    );
+    expect(m).toEqual({ filiale: "BPC", categorie: "VENTE_CARTES" });
+  });
+});

@@ -18,6 +18,9 @@ export const LIBELLES_CATEGORIE: Record<CategorieMouvement, string> = {
   IMPOTS: "Impôts",
   APPORT: "Apport",
   DIVERS: "Divers",
+  FORMATION: "Formation",
+  VENTE_CARTES: "Vente de cartes",
+  ACHAT_STOCK: "Achat de stock",
 };
 
 /** Ordre de la maquette (filtres et saisie). */
@@ -32,6 +35,9 @@ const SENS_CATEGORIE: Record<CategorieMouvement, Sens> = {
   PENALITE: "ENTREE",
   CAUTION_ENCAISSEE: "ENTREE",
   APPORT: "ENTREE",
+  FORMATION: "ENTREE",
+  VENTE_CARTES: "ENTREE",
+  ACHAT_STOCK: "SORTIE",
   CAUTION_RENDUE: "SORTIE",
   ACHAT_VEHICULE: "SORTIE",
   ENTRETIEN: "SORTIE",

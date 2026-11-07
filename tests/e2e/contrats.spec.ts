@@ -38,13 +38,13 @@ test.describe("contrats", () => {
   test.beforeAll(async () => {
     await nettoyer();
     compteurContrats = (
-      await sql<{ valeur: number }>(`SELECT valeur FROM "Compteur" WHERE cle = 'CTR-2026'`)
+      await sql<{ valeur: number }>(`SELECT valeur FROM "Compteur" WHERE cle = 'BPL-2026'`)
     )[0].valeur;
     compteursSemaines = await sql(`SELECT id, "compteurOperations" FROM "Semaine"`);
   });
   test.afterAll(async () => {
     await nettoyer();
-    await sql(`UPDATE "Compteur" SET valeur = $1 WHERE cle = 'CTR-2026'`, [compteurContrats]);
+    await sql(`UPDATE "Compteur" SET valeur = $1 WHERE cle = 'BPL-2026'`, [compteurContrats]);
     for (const s of compteursSemaines)
       await sql(`UPDATE "Semaine" SET "compteurOperations" = $2 WHERE id = $1`, [
         s.id,
@@ -63,7 +63,7 @@ test.describe("contrats", () => {
     await expect(recap).toContainText("Tarif journalier appliqué");
 
     await page.getByRole("button", { name: "Créer le contrat et générer le PDF" }).click();
-    await expect(page).toHaveURL(/\/admin\/contrats\?cree=CTR-2026-/);
+    await expect(page).toHaveURL(/\/admin\/contrats\?cree=BPL-2026-/);
     const numero = new URL(page.url()).searchParams.get("cree")!;
     await expect(page.getByRole("status")).toContainText(`Contrat ${numero} créé`);
 

@@ -26,6 +26,9 @@ export type Nature = "RECETTE" | "DEPENSE" | "CAUTION" | "APPORT";
 const NATURES: Record<CategorieMouvement, Nature> = {
   LOCATION: "RECETTE",
   PENALITE: "RECETTE",
+  FORMATION: "RECETTE",
+  VENTE_CARTES: "RECETTE",
+  ACHAT_STOCK: "DEPENSE",
   ENTRETIEN: "DEPENSE",
   IMPOTS: "DEPENSE",
   ACHAT_VEHICULE: "DEPENSE",
@@ -86,12 +89,15 @@ export function synthese(
     switch (m.categorie) {
       case "LOCATION":
       case "PENALITE":
+      case "FORMATION":
+      case "VENTE_CARTES":
         recettes += signe;
         break;
       case "ENTRETIEN":
       case "IMPOTS":
       case "ACHAT_VEHICULE":
       case "DIVERS":
+      case "ACHAT_STOCK":
         depenses -= signe;
         break;
       case "CAUTION_ENCAISSEE":
@@ -417,6 +423,9 @@ export function ventilation(
     locations: somme("LOCATION"),
     contratsLoues: contrats.size,
     penalites: somme("PENALITE"),
+    formation: somme("FORMATION"),
+    ventesCartes: somme("VENTE_CARTES"),
+    achatsStock: somme("ACHAT_STOCK", -1),
     impots: somme("IMPOTS", -1),
     entretien: somme("ENTRETIEN", -1),
     achats: somme("ACHAT_VEHICULE", -1),
@@ -425,7 +434,7 @@ export function ventilation(
 }
 
 /** Pièce abrégée du registre imprimé : « CTR-2026-0031 » → « CTR-0031 ». */
-export const pieceAbregee = (piece: string) => piece.replace(/^CTR-\d{4}-/, "CTR-");
+export const pieceAbregee = (piece: string) => piece.replace(/^(CTR|BP[LFC])-\d{4}-/, "$1-");
 
 // ── Export CSV du registre ─────────────────────────────────────────────────
 

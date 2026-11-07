@@ -35,7 +35,7 @@ const SOMMAIRE = [
 
 async function Contenu() {
   await exigerPermission("parametres.gerer");
-  const { p, categories } = await lireParametresAdmin();
+  const { p, location, categories } = await lireParametresAdmin();
   const photos = schemaPhotosAccueil.parse(p.photosAccueil);
   return (
     <>
@@ -61,8 +61,8 @@ async function Contenu() {
 
       <FormulaireAgence
         initial={{
-          telephone: p.telephoneAgence,
-          horaires: p.horaires,
+          telephone: location.telephone,
+          horaires: location.horaires,
           immatriculation: p.numeroImmatriculationEntreprise,
           fuseau: p.fuseauServeur,
         }}

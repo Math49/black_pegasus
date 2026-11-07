@@ -31,7 +31,7 @@ export function FormulaireAgence({ initial }: { initial: Agence }) {
     <SectionParametres
       id="agence"
       titre="Agence"
-      description="Coordonnées affichées sur chaque page du site et sur les documents remis au FISC."
+      description="Contact de Black Pégasus Location (affiché sur le site) et identification du groupe auprès du FISC."
       onEnregistrer={() => enregistrer(d)}
       enCours={enCours}
       etat={etat}

@@ -75,6 +75,7 @@ export function FormulaireContrat({
     vehicules.find((v) => v.exemplaires.some((e) => e.statut === "DISPONIBLE")) ?? vehicules[0];
   const [clientNom, setClientNom] = useState("");
   const [clientTelephone, setClientTelephone] = useState("");
+  const [numeroLicence, setNumeroLicence] = useState("");
   const [vehiculeId, setVehiculeId] = useState(premier?.id ?? "");
   const [exemplaireId, setExemplaireId] = useState(
     premier?.exemplaires.find((e) => e.statut === "DISPONIBLE")?.id ?? "",
@@ -138,7 +139,14 @@ export function FormulaireContrat({
   const creer = () =>
     demarrer(async () => {
       setErreur(null);
-      const r = await actionCreerContrat({ clientNom, clientTelephone, exemplaireId, debut, fin });
+      const r = await actionCreerContrat({
+        clientNom,
+        clientTelephone,
+        numeroLicence,
+        exemplaireId,
+        debut,
+        fin,
+      });
       if (r.ok) router.push(`/admin/contrats?cree=${encodeURIComponent(r.donnees.numero)}`);
       else setErreur(r.erreur);
     });
@@ -182,6 +190,14 @@ export function FormulaireContrat({
               placeholder="555-0148"
               value={clientTelephone}
               onChange={(e) => setClientTelephone(e.target.value)}
+            />
+            <Champ
+              label="N° de licence (facultatif)"
+              id="client-licence"
+              autoComplete="off"
+              maxLength={40}
+              value={numeroLicence}
+              onChange={(e) => setNumeroLicence(e.target.value)}
             />
           </div>
         </Section>

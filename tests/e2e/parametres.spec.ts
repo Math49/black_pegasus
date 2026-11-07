@@ -2,20 +2,21 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 import { connexion, sql } from "./outils";
 
-type Ligne = { telephoneAgence: string; reglement: unknown; toleranceRetardMin: number };
+type Ligne = { telephone: string; reglement: unknown; toleranceRetardMin: number };
 let origine: Ligne;
 
 test.describe("paramètres du site", () => {
   test.beforeAll(async () => {
     [origine] = await sql<Ligne>(
-      `SELECT "telephoneAgence", reglement, "toleranceRetardMin" FROM "Parametres" WHERE id = 1`,
+      `SELECT f.telephone, p.reglement, p."toleranceRetardMin" FROM "Parametres" p, "Filiale" f WHERE p.id = 1 AND f.code = 'BPL'`,
     );
   });
   test.afterAll(async () => {
-    await sql(
-      `UPDATE "Parametres" SET "telephoneAgence" = $1, reglement = $2, "toleranceRetardMin" = $3 WHERE id = 1`,
-      [origine.telephoneAgence, JSON.stringify(origine.reglement), origine.toleranceRetardMin],
-    );
+    await sql(`UPDATE "Filiale" SET telephone = $1 WHERE code = 'BPL'`, [origine.telephone]);
+    await sql(`UPDATE "Parametres" SET reglement = $1, "toleranceRetardMin" = $2 WHERE id = 1`, [
+      JSON.stringify(origine.reglement),
+      origine.toleranceRetardMin,
+    ]);
     await sql(`DELETE FROM "Categorie" WHERE nom = 'Essai e2e'`);
     await sql(`DELETE FROM "JournalAudit" WHERE action LIKE 'parametres.%'`);
   });

@@ -25,6 +25,7 @@ function revaliderContrats(slug?: string) {
 export type DonneesCreation = {
   clientNom: string;
   clientTelephone: string;
+  numeroLicence?: string | null;
   exemplaireId: string;
   debut: Date;
   finPrevue: Date;
@@ -75,6 +76,7 @@ export async function creerContrat(acteur: CompteConnecte, d: DonneesCreation) {
         numero: numeroContrat(annee, compteur.valeur),
         clientNom: d.clientNom.trim(),
         clientTelephone: d.clientTelephone.trim(),
+        numeroLicence: d.numeroLicence?.trim() || null,
         exemplaireId: exemplaire.id,
         vehiculeNom: v.nom,
         prixHeure: v.prixHeure,
@@ -99,7 +101,14 @@ export async function creerContrat(acteur: CompteConnecte, d: DonneesCreation) {
     })) {
       await inscrireMouvement(
         tx,
-        { ...m, date: instant, contratId: cree.id, automatique: true, saisiParId: acteur.id },
+        {
+          ...m,
+          date: instant,
+          contratId: cree.id,
+          automatique: true,
+          filiale: "BPL",
+          saisiParId: acteur.id,
+        },
         regles.fuseau,
       );
     }
@@ -169,7 +178,14 @@ export async function cloturerContrat(
     for (const m of bilan.mouvements) {
       await inscrireMouvement(
         tx,
-        { ...m, date: d.retourReel, contratId, automatique: true, saisiParId: acteur.id },
+        {
+          ...m,
+          date: d.retourReel,
+          contratId,
+          automatique: true,
+          filiale: "BPL",
+          saisiParId: acteur.id,
+        },
         regles.fuseau,
       );
     }
@@ -235,7 +251,14 @@ export async function annulerContrat(acteur: CompteConnecte, contratId: string) 
       const inverse = preparerContrePassation(m, false);
       await inscrireMouvement(
         tx,
-        { ...inverse, date: instant, contratId, automatique: true, saisiParId: acteur.id },
+        {
+          ...inverse,
+          date: instant,
+          contratId,
+          automatique: true,
+          filiale: m.filiale,
+          saisiParId: acteur.id,
+        },
         regles.fuseau,
       );
     }

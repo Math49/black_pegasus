@@ -120,6 +120,8 @@ describe("saisie d'un mouvement (maquette 13)", () => {
       "PENALITE",
       "CAUTION_ENCAISSEE",
       "APPORT",
+      "FORMATION",
+      "VENTE_CARTES",
     ]);
     expect(categoriesDuSens("SORTIE")).toEqual([
       "CAUTION_RENDUE",
@@ -127,6 +129,7 @@ describe("saisie d'un mouvement (maquette 13)", () => {
       "ENTRETIEN",
       "IMPOTS",
       "DIVERS",
+      "ACHAT_STOCK",
     ]);
   });
 

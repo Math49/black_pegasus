@@ -64,6 +64,9 @@ describe("registre de la semaine 43", () => {
       entretien: 4700,
       achats: 0,
       divers: 6850,
+      formation: 0,
+      ventesCartes: 0,
+      achatsStock: 0,
     });
   });
 

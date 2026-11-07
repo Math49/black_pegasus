@@ -47,12 +47,16 @@ export type ParametresSite = ContexteTextes & {
 /** Dédupliqué par requête (en-tête, page et pied de page le lisent). */
 export const lireParametresSite = cache(async (): Promise<ParametresSite> => {
   await connection();
-  const p = await prisma.parametres.findUniqueOrThrow({ where: { id: 1 } });
+  const [p, bpl] = await Promise.all([
+    prisma.parametres.findUniqueOrThrow({ where: { id: 1 } }),
+    prisma.filiale.findUniqueOrThrow({ where: { code: "BPL" } }),
+  ]);
   return {
     nomEntreprise: p.nomEntreprise,
     fuseauServeur: p.fuseauServeur,
-    telephone: p.telephoneAgence,
-    horaires: p.horaires,
+    // Site actuel = section Location : son contact (F-2 introduit l'accueil du groupe).
+    telephone: bpl.telephone,
+    horaires: bpl.horaires,
     toleranceRetardMin: p.toleranceRetardMin,
     majorationRetard: p.majorationRetard,
     seuilDefautRestitutionMin: p.seuilDefautRestitutionMin,

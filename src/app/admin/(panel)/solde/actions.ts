@@ -26,6 +26,11 @@ const schemaSaisie = z.object({
   motif: z.string().trim().max(160, "Motif trop long (160 caractères)."),
   date: z.string().min(1, "Indiquez la date et l’heure."),
   contratId: z.string().optional(),
+  // Filiale concernée ; vide = Groupe (frais communs).
+  filiale: z
+    .enum(["BPL", "BPF", "BPC", ""], { message: "Filiale invalide." })
+    .default("")
+    .transform((f) => f || null),
 });
 
 const fuseau = async () =>
@@ -47,6 +52,7 @@ export async function actionCreerMouvement(formulaire: FormData) {
         motif: d.motif,
         date: depuisHeureServeur(d.date, await fuseau()),
         contratId: d.contratId || null,
+        filiale: d.filiale,
       },
       image,
     );

@@ -19,6 +19,8 @@ export type MouvementAffiche = {
   date: string;
   sens: "ENTREE" | "SORTIE";
   categorie: string;
+  /** « Location », « Formation », « Cards » ou « Groupe ». */
+  filiale: string;
   montant: string;
   motif: string;
   contrat: { numero: string; href: string } | null;
@@ -160,6 +162,7 @@ export function ModaleMouvement({
               </span>
             </Info>
             <Info k="Catégorie">{m.categorie}</Info>
+            <Info k="Filiale">{m.filiale}</Info>
             <Info k="Montant">
               <span className={`chiffres ${m.sens === "ENTREE" ? "text-or-texte" : ""}`}>
                 {m.montant}

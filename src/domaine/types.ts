@@ -15,7 +15,12 @@ export type CategorieMouvement =
   | "ENTRETIEN"
   | "IMPOTS"
   | "APPORT"
-  | "DIVERS";
+  | "DIVERS"
+  | "FORMATION"
+  | "VENTE_CARTES"
+  | "ACHAT_STOCK";
+/** Filiales : Location, Formation, Cards. */
+export type CodeFiliale = "BPL" | "BPF" | "BPC";
 export type StatutSemaine = "OUVERTE" | "CLOTUREE";
 export type Role = "ADMIN" | "GESTIONNAIRE" | "FISC";
 

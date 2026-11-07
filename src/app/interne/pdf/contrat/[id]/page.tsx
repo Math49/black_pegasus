@@ -9,6 +9,7 @@ import { formaterDateComplete, lignesTarification } from "@/domaine/contrats";
 import { versHeureServeur } from "@/domaine/dates";
 import { tarifPourHeures } from "@/domaine/tarif";
 import { nomCompte } from "@/domaine/comptes";
+import { prisma } from "@/lib/prisma";
 import { lireContrat } from "@/services/contrats";
 import { EN_TETE_JETON, jetonPdf } from "@/services/pdf";
 import { lireParametresSite } from "@/services/site";
@@ -36,7 +37,11 @@ function Valeur({ k, v }: { k: string; v: string }) {
 async function Contrat({ params }: { params: Promise<{ id: string }> }) {
   if ((await headers()).get(EN_TETE_JETON) !== jetonPdf()) notFound();
   const { id } = await params;
-  const [c, p] = await Promise.all([lireContrat(id), lireParametresSite()]);
+  const [c, p, location] = await Promise.all([
+    lireContrat(id),
+    lireParametresSite(),
+    prisma.filiale.findUniqueOrThrow({ where: { code: "BPL" } }),
+  ]);
   if (!c) notFound();
 
   const v = c.exemplaire.vehicule;
@@ -119,6 +124,7 @@ async function Contrat({ params }: { params: Promise<{ id: string }> }) {
             <div className="grid grid-cols-2 gap-2.5">
               <Valeur k="Nom" v={c.clientNom} />
               <Valeur k="Téléphone en jeu" v={c.clientTelephone} />
+              {c.numeroLicence && <Valeur k="N° de licence" v={c.numeroLicence} />}
             </div>
           </section>
           <section className="pdf-boite" aria-label="Véhicule">
@@ -235,7 +241,7 @@ async function Contrat({ params }: { params: Promise<{ id: string }> }) {
         className="pdf-attenue mx-12 flex justify-between gap-3 pt-3.5 pb-[26px] text-[11px]"
         style={{ borderTop: "1px solid var(--bp-filet-papier)" }}
       >
-        <span>{p.nomEntreprise} · Contrat établi en deux exemplaires</span>
+        <span>{location.nom} · Contrat établi en deux exemplaires</span>
         <span className="chiffres">{c.numero} · page 1 / 1</span>
       </footer>
     </div>

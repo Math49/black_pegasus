@@ -21,14 +21,15 @@ import { enregistrerFichier, supprimerFichier } from "./stockage";
 // le site public, dont les pages lisent Parametres à chaque requête.
 
 export async function lireParametresAdmin() {
-  const [p, categories] = await Promise.all([
+  const [p, location, categories] = await Promise.all([
     prisma.parametres.findUniqueOrThrow({ where: { id: 1 } }),
+    prisma.filiale.findUniqueOrThrow({ where: { code: "BPL" } }),
     prisma.categorie.findMany({
       orderBy: [{ type: "asc" }, { ordre: "asc" }, { nom: "asc" }],
       include: { _count: { select: { vehicules: true } } },
     }),
   ]);
-  return { p, categories };
+  return { p, location, categories };
 }
 
 async function ecrire(
@@ -68,12 +69,11 @@ export function enregistrerAgence(
     const avant = await tx.parametres.findUniqueOrThrow({ where: { id: 1 } });
     await tx.parametres.update({
       where: { id: 1 },
-      data: {
-        telephoneAgence: d.telephone,
-        horaires: d.horaires,
-        numeroImmatriculationEntreprise: d.immatriculation,
-        fuseauServeur: d.fuseau,
-      },
+      data: { numeroImmatriculationEntreprise: d.immatriculation, fuseauServeur: d.fuseau },
+    });
+    await tx.filiale.update({
+      where: { code: "BPL" },
+      data: { telephone: d.telephone, horaires: d.horaires },
     });
     return {
       telephone: d.telephone,

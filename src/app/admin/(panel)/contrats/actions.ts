@@ -24,6 +24,8 @@ const schemaCreation = z.object({
     .string()
     .trim()
     .regex(/^[0-9][0-9 .-]{2,14}$/, "Téléphone en jeu invalide (ex. 555-0148)."),
+  /** Licence délivrée par l'État (facultative). */
+  numeroLicence: z.string().trim().max(40, "N° de licence trop long.").default(""),
   exemplaireId: z.string().min(1, "Choisissez un exemplaire disponible."),
   debut: dateServeur,
   fin: dateServeur,
@@ -37,6 +39,7 @@ export async function actionCreerContrat(entree: z.input<typeof schemaCreation>)
     const contrat = await creerContrat(acteur, {
       clientNom: d.clientNom,
       clientTelephone: d.clientTelephone,
+      numeroLicence: d.numeroLicence || null,
       exemplaireId: d.exemplaireId,
       debut: depuisHeureServeur(d.debut, fz),
       finPrevue: depuisHeureServeur(d.fin, fz),

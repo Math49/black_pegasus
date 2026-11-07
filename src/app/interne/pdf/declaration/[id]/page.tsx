@@ -53,7 +53,10 @@ async function Declaration({
   if ((await headers()).get(EN_TETE_JETON) !== jetonPdf()) notFound();
   const [{ id }, sp] = await Promise.all([params, searchParams]);
   const brouillon = sp.brouillon === "1";
-  const p = await prisma.parametres.findUniqueOrThrow({ where: { id: 1 } });
+  const [p, filiales] = await Promise.all([
+    prisma.parametres.findUniqueOrThrow({ where: { id: 1 } }),
+    prisma.filiale.findMany({ orderBy: { ordre: "asc" } }),
+  ]);
   const fuseau = p.fuseauServeur;
   let etat;
   try {
@@ -265,7 +268,7 @@ async function Declaration({
             ["Activité", "Location de bateaux, d’avions et d’hélicoptères"],
             ["Gérant", nomGerant],
             ["N° d’immatriculation", p.numeroImmatriculationEntreprise],
-            ["Téléphone en jeu", p.telephoneAgence],
+            ["Filiales", filiales.map((f) => f.nom.replace(/^Black Pégasus /, "")).join(" · ")],
           ].map(([k, val]) => (
             <div key={k} className="flex flex-col gap-0.5">
               <span className="pdf-cle">{k}</span>
