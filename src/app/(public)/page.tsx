@@ -1,16 +1,31 @@
 import Image from "next/image";
-import Link from "next/link";
 import { Suspense } from "react";
-import { lireFilialesVisibles, lireParametresSite } from "@/services/site";
+import { lireFilialesVisibles, lireFlotteVisible, lireParametresSite } from "@/services/site";
+import { lirePermisPublics } from "@/services/formation";
 import { libelleFiliale } from "@/domaine/filiales";
 import { texteBrut } from "@/domaine/textes";
+import type { CodeFiliale } from "@/domaine/types";
 import { Button } from "@/composants/ui/Button";
-import { Icon } from "@/composants/ui/Icon";
-import { Rule } from "@/composants/ui/Rule";
 import { BoutonAppeler } from "@/composants/site/BoutonAppeler";
 import { NumerosTelephone } from "@/composants/site/NumerosTelephone";
 import { TexteEnLigne, TitreAccent } from "@/composants/site/Texte";
-import { FONDS, FondAmbiance, HAUTEUR_EN_TETE, noir, Wrap } from "@/composants/site/Mise";
+import { FONDS, Wrap } from "@/composants/site/Mise";
+import {
+  Apparition,
+  Cascade,
+  Compteur,
+  ElementCascade,
+  Revelation,
+  TexteEclaire,
+} from "@/composants/site/anime/Anime";
+import {
+  Defilant,
+  EnTeteSection,
+  HeroVitrine,
+  MedaillonLogo,
+  Panneaux,
+  Surtitre,
+} from "@/composants/site/Vitrine";
 
 export async function generateMetadata() {
   const p = await lireParametresSite();
@@ -21,115 +36,193 @@ export async function generateMetadata() {
   };
 }
 
+/** Visuel de chaque filiale sur l'accueil du groupe (Cards : dégradé de son accent). */
+const FONDS_FILIALES: Partial<Record<CodeFiliale, string>> = {
+  BPL: FONDS.coucher,
+  BPF: FONDS.piste,
+};
+
 async function AccueilGroupe() {
   const [p, filiales] = await Promise.all([lireParametresSite(), lireFilialesVisibles()]);
+  const visible = (code: CodeFiliale) => filiales.some((f) => f.code === code);
+  const [flotte, permis] = await Promise.all([
+    visible("BPL") ? lireFlotteVisible() : Promise.resolve([]),
+    visible("BPF") ? lirePermisPublics() : Promise.resolve([]),
+  ]);
   const { accroche, presentation } = p.textesGroupe;
+  const chiffres = [
+    { valeur: filiales.length, libelle: filiales.length > 1 ? "filiales" : "filiale" },
+    { valeur: flotte.length, libelle: "appareils à louer" },
+    {
+      valeur: permis.length,
+      libelle: permis.length > 1 ? "licences préparées" : "licence préparée",
+    },
+  ].filter((c) => c.valeur > 0);
+
   return (
     <>
-      <section className="relative">
-        <FondAmbiance
-          image={FONDS.skyline}
-          decalageHaut={HAUTEUR_EN_TETE}
-          voile={`linear-gradient(90deg, ${noir(94)}, ${noir(70)}), linear-gradient(180deg, transparent 50%, var(--bp-black))`}
-        />
-        <Wrap className="grid grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] items-center gap-12 pt-20 pb-24 max-md:grid-cols-1 max-md:gap-8 max-md:pt-12">
-          <div className="flex flex-col items-start gap-7">
-            <span className="libelle text-or-texte">{p.nomEntreprise}</span>
-            <h1 className="m-0 titre text-h1 leading-[1.08] font-semibold text-balance">
-              <TitreAccent titre={accroche.titre} />
-            </h1>
-            <p className="m-0 max-w-[600px] text-lg leading-[1.75] text-pretty text-texte-doux">
-              <TexteEnLigne texte={accroche.texte} ctx={p} />
+      <HeroVitrine
+        fond={FONDS.skyline}
+        visuel={
+          <MedaillonLogo
+            id="anneau-groupe"
+            logo="/images/logos/bp-compagnie.webp"
+            alt={`Logo ${p.nomEntreprise}`}
+            anneau={[p.nomEntreprise, ...filiales.map((f) => libelleFiliale(f.code))].join(" · ")}
+            priorite
+            className="mx-auto max-w-[460px] max-lg:max-w-[240px]"
+          />
+        }
+      >
+        <ElementCascade>
+          <Surtitre>{p.nomEntreprise}</Surtitre>
+        </ElementCascade>
+        <h1 className="m-0 titre text-[clamp(44px,6.6vw,96px)] leading-[1] font-semibold tracking-[-0.025em] text-balance">
+          <Revelation delai={0.1}>
+            <TitreAccent titre={accroche.titre} />
+          </Revelation>
+        </h1>
+        <ElementCascade
+          as="p"
+          className="m-0 max-w-[560px] text-lg leading-[1.75] text-pretty text-texte-doux"
+        >
+          <TexteEnLigne texte={accroche.texte} ctx={p} />
+        </ElementCascade>
+        <ElementCascade className="flex flex-wrap gap-3.5">
+          {filiales.length > 0 && (
+            <Button href="#filiales" iconeFin="flecheDroite">
+              Découvrir nos filiales
+            </Button>
+          )}
+          <Button href="#contacts" variante="verre" icone="telephone">
+            Nous contacter
+          </Button>
+        </ElementCascade>
+      </HeroVitrine>
+
+      {filiales.length > 0 && (
+        <section aria-label="Nos activités" className="border-y border-[var(--bp-trait-8)]">
+          <Defilant mots={filiales.map((f) => f.nom)} />
+        </section>
+      )}
+
+      {chiffres.length > 0 && (
+        <Wrap as="section" aria-label="Le groupe en chiffres" className="py-20">
+          <Cascade className="grid grid-cols-[repeat(auto-fit,minmax(min(220px,100%),1fr))] gap-px overflow-hidden rounded-[28px] border border-[var(--bp-trait-8)] bg-[var(--bp-trait-8)]">
+            {chiffres.map((c) => (
+              <ElementCascade key={c.libelle} className="flex flex-col gap-3 bg-noir px-8 py-10">
+                <Compteur
+                  valeur={c.valeur}
+                  className="texte-or titre text-[clamp(48px,5vw,72px)] leading-none font-bold"
+                />
+                <span className="libelle">{c.libelle}</span>
+              </ElementCascade>
+            ))}
+          </Cascade>
+        </Wrap>
+      )}
+
+      {filiales.length > 0 && (
+        <Wrap
+          as="section"
+          id="filiales"
+          aria-labelledby="titre-filiales"
+          className="flex scroll-mt-28 flex-col gap-12 pb-28"
+        >
+          <EnTeteSection id="titre-filiales" surtitre="Le groupe" titre="Nos filiales">
+            <p className="m-0 max-w-[560px] text-lg leading-relaxed text-texte-doux">
+              Chaque filiale porte sa spécialité et sa couleur, avec la même exigence de service.
             </p>
-            {filiales.length > 0 && (
-              <Button href="#filiales" iconeFin="flecheDroite">
-                Découvrir nos filiales
-              </Button>
-            )}
-          </div>
-          <div className="flex justify-center max-md:order-first">
-            <Image
-              src="/images/logos/bp-compagnie.webp"
-              alt={`Logo ${p.nomEntreprise}`}
-              width={360}
-              height={360}
-              priority
-              className="aspect-square w-full max-w-[360px] rounded-full object-contain max-md:max-w-[200px]"
-            />
-          </div>
+          </EnTeteSection>
+          <Panneaux
+            panneaux={filiales.map((f) => ({
+              cle: f.code,
+              href: `/${f.slug}`,
+              titre: f.nom,
+              surtitre: libelleFiliale(f.code),
+              texte: f.accroche,
+              fond: FONDS_FILIALES[f.code],
+              logo: f.logo,
+              filiale: f.slug,
+              action: "Découvrir",
+            }))}
+          />
+        </Wrap>
+      )}
+
+      <section aria-labelledby="titre-groupe" className="relative overflow-hidden py-28">
+        <div
+          aria-hidden="true"
+          className="absolute top-1/2 left-1/2 h-[700px] w-[1100px] max-w-full -translate-x-1/2 -translate-y-1/2"
+          style={{
+            background: "radial-gradient(50% 50% at 50% 50%, var(--bp-or-10), transparent)",
+          }}
+        />
+        <Wrap className="flex flex-col gap-10">
+          <Apparition className="flex flex-col gap-5">
+            <Surtitre>Notre engagement</Surtitre>
+            <h2
+              id="titre-groupe"
+              className="m-0 titre text-[clamp(30px,3.4vw,48px)] leading-[1.1] font-semibold"
+            >
+              <TitreAccent titre={presentation.titre} />
+            </h2>
+          </Apparition>
+          <TexteEclaire
+            texte={texteBrut(presentation.texte, p)}
+            className="m-0 max-w-[1080px] titre text-[clamp(24px,3vw,42px)] leading-[1.35] font-medium text-texte"
+          />
         </Wrap>
       </section>
-      <Wrap
-        as="section"
-        id="filiales"
-        aria-labelledby="titre-filiales"
-        className="scroll-mt-6 pb-24"
-      >
-        <h2 id="titre-filiales" className="m-0 mb-9 titre text-h2 font-semibold">
-          Nos filiales
-        </h2>
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(min(310px,100%),1fr))] gap-6">
-          {filiales.map((f) => (
-            <Link
-              key={f.code}
-              href={`/${f.slug}`}
-              data-filiale={f.slug}
-              className={`glass-site flex min-w-0 flex-col items-start gap-5 rounded-[24px] border-t-2 border-t-[var(--bp-accent)] p-8 text-texte hover:border-[var(--bp-accent)] ${filiales.length === 1 ? "md:flex-row md:items-center md:gap-8" : ""}`}
-            >
-              <Image
-                src={f.logo}
-                alt=""
-                width={112}
-                height={112}
-                className="shrink-0 rounded-full bg-noir object-contain"
-              />
-              <div className="flex min-w-0 flex-col gap-4">
-                <span className="libelle text-or-texte">{libelleFiliale(f.code)}</span>
-                <h3 className="m-0 titre text-2xl font-semibold">{f.nom}</h3>
-                <p className="m-0 text-base leading-relaxed text-texte-doux">{f.accroche}</p>
-              </div>
-              <span
-                className={`flex min-h-11 items-center gap-3 font-bold text-or-texte ${filiales.length === 1 ? "md:ml-auto" : "mt-auto"}`}
+
+      {filiales.length > 0 && (
+        <Wrap
+          as="section"
+          id="contacts"
+          aria-labelledby="titre-contacts"
+          className="flex scroll-mt-28 flex-col gap-12 pb-28"
+        >
+          <EnTeteSection id="titre-contacts" surtitre="Contacts" titre="Nous contacter en jeu" />
+          <Cascade as="ul" className="m-0 flex list-none flex-col p-0">
+            {filiales.map((f) => (
+              <ElementCascade
+                key={f.code}
+                as="li"
+                filiale={f.slug}
+                className="group grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-8 gap-y-5 border-t border-[var(--bp-trait-10)] py-8 transition-colors duration-500 last:border-b hover:bg-[var(--bp-or-8)] max-lg:grid-cols-[auto_minmax(0,1fr)] max-lg:px-0 lg:px-6"
               >
-                Découvrir <Icon nom="flecheDroite" taille={18} />
-              </span>
-            </Link>
-          ))}
-        </div>
-      </Wrap>
-      <Wrap as="section" id="groupe" aria-labelledby="titre-groupe" className="pb-24">
-        <Rule className="mb-12" />
-        <div className="grid grid-cols-2 gap-10 max-md:grid-cols-1">
-          <h2 id="titre-groupe" className="m-0 titre text-h2 font-semibold">
-            <TitreAccent titre={presentation.titre} />
-          </h2>
-          <p className="m-0 text-lg leading-[1.8] text-texte-doux">
-            <TexteEnLigne texte={presentation.texte} ctx={p} />
-          </p>
-        </div>
-      </Wrap>
-      <Wrap as="section" aria-labelledby="titre-contacts" className="pb-24">
-        <h2 id="titre-contacts" className="m-0 mb-9 titre text-h2 font-semibold">
-          Nous contacter en jeu
-        </h2>
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(min(310px,100%),1fr))] gap-6">
-          {filiales.map((f) => (
-            <div key={f.code} className="glass-site flex min-w-0 flex-col items-start gap-4 p-7">
-              <h3 className="m-0 titre text-xl font-semibold">{f.nom}</h3>
-              <NumerosTelephone telephone={f.telephone} className="texte-or text-2xl font-bold" />
-              <p className="m-0 text-sm text-texte-doux">{f.horaires}</p>
-              <BoutonAppeler telephone={f.telephone} />
-            </div>
-          ))}
-        </div>
-      </Wrap>
+                <Image
+                  src={f.logo}
+                  alt=""
+                  width={72}
+                  height={72}
+                  className="size-16 rounded-full bg-noir object-contain ring-1 ring-[var(--bp-or-35)] transition-transform duration-500 group-hover:scale-110"
+                />
+                <div className="flex min-w-0 flex-col gap-2">
+                  <h3 className="m-0 titre text-xl font-semibold">{f.nom}</h3>
+                  <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+                    <NumerosTelephone
+                      telephone={f.telephone}
+                      className="texte-or text-[clamp(22px,2.4vw,30px)] font-bold"
+                    />
+                    <span className="text-sm text-texte-doux">{f.horaires}</span>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-3 max-lg:col-span-2">
+                  <BoutonAppeler telephone={f.telephone} />
+                </div>
+              </ElementCascade>
+            ))}
+          </Cascade>
+        </Wrap>
+      )}
     </>
   );
 }
 
 export default function PageGroupe() {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<div className="min-h-svh" />}>
       <AccueilGroupe />
     </Suspense>
   );

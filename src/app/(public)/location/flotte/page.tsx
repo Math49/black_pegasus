@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Cascade, ElementCascade, Revelation } from "@/composants/site/anime/Anime";
 import { NumerosTelephone } from "@/composants/site/NumerosTelephone";
 import { Suspense } from "react";
 import { BoutonAppeler } from "@/composants/site/BoutonAppeler";
@@ -94,7 +95,9 @@ async function Flotte({
         <div className="flex max-w-[640px] flex-col gap-4">
           <FilAriane etapes={[{ libelle: "Accueil", href: "/" }, { libelle: "La flotte" }]} />
           <h1 className="m-0 titre text-[clamp(40px,4.4vw,62px)] leading-[1.05] font-semibold">
-            Choisissez votre <span className="texte-or font-semibold">appareil</span>
+            <Revelation>
+              Choisissez votre <span className="texte-or font-semibold">appareil</span>
+            </Revelation>
           </h1>
           <p className="m-0 text-[17px] leading-[1.6] text-texte-doux">
             Tarifs à l’heure ou à la journée, disponibilités mises à jour par l’agence.
@@ -155,9 +158,12 @@ async function Flotte({
           </div>
 
           {resultats.length > 0 ? (
-            <ul className="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(min(262px,100%),1fr))] gap-x-[22px] gap-y-6 p-0">
+            <Cascade
+              as="ul"
+              className="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(min(262px,100%),1fr))] gap-x-[22px] gap-y-6 p-0"
+            >
               {resultats.map((v) => (
-                <li key={v.slug} className="flex">
+                <ElementCascade key={v.slug} as="li" className="flex">
                   <CarteVehicule
                     vehicule={v}
                     disponibilite={v.disponibilite}
@@ -165,9 +171,9 @@ async function Flotte({
                     titre="h2"
                     className="w-full"
                   />
-                </li>
+                </ElementCascade>
               ))}
-            </ul>
+            </Cascade>
           ) : (
             <div className="glass-site flex flex-col items-center gap-3 p-10 text-center">
               <h2 className="m-0 titre text-2xl font-semibold">Aucun appareil ne correspond</h2>

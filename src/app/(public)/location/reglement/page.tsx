@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Revelation } from "@/composants/site/anime/Anime";
 import { NumerosTelephone } from "@/composants/site/NumerosTelephone";
 import { Suspense } from "react";
 import { BoutonAppeler } from "@/composants/site/BoutonAppeler";
@@ -45,7 +46,9 @@ async function Reglement() {
       <Wrap className="z-10 flex flex-col gap-[18px] pt-20 pb-16">
         <FilAriane etapes={[{ libelle: "Accueil", href: "/" }, { libelle: "Règlement" }]} />
         <h1 className="m-0 titre text-[clamp(38px,4.4vw,60px)] leading-[1.06] font-semibold">
-          Règlement des <span className="texte-or font-bold">locations</span>
+          <Revelation>
+            Règlement des <span className="texte-or font-bold">locations</span>
+          </Revelation>
         </h1>
         <p className="m-0 max-w-[620px] text-[17px] leading-[1.6] text-texte-doux">
           <TexteEnLigne texte={reglement.introduction} ctx={p} />

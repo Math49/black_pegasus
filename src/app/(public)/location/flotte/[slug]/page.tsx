@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Cascade, ElementCascade } from "@/composants/site/anime/Anime";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { BoutonAppeler } from "@/composants/site/BoutonAppeler";
@@ -289,18 +290,21 @@ async function Fiche({ params }: { params: PageProps<"/location/flotte/[slug]">[
             />
             <LienTexte href="/location/flotte">Toute la flotte</LienTexte>
           </div>
-          <ul className="m-0 grid list-none grid-cols-[repeat(auto-fit,minmax(min(320px,100%),1fr))] gap-6 p-0">
+          <Cascade
+            as="ul"
+            className="m-0 grid list-none grid-cols-[repeat(auto-fit,minmax(min(320px,100%),1fr))] gap-6 p-0"
+          >
             {similaires.map((s) => (
-              <li key={s.slug} className="flex">
+              <ElementCascade key={s.slug} as="li" className="flex">
                 <CarteVehicule
                   vehicule={s}
                   disponibilite={s.disponibilite}
                   format="similaire"
                   className="w-full"
                 />
-              </li>
+              </ElementCascade>
             ))}
-          </ul>
+          </Cascade>
         </Wrap>
       )}
     </>

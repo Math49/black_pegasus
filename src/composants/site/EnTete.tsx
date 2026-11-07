@@ -1,13 +1,10 @@
+import { EnTeteFlottant } from "./anime/Anime";
 import { lireFilialesVisibles, lireParametresSite } from "@/services/site";
 import { BarreSite, LogoSite } from "./BarreSite";
 import { NavSite } from "./NavSite";
 
 function Cadre({ children }: { children: React.ReactNode }) {
-  return (
-    <header className="relative z-30 mx-auto w-full max-w-[1280px] px-[clamp(16px,4vw,56px)] pt-6">
-      {children}
-    </header>
-  );
+  return <EnTeteFlottant>{children}</EnTeteFlottant>;
 }
 
 /** Les données restent lues côté serveur ; la barre suit la route lors des navigations. */

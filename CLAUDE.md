@@ -13,7 +13,7 @@ Site public et panel d'administration d'une agence de location de bateaux, d'avi
 Le dossier `docs/handoff/` est en **lecture seule** : ne pas le modifier.
 
 ## Stack
-Next.js (App Router, TypeScript strict) · Tailwind v4 · Prisma + PostgreSQL · Auth.js (Discord) · Zod · date-fns + @date-fns/tz · Playwright (PDF et tests e2e) · Vitest.
+Next.js (App Router, TypeScript strict) · Tailwind v4 · Motion (animations du site public) · Prisma + PostgreSQL · Auth.js (Discord) · Zod · date-fns + @date-fns/tz · Playwright (PDF et tests e2e) · Vitest.
 
 ## Commandes
 - `docker compose -f docker-compose.dev.yml up -d` — Postgres de développement (`--profile outils` : pgAdmin)
