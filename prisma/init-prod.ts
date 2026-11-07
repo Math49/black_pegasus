@@ -16,6 +16,7 @@ import { urlBase } from "../src/lib/urlBase";
 import {
   categoriesInitiales,
   filialesInitiales,
+  formationInitiale,
   reglement,
   reglesInitiales,
   textesSite,
@@ -78,6 +79,20 @@ async function main() {
       }
       console.log("✓ Filiales créées (Location visible ; Formation et Cards masquées).");
     } else console.log("· Filiales déjà présentes : inchangées.");
+
+    // Catalogue réellement validé, créé seulement sur une installation sans données Formation.
+    // Aucun contact de démonstration ; ne jamais rétablir un permis supprimé dans le panel.
+    if ((await prisma.domainePermis.count()) === 0 && (await prisma.permis.count()) === 0) {
+      await prisma.$transaction(async (tx) => {
+        for (const { permis, ...domaine } of formationInitiale) {
+          await tx.domainePermis.create({ data: domaine });
+          await tx.permis.create({ data: { ...permis, domaineId: domaine.id } });
+        }
+      });
+      console.log(
+        "✓ Formation : licences navigation et pilotage créées ; visibilité de la filiale inchangée.",
+      );
+    } else console.log("· Catalogue Formation déjà présent : inchangé.");
 
     for (const [type, noms] of Object.entries(categoriesInitiales)) {
       for (const [ordre, nom] of noms.entries()) {

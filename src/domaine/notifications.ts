@@ -4,7 +4,7 @@ import { minutesDepassement, estEnRetard } from "./retard";
 
 export type Notification = {
   cle: string;
-  type: "retard" | "semaine" | "justificatif";
+  type: "retard" | "semaine" | "justificatif" | "formation";
   message: string;
   href: string;
 };
@@ -25,6 +25,7 @@ export function notificationsPanel(p: {
   depensesSansJustificatif: readonly string[];
   maintenant: Date;
   fuseau: string;
+  demandesFormationNouvelles?: number;
 }): Notification[] {
   const notifications: Notification[] = p.contratsEnCours
     .filter((c) => estEnRetard(c.finPrevue, p.maintenant))
@@ -57,5 +58,13 @@ export function notificationsPanel(p: {
       href: "/admin/solde",
     });
   }
+  const demandes = p.demandesFormationNouvelles ?? 0;
+  if (demandes > 0)
+    notifications.push({
+      cle: "formation",
+      type: "formation",
+      message: `${demandes} demande${demandes > 1 ? "s" : ""} de formation`,
+      href: "/admin/formation/demandes",
+    });
   return notifications;
 }

@@ -60,12 +60,12 @@ test("accueil groupe : seules les filiales visibles apparaissent, liens internes
   await expect(
     cartes.getByRole("heading", { name: "Black Pégasus Location", exact: true }),
   ).toBeVisible();
-  await expect(cartes.locator("a")).toHaveCount(1);
-  await expect(cartes.locator("a")).toHaveAttribute("href", "/location");
+  await expect(cartes.locator("a")).toHaveCount(2);
+  await expect(cartes.locator("a").first()).toHaveAttribute("href", "/location");
   await expect(
     page
       .getByRole("navigation", { name: "Navigation principale" })
-      .getByRole("link", { name: "Formation" }),
+      .getByRole("link", { name: "Cards" }),
   ).toHaveCount(0);
   for (const route of [
     "/",
@@ -99,7 +99,7 @@ test("anciennes adresses : redirections 308 avec conservation de la requête", a
 test("une filiale masquée est introuvable, y compris toute la section Location", async ({
   page,
 }) => {
-  await sql(`UPDATE "Filiale" SET visible=false WHERE code='BPL'`);
+  await sql(`UPDATE "Filiale" SET visible=false`);
   for (const route of [
     "/formation",
     "/cards",

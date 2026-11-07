@@ -60,11 +60,42 @@ export async function BarreLaterale() {
       }),
     },
     { href: "/admin/comptabilite", libelle: "Comptabilité", icone: "balance" },
+    ...(peut(r, "formation.gerer")
+      ? [
+          {
+            href: "/admin/formation/permis",
+            libelle: "Permis",
+            icone: "contrat" as const,
+            groupe: "Formation",
+          },
+          {
+            href: "/admin/formation/demandes",
+            libelle: "Demandes",
+            icone: "personnes" as const,
+            groupe: "Formation",
+            compteur: d.demandesNouvelles,
+          },
+        ]
+      : []),
     ...(peut(compte.role, "compte.gerer")
-      ? [{ href: "/admin/comptes", libelle: "Comptes", icone: "personnes" as const }]
+      ? [
+          {
+            href: "/admin/comptes",
+            libelle: "Comptes",
+            icone: "personnes" as const,
+            groupe: "Administration",
+          },
+        ]
       : []),
     ...(peut(compte.role, "parametres.gerer")
-      ? [{ href: "/admin/parametres", libelle: "Paramètres", icone: "reglages" as const }]
+      ? [
+          {
+            href: "/admin/parametres",
+            libelle: "Paramètres",
+            icone: "reglages" as const,
+            groupe: "Administration",
+          },
+        ]
       : []),
   ];
   const ouverte = d.semaine.statut === "OUVERTE";

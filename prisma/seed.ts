@@ -18,7 +18,14 @@ import type {
   StatutExemplaire,
   TypeVehicule,
 } from "../src/domaine/types";
-import { descriptions, filialesInitiales, reglement, textesGroupe, textesSite } from "./contenus";
+import {
+  descriptions,
+  filialesInitiales,
+  formationInitiale,
+  reglement,
+  textesGroupe,
+  textesSite,
+} from "./contenus";
 
 if (process.env.NODE_ENV === "production") {
   throw new Error("Le seed de démonstration ne doit jamais être lancé en production.");
@@ -154,7 +161,7 @@ async function main() {
       await tx.$executeRawUnsafe(
         `TRUNCATE "JournalAudit", "Mouvement", "Contrat", "Semaine", "Exemplaire", "Vehicule",
          "Categorie", "Compteur", "Parametres", "Filiale", "Session", "Account", "User", "VerificationToken",
-         "Compte" RESTART IDENTITY CASCADE`,
+         "Compte", "DomainePermis", "Permis", "DemandeContact" RESTART IDENTITY CASCADE`,
       );
 
       // ── Paramètres ──
@@ -162,6 +169,7 @@ async function main() {
       await tx.filiale.createMany({
         data: filialesInitiales.map((f) => ({
           ...f,
+          visible: f.code === "BPF" ? true : f.visible,
           telephone: p.telephoneAgence,
           horaires: p.horaires,
         })),
@@ -177,6 +185,34 @@ async function main() {
           textesGroupe,
           reglement,
         },
+      });
+
+      // ── Formation : catalogue validé, demandes de démonstration ──
+      for (const { permis, ...domaine } of formationInitiale) {
+        await tx.domainePermis.create({ data: domaine });
+        await tx.permis.create({ data: { ...permis, domaineId: domaine.id } });
+      }
+      await tx.demandeContact.createMany({
+        data: [
+          {
+            id: "demande-demo-navigation",
+            nomRp: "Alex Morgan",
+            telephone: "555-0101",
+            permisId: "licence-navigation",
+            message:
+              "Je souhaite préparer la licence navigation. Comment organiser la visite médicale et les épreuves ?",
+            creeLe: depuisHeureServeur("2026-10-24T18:00", FUSEAU),
+          },
+          {
+            id: "demande-demo-pilotage",
+            nomRp: "Maya Laurent",
+            telephone: "555-0102",
+            permisId: "licence-pilotage",
+            message:
+              "Je souhaite me renseigner sur le questionnaire et le test pratique pour la licence pilotage.",
+            creeLe: depuisHeureServeur("2026-10-24T19:00", FUSEAU),
+          },
+        ],
       });
 
       // ── Comptes ──

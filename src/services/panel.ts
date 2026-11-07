@@ -7,6 +7,9 @@ import { ouvertureCloture, semaineDe, semainePrecedente } from "@/domaine/semain
 import type { StatutSemaine } from "@/domaine/types";
 import { maintenant } from "@/lib/horloge";
 import { prisma } from "@/lib/prisma";
+import { exigerSession } from "@/lib/garde";
+import { peut } from "@/domaine/permissions";
+import { compterDemandesNouvelles } from "@/domaine/formation";
 
 export type DonneesPanel = {
   maintenant: Date;
@@ -16,12 +19,14 @@ export type DonneesPanel = {
   retards: number;
   semaine: { numero: number; statut: StatutSemaine; ouvertureCloture: Date };
   notifications: Notification[];
+  demandesNouvelles: number;
 };
 
 const CATEGORIES_DEPENSES = ["ENTRETIEN", "IMPOTS", "ACHAT_VEHICULE", "DIVERS"] as const;
 
 /** Données communes au gabarit du panel (barre latérale, cloche), une fois par requête. */
 export const lireDonneesPanel = cache(async (): Promise<DonneesPanel> => {
+  const compte = await exigerSession();
   const instant = await maintenant();
   const parametres = await prisma.parametres.findUniqueOrThrow({
     where: { id: 1 },
@@ -31,7 +36,7 @@ export const lireDonneesPanel = cache(async (): Promise<DonneesPanel> => {
   const courante = semaineDe(instant, fuseau);
   const precedente = semainePrecedente(courante, fuseau);
 
-  const [vehicules, contrats, semaines, depenses] = await Promise.all([
+  const [vehicules, contrats, semaines, depenses, demandes] = await Promise.all([
     prisma.vehicule.count({ where: { supprimeLe: null } }),
     prisma.contrat.findMany({
       where: { statut: "EN_COURS" },
@@ -52,7 +57,11 @@ export const lireDonneesPanel = cache(async (): Promise<DonneesPanel> => {
       select: { numero: true },
       orderBy: { numero: "asc" },
     }),
+    peut(compte.role, "demande.consulter")
+      ? prisma.demandeContact.findMany({ where: { statut: "NOUVELLE" }, select: { statut: true } })
+      : Promise.resolve([]),
   ]);
+  const demandesNouvelles = compterDemandesNouvelles(demandes);
   const statut = (id: string) => semaines.find((s) => s.id === id)?.statut;
 
   return {
@@ -61,6 +70,7 @@ export const lireDonneesPanel = cache(async (): Promise<DonneesPanel> => {
     vehicules,
     contratsEnCours: contrats.length,
     retards: contrats.filter((c) => estEnRetard(c.finPrevue, instant)).length,
+    demandesNouvelles,
     semaine: {
       numero: courante.numero,
       // Une semaine pas encore créée en base s'ouvrira au premier mouvement (CONCEPTION § 6.3).
@@ -77,6 +87,7 @@ export const lireDonneesPanel = cache(async (): Promise<DonneesPanel> => {
       depensesSansJustificatif: depenses.map((m) => numeroOperationAffiche(m.numero)),
       maintenant: instant,
       fuseau,
+      demandesFormationNouvelles: demandesNouvelles,
     }),
   };
 });

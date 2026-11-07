@@ -32,6 +32,8 @@ describe("peut (HANDOFF § 7.9)", () => {
     ["compte.gerer", true, false],
     ["journal.consulter", true, false],
     ["parametres.gerer", true, false],
+    ["formation.gerer", true, true],
+    ["demande.consulter", true, true],
   ];
 
   it.each(tableau)("%s : admin %s, gestionnaire %s", (action, admin, gestionnaire) => {
@@ -45,6 +47,10 @@ describe("peut (HANDOFF § 7.9)", () => {
 });
 
 describe("verifierModificationCompte", () => {
+  it("le FISC n’accède ni à la gestion de Formation ni aux demandes", () => {
+    expect(peut("FISC", "formation.gerer")).toBe(false);
+    expect(peut("FISC", "demande.consulter")).toBe(false);
+  });
   const admin = { id: "a1", role: "ADMIN" as const };
   const gestionnaire = { id: "g1", role: "GESTIONNAIRE" as const };
   const cibleAdmin = { id: "a1", role: "ADMIN" as const, actif: true };

@@ -235,29 +235,30 @@ model Semaine {
 // ── Comptes et administration ───────────────────────────────────────────────
 
 model Compte {
-  id                String         @id @default(cuid())
+  id                String           @id @default(cuid())
   /// Utilisateur Auth.js lié à la première connexion Discord.
-  userId            String?        @unique
-  user              User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
-  discordId         String         @unique
+  userId            String?          @unique
+  user              User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+  discordId         String           @unique
   pseudo            String
   nomAffiche        String
   /// Nom RP (personnage en jeu) : utilisé partout s'il est renseigné (PDF, registre, en-tête).
-  nomRp             String         @default("")
+  nomRp             String           @default("")
   avatarUrl         String?
-  role              Role           @default(GESTIONNAIRE)
-  actif             Boolean        @default(true)
-  ajouteLe          DateTime       @default(now())
+  role              Role             @default(GESTIONNAIRE)
+  actif             Boolean          @default(true)
+  ajouteLe          DateTime         @default(now())
   ajouteParId       String?
-  ajoutePar         Compte?        @relation("CompteAjoutePar", fields: [ajouteParId], references: [id])
-  comptesAjoutes    Compte[]       @relation("CompteAjoutePar")
+  ajoutePar         Compte?          @relation("CompteAjoutePar", fields: [ajouteParId], references: [id])
+  comptesAjoutes    Compte[]         @relation("CompteAjoutePar")
   derniereConnexion DateTime?
   mouvements        Mouvement[]
-  contratsCrees     Contrat[]      @relation("ContratCreePar")
-  contratsClotures  Contrat[]      @relation("ContratCloturePar")
-  semainesCloturees Semaine[]      @relation("SemaineClotureePar")
-  vehiculesModifies Vehicule[]     @relation("VehiculeModifiePar")
+  contratsCrees     Contrat[]        @relation("ContratCreePar")
+  contratsClotures  Contrat[]        @relation("ContratCloturePar")
+  semainesCloturees Semaine[]        @relation("SemaineClotureePar")
+  vehiculesModifies Vehicule[]       @relation("VehiculeModifiePar")
   journal           JournalAudit[]
+  demandesTraitees  DemandeContact[]
 }
 
 /// Séquences annuelles (contrats, déclarations).
@@ -311,11 +312,58 @@ model Parametres {
   photosAccueil                   Json    @default("{}")
 }
 
+model DomainePermis {
+  id     String   @id @default(cuid())
+  nom    String   @unique
+  ordre  Int      @default(0)
+  permis Permis[]
+}
+
+model Permis {
+  id          String           @id @default(cuid())
+  domaineId   String
+  domaine     DomainePermis    @relation(fields: [domaineId], references: [id])
+  nom         String
+  description String
+  prerequis   String           @default("")
+  duree       String           @default("")
+  epreuves    String           @default("")
+  prix        Int
+  ordre       Int              @default(0)
+  visible     Boolean          @default(true)
+  supprimeLe  DateTime?
+  demandes    DemandeContact[]
+
+  @@index([domaineId, ordre])
+}
+
+enum StatutDemande {
+  NOUVELLE
+  TRAITEE
+}
+
+model DemandeContact {
+  id           String        @id @default(cuid())
+  nomRp        String
+  telephone    String
+  permisId     String?
+  permis       Permis?       @relation(fields: [permisId], references: [id])
+  message      String
+  statut       StatutDemande @default(NOUVELLE)
+  creeLe       DateTime      @default(now())
+  traiteeLe    DateTime?
+  traiteeParId String?
+  traiteePar   Compte?       @relation(fields: [traiteeParId], references: [id])
+
+  @@index([statut, creeLe])
+}
+
 model JournalAudit {
   id       String   @id @default(cuid())
   date     DateTime @default(now())
-  compteId String
-  compte   Compte   @relation(fields: [compteId], references: [id])
+  /// Null uniquement pour une demande reçue depuis le site public.
+  compteId String?
+  compte   Compte?  @relation(fields: [compteId], references: [id], onDelete: Restrict)
   /// « contrat.creer », « semaine.cloturer », « compte.desactiver »…
   action   String
   /// « Contrat:CTR-2026-0042 »

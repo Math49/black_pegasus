@@ -17,6 +17,40 @@ export const textesGroupe = {
   },
 };
 
+/** Catalogue Formation validé avec l’utilisateur : tarifs en dollars du jeu. */
+export const formationInitiale = [
+  {
+    id: "domaine-navigation",
+    nom: "Navigation",
+    ordre: 1,
+    permis: {
+      id: "licence-navigation",
+      nom: "Licence navigation",
+      description: "Préparation à la licence de navigation.",
+      prerequis: "Visite médicale",
+      duree: "",
+      epreuves: "Questionnaire et test pratique",
+      prix: 4000,
+      ordre: 1,
+    },
+  },
+  {
+    id: "domaine-aerien",
+    nom: "Aérien",
+    ordre: 2,
+    permis: {
+      id: "licence-pilotage",
+      nom: "Licence pilotage",
+      description: "Préparation à la licence de pilotage.",
+      prerequis: "Visite médicale",
+      duree: "",
+      epreuves: "Questionnaire et test pratique",
+      prix: 4000,
+      ordre: 1,
+    },
+  },
+];
+
 export const textesSite = {
   accroche: {
     titre: "Le ciel et l’océan, *à votre mesure*",

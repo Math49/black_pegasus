@@ -36,7 +36,7 @@ export async function EnTetePanel({
     <GlassCard
       as="header"
       variante="admin"
-      className="flex flex-wrap items-center justify-between gap-4 py-3.5 pr-4 pl-6"
+      className="relative z-20 flex flex-wrap items-center justify-between gap-4 py-3.5 pr-4 pl-6"
     >
       <div className="flex items-center gap-4">
         {retour && <IconButton href={retour.href} libelle={retour.libelle} icone="flecheGauche" />}

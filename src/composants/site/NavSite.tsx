@@ -29,7 +29,12 @@ export function NavSite({
               { href: "/location/flotte", libelle: "La flotte" },
               { href: "/location/reglement", libelle: "Règlement" },
             ]
-          : []),
+          : filiale.code === "BPF"
+            ? [
+                { href: "/formation#permis", libelle: "Nos licences" },
+                { href: "/formation#contact", libelle: "Contact" },
+              ]
+            : []),
       ]
     : [
         { href: "/", libelle: "Accueil" },

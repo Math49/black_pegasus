@@ -161,7 +161,7 @@ async function Contenu({
                     {date(l.date, "dd/MM/yyyy HH:mm")}
                   </span>
                 ),
-                auteur: nomCompte(l.compte),
+                auteur: l.compte ? nomCompte(l.compte) : "Site public",
                 action: LIBELLES_ACTIONS[l.action] ?? l.action,
                 cible: <span className="text-[12.5px] chiffres text-texte-attenue">{l.cible}</span>,
                 details: (

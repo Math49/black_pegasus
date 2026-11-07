@@ -12,6 +12,31 @@ import { decisionConnexion, LIBELLES_ROLE } from "./permissions";
 const PARIS = "Europe/Paris";
 const h = (t: string) => depuisHeureServeur(t, PARIS);
 
+describe("notifications de Formation", () => {
+  it.each([0, 1, 2])("signale %i demandes sans coordonnées personnelles", (nombre) => {
+    const resultat = notificationsPanel({
+      contratsEnCours: [],
+      semainePrecedenteOuverte: null,
+      depensesSansJustificatif: [],
+      maintenant: h("2026-10-24T21:40"),
+      fuseau: PARIS,
+      demandesFormationNouvelles: nombre,
+    });
+    expect(resultat).toEqual(
+      nombre === 0
+        ? []
+        : [
+            {
+              cle: "formation",
+              type: "formation",
+              message: `${nombre} demande${nombre > 1 ? "s" : ""} de formation`,
+              href: "/admin/formation/demandes",
+            },
+          ],
+    );
+  });
+});
+
 describe("notificationsPanel", () => {
   const contrats = [
     { numero: "CTR-2026-0038", clientNom: "Kenji Mori", finPrevue: h("2026-10-24T22:00") },

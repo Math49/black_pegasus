@@ -26,6 +26,8 @@ test("administrateur : gabarit complet, Comptes et Paramètres accessibles", asy
     "Véhicules9",
     "Contrats1 retard",
     "Comptabilité",
+    "Permis",
+    "Demandes2",
     "Comptes",
     "Paramètres",
   ]);

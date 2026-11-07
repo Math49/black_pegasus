@@ -7,13 +7,24 @@ import type { Tx } from "@/lib/transaction";
 
 export async function journaliser(
   tx: Tx,
-  entree: { compteId: string; action: string; cible: string; details?: Prisma.InputJsonValue },
+  entree: {
+    compteId: string | null;
+    action: string;
+    cible: string;
+    details?: Prisma.InputJsonValue;
+  },
 ) {
   await tx.journalAudit.create({ data: entree });
 }
 
 /** Libellés lisibles des actions du journal. */
 export const LIBELLES_ACTIONS: Record<string, string> = {
+  "formation.domaine": "Domaine de permis enregistré",
+  "formation.domaine.supprimer": "Domaine de permis supprimé",
+  "formation.permis": "Permis enregistré",
+  "formation.permis.supprimer": "Permis supprimé",
+  "formation.demande": "Demande de formation reçue",
+  "formation.demande.traiter": "Demande de formation traitée",
   "compte.ajouter": "Compte ajouté",
   "compte.role": "Rôle modifié",
   "compte.nom": "Nom RP modifié",
