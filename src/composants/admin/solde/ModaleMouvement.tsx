@@ -21,6 +21,8 @@ export type MouvementAffiche = {
   categorie: string;
   /** « Location », « Formation », « Cards » ou « Groupe ». */
   filiale: string;
+  /** Section de la filiale (couleur d'accent) ; absente pour le Groupe. */
+  filialeSlug?: string;
   montant: string;
   motif: string;
   contrat: { numero: string; href: string } | null;
@@ -168,7 +170,7 @@ export function ModaleMouvement({
                 {m.montant}
               </span>
             </Info>
-            <Info k="Contrat lié">{m.contrat?.numero ?? "—"}</Info>
+            <Info k="Contrat · vente">{m.contrat?.numero ?? "—"}</Info>
             <Info k="Saisi par">{m.saisiPar.nom}</Info>
             <Info k="Justificatif">{m.justificatif?.numero ?? "—"}</Info>
           </dl>

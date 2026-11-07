@@ -5,7 +5,14 @@ import { formaterDollars } from "./argent";
 import { lireNumeroOperation, libelleSemaine, numeroOperationAffiche } from "./numerotation";
 import { estEnRetard } from "./retard";
 import { ouvertureCloture, semainePrecedente, type SemaineFiscale } from "./semaine";
-import { ErreurMetier, type CategorieMouvement, type Sens, type StatutSemaine } from "./types";
+import { CODES_FILIALE } from "./filiales";
+import {
+  ErreurMetier,
+  type CategorieMouvement,
+  type CodeFiliale,
+  type Sens,
+  type StatutSemaine,
+} from "./types";
 
 // HANDOFF § 7.6 et CONCEPTION § 6.5–6.6.
 
@@ -127,6 +134,40 @@ export function synthese(
     solde: soldeOuverture + entrees - sorties,
     nombreOperations: mouvements.length,
   };
+}
+
+// ── Ventilation par filiale (CONCEPTION-FILIALES § 7) ──────────────────────
+
+export type LigneFiliale = {
+  /** null : Groupe (frais communs, impôts). */
+  filiale: CodeFiliale | null;
+  recettes: number;
+  depenses: number;
+  resultat: number;
+  nombreOperations: number;
+};
+
+/**
+ * Recettes, dépenses et résultat de chaque filiale, puis du Groupe (mouvements sans
+ * filiale). La somme des lignes est exactement la synthèse du groupe : le résultat
+ * imposable reste celui du groupe.
+ */
+export function syntheseParFiliale(
+  mouvements: readonly (MouvementComptable & { filiale: CodeFiliale | null })[],
+): LigneFiliale[] {
+  return [...CODES_FILIALE, null].map((filiale) => {
+    const s = synthese(
+      mouvements.filter((m) => m.filiale === filiale),
+      0,
+    );
+    return {
+      filiale,
+      recettes: s.recettes,
+      depenses: s.depenses,
+      resultat: s.resultatImposable,
+      nombreOperations: s.nombreOperations,
+    };
+  });
 }
 
 // ── Contrôles avant clôture ────────────────────────────────────────────────
@@ -328,7 +369,7 @@ export type RecetteSemaine = {
 };
 
 /**
- * Recettes (locations et pénalités, hors cautions) des `nombre` dernières semaines jusqu'à
+ * Recettes (toutes filiales, hors cautions) des `nombre` dernières semaines jusqu'à
  * la semaine courante incluse ; une semaine sans registre compte pour zéro.
  */
 export function recettesParSemaine(
@@ -443,6 +484,8 @@ export type LigneCsv = {
   /** « 2026-10-19 09:15 », heure du serveur */
   date: string;
   categorie: string;
+  /** « Location », « Formation », « Cards » ou « Groupe ». */
+  filiale?: string;
   libelle: string;
   piece: string;
   sens: Sens;
@@ -467,6 +510,7 @@ export function registreCsv(lignes: readonly LigneCsv[]): string {
     "N°",
     "Date",
     "Catégorie",
+    "Filiale",
     "Libellé",
     "Pièce",
     "Recette",
@@ -482,6 +526,7 @@ export function registreCsv(lignes: readonly LigneCsv[]): string {
       l.numero,
       l.date,
       l.categorie,
+      l.filiale ?? "",
       l.libelle,
       l.piece,
       col("recette"),

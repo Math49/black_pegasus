@@ -135,6 +135,15 @@ body:has(.pdf-feuille) {
   align-items: baseline;
   font-variant-numeric: tabular-nums;
 }
+/* Ventilation par filiale (déclaration, page 1) */
+.pdf-ventilation {
+  display: grid;
+  grid-template-columns: 1fr 110px 110px 110px;
+  column-gap: 8px;
+  align-items: baseline;
+  padding: 2px 0;
+  font-size: 12px;
+}
 .pdf-cg {
   grid-template-columns: 104px 1fr 120px 166px 66px 64px;
   padding: 3px 0;

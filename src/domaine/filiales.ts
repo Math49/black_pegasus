@@ -50,3 +50,41 @@ export function verifierFilialeMouvement(
     throw new ErreurMetier(`Cette catégorie relève de la filiale ${LIBELLES_FILIALE[imposee]}.`);
   }
 }
+
+/** Section du site de chaque filiale (attribut `data-filiale` : couleur d'accent). */
+export const SLUGS_FILIALE: Record<CodeFiliale, string> = {
+  BPL: "location",
+  BPF: "formation",
+  BPC: "cards",
+};
+
+// ── Ventilation comptable par filiale (phase F-5) ─────────────────────────────
+
+/** Filtre du registre : une filiale, ou « groupe » pour les frais communs. */
+export type FiltreFiliale = CodeFiliale | "groupe";
+
+export const FILTRES_FILIALE: readonly FiltreFiliale[] = [...CODES_FILIALE, "groupe"];
+
+/** Lit `?filiale=` : BPL, BPF, BPC ou groupe (insensible à la casse) ; null sinon. */
+export function lireFiltreFiliale(valeur: unknown): FiltreFiliale | null {
+  if (typeof valeur !== "string") return null;
+  const v = valeur.trim();
+  if (v.toLowerCase() === "groupe") return "groupe";
+  return (CODES_FILIALE as readonly string[]).includes(v.toUpperCase())
+    ? (v.toUpperCase() as CodeFiliale)
+    : null;
+}
+
+export const libelleFiltreFiliale = (f: FiltreFiliale) =>
+  f === "groupe" ? "Groupe" : LIBELLES_FILIALE[f];
+
+/** Garde les mouvements d'une filiale (ou du groupe) ; tous si le filtre est nul. */
+export function filtrerParFiliale<M extends { filiale: CodeFiliale | null }>(
+  mouvements: readonly M[],
+  filtre: FiltreFiliale | null,
+): M[] {
+  if (!filtre) return [...mouvements];
+  return mouvements.filter((m) =>
+    filtre === "groupe" ? m.filiale === null : m.filiale === filtre,
+  );
+}

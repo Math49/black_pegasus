@@ -83,6 +83,7 @@ describe("export CSV", () => {
         numero: "OP-43-001",
         date: "2026-10-19 09:15",
         categorie: "Impôts",
+        filiale: "Groupe",
         libelle: 'Impôt S42; réglé "FISC"',
         piece: "JUST-43-01",
         sens: "SORTIE",
@@ -104,13 +105,13 @@ describe("export CSV", () => {
     const lignes = csv.split("\r\n");
     expect(csv.charCodeAt(0)).toBe(0xfeff);
     expect(lignes[0]).toBe(
-      "\uFEFFN°;Date;Catégorie;Libellé;Pièce;Recette;Dépense;Caution;Apport;Mention",
+      "\uFEFFN°;Date;Catégorie;Filiale;Libellé;Pièce;Recette;Dépense;Caution;Apport;Mention",
     );
     expect(lignes[1]).toBe(
-      'OP-43-001;2026-10-19 09:15;Impôts;"Impôt S42; réglé ""FISC""";JUST-43-01;;12600;;;',
+      'OP-43-001;2026-10-19 09:15;Impôts;Groupe;"Impôt S42; réglé ""FISC""";JUST-43-01;;12600;;;',
     );
     expect(lignes[2]).toBe(
-      "OP-43-002;2026-10-19 14:00;Caution rendue;'=HYPERLINK();CTR-2026-0031;;;-1000;;Annulé par OP-43-010",
+      "OP-43-002;2026-10-19 14:00;Caution rendue;;'=HYPERLINK();CTR-2026-0031;;;-1000;;Annulé par OP-43-010",
     );
   });
 });

@@ -1,6 +1,6 @@
 # Conception — Filiales (brouillon à valider)
 
-> Statut : **validé le 07/11/2026**. Complète `docs/CONCEPTION.md` (qui reste la référence pour tout ce qui n'est pas dit ici). Développement par phases F-1 à F-6 : plan détaillé et état d'avancement dans **`docs/PLAN-FILIALES.md`** (F-1 à F-4 terminées).
+> Statut : **validé le 07/11/2026**. Complète `docs/CONCEPTION.md` (qui reste la référence pour tout ce qui n'est pas dit ici). Développement par phases F-1 à F-6 : plan détaillé et état d'avancement dans **`docs/PLAN-FILIALES.md`** (F-1 à F-5 terminées).
 
 ## 1. Le groupe et ses filiales
 
@@ -100,7 +100,7 @@ Couleurs retenues : **option A** (Q1).
 
 Le rouge est exclu : il est réservé aux alertes (retards, actions destructrices).
 
-**Logos** : fournis et rangés dans `public/images/logos/` (`bp-compagnie`, `bp-location`, `bp-formation`, `bp-cards`). Le logo actuel est celui de Location. Ceux de Compagnie, Formation et Cards sont sur fond noir carré : affichés en médaillon rond (le fond se confond avec celui du site) ; des versions détourées (PNG transparent) seraient un plus.
+**Logos** : fournis et rangés dans `public/images/logos/` (`bp-compagnie`, `bp-location`, `bp-formation`, `bp-cards`). Le logo actuel est celui de Location. Ceux de Compagnie, Formation et Cards ont été remplacés le 07/11/2026 par des versions détourées (fond transparent, converties en WebP sous les mêmes noms).
 
 ## 10. Phases proposées
 

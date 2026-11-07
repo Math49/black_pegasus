@@ -611,6 +611,10 @@
     opacity: 1;
     color: var(--bp-text-muted);
   }
+  /* Segment actif (fond plus clair) : contraste ≥ 4,5:1 conservé. */
+  .bp-seg--panel.bp-seg--actif .bp-seg__compteur {
+    color: var(--bp-text-soft);
+  }
 
   /* Navigation soulignée (site) */
   .bp-nav-lien {

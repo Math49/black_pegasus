@@ -58,7 +58,14 @@ export async function lireSyntheseSolde(instant: Date, fuseau: string) {
     prisma.semaine.findUnique({ where: { id: courante.id } }),
     prisma.mouvement.findMany({
       where: { semaineId: courante.id },
-      select: { numero: true, date: true, sens: true, categorie: true, montant: true },
+      select: {
+        numero: true,
+        date: true,
+        sens: true,
+        categorie: true,
+        montant: true,
+        filiale: true,
+      },
       orderBy: { date: "asc" },
     }),
     prisma.contrat.aggregate({ where: { statut: "EN_COURS" }, _sum: { caution: true } }),

@@ -16,7 +16,13 @@ import { GlassCard } from "@/composants/ui/GlassCard";
 import { Kpi } from "@/composants/ui/Kpi";
 import { Statut } from "@/composants/ui/Statut";
 import { formaterDollars } from "@/domaine/argent";
-import { impotsReglees, recettesParSemaine, variationPourcent } from "@/domaine/comptabilite";
+import {
+  impotsReglees,
+  recettesParSemaine,
+  syntheseParFiliale,
+  variationPourcent,
+} from "@/domaine/comptabilite";
+import { libelleFiliale, SLUGS_FILIALE } from "@/domaine/filiales";
 import { echeance, formaterRetourPrevu } from "@/domaine/contrats";
 import { formaterDateLongue, salutation, versHeureServeur } from "@/domaine/dates";
 import { semainePrecedente, type SemaineFiscale } from "@/domaine/semaine";
@@ -54,6 +60,9 @@ async function Contenu() {
   ).length;
   const evolution = evolutionSolde(s.soldeOuverture, s.solde);
   const impots = impotsReglees(s.mouvements);
+  // Recettes de la semaine par filiale (le Groupe n'encaisse pas de recettes).
+  const parFiliale = syntheseParFiliale(s.mouvements).filter((l) => l.filiale !== null);
+  const maxFiliale = Math.max(1, ...parFiliale.map((l) => l.recettes));
 
   const prenom = nomCompte(compte).split(/\s+/)[0];
   const date = formaterDateLongue(d.maintenant, d.fuseau);
@@ -125,7 +134,7 @@ async function Contenu() {
           icone="hausse"
           iconeOr
           valeur={formaterDollars(syn.recettes)}
-          contexte={`${variation ? `${variation} vs S${precedente.numero} · ` : ""}locations et pénalités`}
+          contexte={`${variation ? `${variation} vs S${precedente.numero} · ` : ""}toutes filiales`}
         />
         <Kpi
           libelle={`Dépenses · S${courante.numero}`}
@@ -263,13 +272,42 @@ async function Contenu() {
               <h2 id="titre-recettes" className="m-0 titre text-lg font-semibold">
                 Recettes · {SEMAINES_GRAPHIQUE} semaines
               </h2>
-              <span className="text-[13px] text-texte-attenue">
-                Locations et pénalités, hors cautions
-              </span>
+              <span className="text-[13px] text-texte-attenue">Toutes filiales, hors cautions</span>
             </div>
             {variation && <Statut ton="ok">{variation}</Statut>}
           </div>
           <RecettesSemaines semaines={recettes} />
+          <div className="flex flex-col gap-2.5">
+            <h3 className="m-0 libelle text-[10.5px] tracking-[0.2em]">
+              S{courante.numero} par filiale
+            </h3>
+            <ul
+              aria-label="Recettes de la semaine par filiale"
+              className="m-0 flex list-none flex-col gap-2 p-0"
+            >
+              {parFiliale.map((l) => (
+                <li
+                  key={l.filiale}
+                  data-filiale={SLUGS_FILIALE[l.filiale!]}
+                  className="grid grid-cols-[88px_minmax(0,1fr)_96px] items-center gap-3 text-[13px]"
+                >
+                  <span className="font-bold text-or-texte">{libelleFiliale(l.filiale)}</span>
+                  <span
+                    aria-hidden="true"
+                    className="h-1.5 overflow-hidden rounded-full bg-[var(--bp-voile-6)]"
+                  >
+                    <span
+                      className="block h-full rounded-full fond-or"
+                      style={{ width: `${Math.max(0, (l.recettes / maxFiliale) * 100)}%` }}
+                    />
+                  </span>
+                  <span className="text-right font-bold chiffres">
+                    {formaterDollars(l.recettes)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
           <span className="text-[12.5px] text-texte-attenue">
             S{courante.numero} en cours, arrêtée au{" "}
             {format(versHeureServeur(d.maintenant, d.fuseau), "EEEE dd/MM 'à' HH:mm", {

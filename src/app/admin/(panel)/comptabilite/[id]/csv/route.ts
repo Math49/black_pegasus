@@ -1,3 +1,4 @@
+import { libelleFiliale } from "@/domaine/filiales";
 import { format } from "date-fns";
 import { registreCsv } from "@/domaine/comptabilite";
 import { versHeureServeur } from "@/domaine/dates";
@@ -27,6 +28,7 @@ export async function GET(_requete: Request, { params }: { params: Promise<{ id:
       numero: numeroOperationAffiche(m.numero),
       date: format(versHeureServeur(m.date, fuseau), "yyyy-MM-dd HH:mm"),
       categorie: LIBELLES_CATEGORIE[m.categorie],
+      filiale: libelleFiliale(m.filiale),
       libelle: m.motif,
       piece: m.justificatifNumero ?? m.contrat?.numero ?? m.venteCarte?.numero ?? "",
       sens: m.sens,

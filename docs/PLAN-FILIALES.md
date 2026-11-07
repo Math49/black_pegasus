@@ -12,7 +12,7 @@
 | **F-2** Site groupe et paramètres des filiales | **Terminée** | `247112c` |
 | **F-3** Formation | **Terminée** | `efa5eec` |
 | **F-4** Cards | **Terminée** | voir `git log` (« phase F-4 ») |
-| F-5 Comptabilité ventilée | À faire | |
+| **F-5** Comptabilité ventilée | **Terminée** | voir `git log` (« phase F-5 ») |
 | F-6 Paramètres par filiale et finitions | À faire | |
 
 ### Ce que F-1 a mis en place (à réutiliser)
@@ -28,7 +28,7 @@
 - **Services** : `inscrireMouvement` (`src/services/mouvements.ts`) accepte `filiale` et la vérifie ; les mouvements de contrat sont en `BPL` ; la contre-passation recopie la filiale. `lireParametresSite()` (`src/services/site.ts`) renvoie le contact de **BPL** dans `telephone` / `horaires`.
 - **Panel** : sélecteur « Filiale » dans la modale « Nouveau mouvement » (verrouillé quand la catégorie l'impose) ; filiale affichée dans la fiche d'un mouvement ; champ « N° de licence (facultatif) » à la création d'un contrat (repris sur le PDF).
 - **Contenus initiaux** : `prisma/contenus.ts` → `filialesInitiales` (utilisé par `prisma/seed.ts` et `prisma/init-prod.ts`).
-- **Logos** : `public/images/logos/bp-compagnie.webp`, `bp-location.png` (fond transparent), `bp-formation.webp`, `bp-cards.webp` (fonds noirs carrés → à afficher en médaillon rond `rounded-full overflow-hidden`).
+- **Logos** : `public/images/logos/bp-compagnie.webp`, `bp-location.png` (fond transparent), `bp-formation.webp`, `bp-cards.webp` (détourés, fond transparent depuis le 07/11/2026).
 
 ### Ce que F-2 a mis en place (à réutiliser)
 
@@ -56,7 +56,7 @@
 
 ### Ce que F-4 a mis en place (à réutiliser)
 
-- **Prochaine phase : F-5 (comptabilité ventilée)**.
+- Phase suivante : F-5, terminée (voir ci-dessous).
 - **Prisma** : migration `20261107180000_cards` ; `CategorieCarte`, `Carte` (stock contraint ≥ 0 en base, suppression logique), `VenteCarte` (instantanés figés, statut `VALIDEE` / `ANNULEE`), `Mouvement.venteCarteId`. Ventes numérotées `BPC-AAAA-NNNN` (compteur `BPC-2026`).
 - **Domaine** `src/domaine/cards.ts` : `montantVente`, `verifierStock`, `etatCarte`, `motifVente`, `regrouperCartes`, `correspondRecherche` ; `numeroVente` / `cleCompteurVentes` dans `numerotation.ts`.
 - **Service** `src/services/cards.ts` : `creerVente` (verrou `FOR UPDATE` sur la carte, montant recalculé côté serveur, recette `VENTE_CARTES` / `BPC` / automatique liée à la vente), `annulerVente` (administrateur, refus si semaine clôturée, contre-passation liée à la vente, stock rendu), CRUD des catégories et cartes ; une correction manuelle du stock est journalisée (`cards.stock`, avant → après). Les mouvements automatiques d'une vente ne se modifient ni ne se contre-passent au Solde (message « contrat ou vente »).
@@ -64,6 +64,17 @@
 - **Permissions** : `cards.gerer`, `vente.creer` (ADMIN, GESTIONNAIRE), `vente.annuler` (ADMIN), `vente.consulter` (+ FISC).
 - **Seed** : catalogue fictif (3 catégories, 15 cartes dont 3 épuisées), les trois filiales visibles. **Aucune vente de démonstration** : des ventes en S43 changeraient les totaux des maquettes vérifiés par `verifierSeed` et les tests de comptabilité. En production, aucun catalogue n'est créé et la visibilité de BPC reste celle des paramètres.
 - **Tests** : unitaires du domaine ; e2e `tests/e2e/cards.spec.ts` (catalogue public, vente → stock et registre, annulation, deux ventes simultanées du dernier exemplaire, catalogue du panel, droits gestionnaire / FISC, axe).
+
+### Ce que F-5 a mis en place (à réutiliser)
+
+- **Prochaine phase : F-6 (paramètres par filiale et finitions)**.
+- **Domaine** : `syntheseParFiliale` (`comptabilite.ts`) donne recettes, dépenses, résultat et nombre d'opérations pour BPL, BPF, BPC puis Groupe ; un test vérifie que la somme des lignes égale la synthèse du groupe. `filiales.ts` : `SLUGS_FILIALE`, `FILTRES_FILIALE`, `lireFiltreFiliale` (`?filiale=BPL|BPF|BPC|groupe`), `filtrerParFiliale`, `libelleFiltreFiliale`.
+- **Comptabilité** : tableau « Par filiale » sous la synthèse (chaque ligne filtre le registre), filtre de filiale combiné aux onglets, colonne « Filiale » (étiquette à la couleur de la filiale, or pour le Groupe). Les zones défilantes sont focalisables (axe).
+- **Solde** : filtre « Filiale » et colonne « Filiale » dans l'historique ; la colonne « Contrat · vente » relie aussi les ventes de cartes.
+- **Tableau de bord** : recettes de la semaine par filiale (barres sobres) sous le graphique ; les libellés « locations et pénalités » deviennent « toutes filiales ».
+- **CSV** : colonne « Filiale » après « Catégorie ».
+- **PDF de déclaration** : sous-bloc « Ventilation par filiale » en page 1, sous-totaux Formations / Ventes de cartes / Achats de stock quand ils existent, activité du groupe. La page 1 accueille désormais 5 contrats (au-delà, page de suite) : vérifié sur S43, aucune ligne coupée. Les déclarations déjà archivées ne sont jamais régénérées.
+- **Tests** : `tests/e2e/ventilation.spec.ts` (tableau par filiale, filtres combinés, Solde, CSV, tableau de bord).
 
 ## 1. Méthode, pour chaque phase
 
@@ -266,4 +277,3 @@ Unitaires (montant, stock) ; e2e : vente → stock et registre, vente au-delà d
 ## Questions encore ouvertes (à poser à l'utilisateur au moment voulu)
 - Textes définitifs de l'accueil du groupe et des accroches des filiales (des textes de départ modifiables suffisent pour développer).
 - Catégories et cartes réelles (permis et tarifs de Formation validés pendant F-3).
-- Logos détourés (PNG transparent) pour Compagnie, Formation et Cards.

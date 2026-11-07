@@ -13,7 +13,14 @@ import { Statut } from "@/composants/ui/Statut";
 import { formaterDollars } from "@/domaine/argent";
 import { champsModifiables, montantSigne } from "@/domaine/comptabilite";
 import { nomCompte } from "@/domaine/comptes";
-import { libelleFiliale } from "@/domaine/filiales";
+import {
+  FILTRES_FILIALE,
+  filtrerParFiliale,
+  libelleFiliale,
+  libelleFiltreFiliale,
+  lireFiltreFiliale,
+  SLUGS_FILIALE,
+} from "@/domaine/filiales";
 import { formaterHeureServeurIso, versHeureServeur } from "@/domaine/dates";
 import { numeroOperationAffiche } from "@/domaine/numerotation";
 import { peut } from "@/domaine/permissions";
@@ -104,11 +111,12 @@ async function Contenu({
     ? (params.categorie as CategorieMouvement)
     : null;
   const q = String(params.q ?? "");
+  const filtreFiliale = lireFiltreFiliale(params.filiale);
 
   const historique = await lireHistorique(periode === "tout" ? null : periode);
   const page = paginer(
     filtrerHistorique(
-      historique.map((m) => ({
+      filtrerParFiliale(historique, filtreFiliale).map((m) => ({
         ...m,
         contratNumero: m.contrat?.numero ?? m.venteCarte?.numero,
         clientNom: m.contrat?.clientNom ?? m.venteCarte?.clientNom,
@@ -136,12 +144,17 @@ async function Contenu({
       sens: m.sens,
       categorie: LIBELLES_CATEGORIE[m.categorie],
       filiale: libelleFiliale(m.filiale),
+      filialeSlug: m.filiale ? SLUGS_FILIALE[m.filiale] : undefined,
       montant: formaterDollars(montantSigne(m), { signe: true }),
       motif: m.motif,
-      contrat: m.contrat && {
-        numero: m.contrat.numero,
-        href: `/admin/contrats?onglet=${m.contrat.statut === "EN_COURS" ? "en-cours" : "termines"}&q=${m.contrat.numero}`,
-      },
+      contrat: m.contrat
+        ? {
+            numero: m.contrat.numero,
+            href: `/admin/contrats?onglet=${m.contrat.statut === "EN_COURS" ? "en-cours" : "termines"}&q=${m.contrat.numero}`,
+          }
+        : m.venteCarte
+          ? { numero: m.venteCarte.numero, href: `/admin/cards/ventes?q=${m.venteCarte.numero}` }
+          : null,
       saisiPar: { nom: nomCompte(m.compte), avatarUrl: m.compte.avatarUrl },
       justificatif:
         m.justificatif || m.justificatifNumero
@@ -229,7 +242,11 @@ async function Contenu({
       <HistoriqueMouvements
         lignes={page.elements.map(afficher)}
         pagination={page}
-        filtres={{ q, categorie: categorie ?? "", periode }}
+        filtres={{ q, categorie: categorie ?? "", periode, filiale: filtreFiliale ?? "" }}
+        filiales={[
+          { valeur: "", libelle: "Toutes les filiales" },
+          ...FILTRES_FILIALE.map((f) => ({ valeur: f, libelle: libelleFiltreFiliale(f) })),
+        ]}
         categories={[
           { valeur: "", libelle: "Toutes les catégories" },
           ...CATEGORIES.map((c) => ({ valeur: c, libelle: LIBELLES_CATEGORIE[c] })),

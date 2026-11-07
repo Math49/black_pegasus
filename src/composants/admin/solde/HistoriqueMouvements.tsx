@@ -21,13 +21,15 @@ export function HistoriqueMouvements({
   pagination,
   filtres,
   categories,
+  filiales,
   periodes,
   nouveau,
 }: {
   lignes: MouvementAffiche[];
   pagination: { page: number; pages: number; libelle: string };
-  filtres: { q: string; categorie: string; periode: string };
+  filtres: { q: string; categorie: string; periode: string; filiale: string };
   categories: Option[];
+  filiales: Option[];
   periodes: Option[];
   /** Absent : rôle en consultation seule (FISC), pas de saisie. */
   nouveau: {
@@ -96,6 +98,7 @@ export function HistoriqueMouvements({
           {(
             [
               ["categorie", "Catégorie", categories, "w-[206px]"],
+              ["filiale", "Filiale", filiales, "w-[180px]"],
               ["periode", "Période", periodes, "w-[218px]"],
             ] as const
           ).map(([cle, libelle, options, largeur]) => (
@@ -136,10 +139,10 @@ export function HistoriqueMouvements({
       <div className="overflow-x-auto">
         <DataGrid
           libelle="Historique des mouvements"
-          className="min-w-[1030px] text-[14px]"
+          className="min-w-[1130px] text-[14px]"
           hauteurLigne={58}
           vide={
-            filtres.q || filtres.categorie
+            filtres.q || filtres.categorie || filtres.filiale
               ? "Aucun mouvement ne correspond."
               : "Aucun mouvement sur cette période."
           }
@@ -147,8 +150,9 @@ export function HistoriqueMouvements({
             { cle: "numero", titre: "N° · Date", largeur: "112px" },
             { cle: "sens", titre: "Sens", largeur: "84px" },
             { cle: "categorie", titre: "Catégorie", largeur: "140px" },
+            { cle: "filiale", titre: "Filiale", largeur: "100px" },
             { cle: "motif", titre: "Motif", largeur: "minmax(150px,1fr)" },
-            { cle: "contrat", titre: "Contrat lié", largeur: "150px" },
+            { cle: "contrat", titre: "Contrat · vente", largeur: "150px" },
             { cle: "saisi", titre: "Saisi par", largeur: "150px" },
             { cle: "justif", titre: "Justif.", largeur: "52px" },
             { cle: "montant", titre: "Montant", largeur: "100px", alignement: "droite" },
@@ -185,6 +189,14 @@ export function HistoriqueMouvements({
                 </span>
               ),
               categorie: <span className="bp-tag">{m.categorie}</span>,
+              filiale: (
+                <span
+                  data-filiale={m.filialeSlug}
+                  className="bp-tag border-[var(--bp-or-45)] text-or-texte"
+                >
+                  {m.filiale}
+                </span>
+              ),
               motif: (
                 <span className="flex flex-col gap-0.5">
                   <span className={cx("text-texte-doux", m.barre && "line-through")}>

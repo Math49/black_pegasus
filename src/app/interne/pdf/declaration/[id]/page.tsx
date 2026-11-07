@@ -5,7 +5,14 @@ import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { Fragment, Suspense } from "react";
 import { formaterDollars, formaterMontant } from "@/domaine/argent";
-import { colonneRegistre, pieceAbregee, totauxRegistre, ventilation } from "@/domaine/comptabilite";
+import {
+  colonneRegistre,
+  pieceAbregee,
+  syntheseParFiliale,
+  totauxRegistre,
+  ventilation,
+} from "@/domaine/comptabilite";
+import { libelleFiliale } from "@/domaine/filiales";
 import { nomCompte } from "@/domaine/comptes";
 import { versHeureServeur } from "@/domaine/dates";
 import { numeroDeclaration, numeroOperationAffiche } from "@/domaine/numerotation";
@@ -18,7 +25,8 @@ import { EN_TETE_JETON, jetonPdf } from "@/services/pdf";
 // Gabarit de la déclaration d'impôt hebdomadaire (maquettes 31–32), imprimé en A4 par
 // services/pdf.ts. « ?brouillon=1 » : semaine ouverte, filigrane BROUILLON.
 
-const CONTRATS_PAGE_1 = 14;
+// Page 1 : la ventilation par filiale et les sous-totaux de filiale prennent la place de neuf contrats.
+const CONTRATS_PAGE_1 = 5;
 const LIGNES_PAR_PAGE = 40;
 /** Lignes laissant la place à l'attestation sur la dernière page du registre. */
 const LIGNES_AVEC_ATTESTATION = 36;
@@ -95,6 +103,7 @@ async function Declaration({
     orderBy: { numero: "asc" },
   });
   const v = ventilation(mouvements);
+  const parFiliale = syntheseParFiliale(mouvements);
   const totaux = totauxRegistre(mouvements);
   const avecApports = mouvements.some((m) => m.categorie === "APPORT");
 
@@ -265,7 +274,7 @@ async function Declaration({
               "Période déclarée",
               `Semaine ${s.numero} · ${quand(s.debut, "EEEE dd/MM")} au ${quand(dimanche, "EEEE dd/MM/yyyy")}`,
             ],
-            ["Activité", "Location de bateaux, d’avions et d’hélicoptères"],
+            ["Activité", "Location, formation, cartes à collectionner"],
             ["Gérant", nomGerant],
             ["N° d’immatriculation", p.numeroImmatriculationEntreprise],
             ["Filiales", filiales.map((f) => f.nom.replace(/^Black Pégasus /, "")).join(" · ")],
@@ -290,6 +299,9 @@ async function Declaration({
             { sous: true },
           )}
           {ligneSynthese("Pénalités (retard, dégâts)", v.penalites, { sous: true })}
+          {v.formation !== 0 && ligneSynthese("Formations", v.formation, { sous: true })}
+          {v.ventesCartes !== 0 &&
+            ligneSynthese("Ventes de cartes", v.ventesCartes, { sous: true })}
           {ligneSynthese("Total des dépenses", syn.depenses, { gras: true })}
           {v.impots > 0 &&
             ligneSynthese(`Impôts (semaine ${s.numero - 1 || "précédente"})`, v.impots, {
@@ -298,6 +310,8 @@ async function Declaration({
           {v.entretien > 0 && ligneSynthese("Entretien", v.entretien, { sous: true })}
           {v.achats > 0 && ligneSynthese("Achats de véhicules", v.achats, { sous: true })}
           {v.divers > 0 && ligneSynthese("Divers (carburant, primes)", v.divers, { sous: true })}
+          {v.achatsStock !== 0 &&
+            ligneSynthese("Achats de stock (cartes)", v.achatsStock, { sous: true })}
           <div
             className="rounded my-1 flex items-baseline justify-between gap-3 px-3 py-2"
             style={{ border: "1.5px solid var(--bp-encre)" }}
@@ -327,6 +341,37 @@ async function Declaration({
             syn.solde,
             { gras: true, dernier: true },
           )}
+        </section>
+
+        <section aria-label="Ventilation par filiale" className="flex flex-col">
+          <span className="pdf-rubrique mb-1">Ventilation par filiale</span>
+          <div
+            className="pdf-ventilation pdf-cle"
+            style={{ borderBottom: "1px solid var(--bp-filet-gris)" }}
+          >
+            <span>Filiale</span>
+            <span className="pdf-d">Recettes</span>
+            <span className="pdf-d">Dépenses</span>
+            <span className="pdf-d">Résultat</span>
+          </div>
+          {parFiliale.map((l) => (
+            <div
+              key={l.filiale ?? "groupe"}
+              className="pdf-ventilation tabular-nums"
+              style={{ borderBottom: "1px solid var(--bp-filet-gris-clair)" }}
+            >
+              <span>{libelleFiliale(l.filiale)}</span>
+              <span className="pdf-d">{formaterDollars(l.recettes)}</span>
+              <span className="pdf-d">{formaterDollars(l.depenses)}</span>
+              <span className="pdf-d font-bold">{formaterDollars(l.resultat)}</span>
+            </div>
+          ))}
+          <div className="pdf-ventilation font-extrabold tabular-nums">
+            <span>Groupe · total</span>
+            <span className="pdf-d">{formaterDollars(syn.recettes)}</span>
+            <span className="pdf-d">{formaterDollars(syn.depenses)}</span>
+            <span className="pdf-d">{formaterDollars(syn.resultatImposable)}</span>
+          </div>
         </section>
 
         <section aria-label="Contrats de la semaine" className="flex flex-col gap-0.5">

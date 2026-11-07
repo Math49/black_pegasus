@@ -18,12 +18,22 @@ import {
   colonneRegistre,
   compteursOnglets,
   filtrerRegistre,
+  syntheseParFiliale,
   totauxRegistre,
   ventilation,
   type Controle,
   type OngletRegistre,
 } from "@/domaine/comptabilite";
 import { nomCompte } from "@/domaine/comptes";
+import {
+  FILTRES_FILIALE,
+  filtrerParFiliale,
+  libelleFiliale,
+  libelleFiltreFiliale,
+  lireFiltreFiliale,
+  SLUGS_FILIALE,
+} from "@/domaine/filiales";
+import type { CodeFiliale } from "@/domaine/types";
 import { versHeureServeur } from "@/domaine/dates";
 import { numeroDeclaration, numeroOperationAffiche } from "@/domaine/numerotation";
 import { peut } from "@/domaine/permissions";
@@ -35,6 +45,18 @@ import { lireBornesSemaines, lireEtatSemaine } from "@/services/comptabilite";
 import { lireDonneesPanel } from "@/services/panel";
 
 export const metadata: Metadata = { title: "Comptabilité" };
+
+/** Étiquette de filiale, à la couleur d'accent de la filiale (or pour le Groupe). */
+function TagFiliale({ filiale }: { filiale: CodeFiliale | null }) {
+  return (
+    <span
+      data-filiale={filiale ? SLUGS_FILIALE[filiale] : undefined}
+      className="bp-tag border-[var(--bp-or-45)] text-or-texte"
+    >
+      {libelleFiliale(filiale)}
+    </span>
+  );
+}
 
 const ONGLETS: { valeur: OngletRegistre; libelle: string }[] = [
   { valeur: "toutes", libelle: "Toutes" },
@@ -129,15 +151,18 @@ async function Contenu({
   const precedente = semainePrecedente(semaine, d.fuseau);
   const aPrecedente = premiere ? precedente.id >= premiere.id : false;
   const aSuivante = semaine.id < courante.id;
-  const lien = (id: string, o = onglet) =>
-    `/admin/comptabilite?semaine=${id}${o !== "toutes" ? `&onglet=${o}` : ""}`;
+  const filtreFiliale = lireFiltreFiliale(params.filiale);
+  const lien = (id: string, o = onglet, f = filtreFiliale) =>
+    `/admin/comptabilite?semaine=${id}${o !== "toutes" ? `&onglet=${o}` : ""}${f ? `&filiale=${f}` : ""}`;
 
   const quand = (date: Date, motif: string) =>
     format(versHeureServeur(date, d.fuseau), motif, { locale: fr });
   const dimanche = new Date(semaine.fin.getTime() - 1);
   const v = ventilation(mouvements);
-  const compteurs = compteursOnglets(mouvements);
-  const lignes = filtrerRegistre(mouvements, onglet);
+  const parFiliale = syntheseParFiliale(mouvements);
+  const duFiltre = filtrerParFiliale(mouvements, filtreFiliale);
+  const compteurs = compteursOnglets(duFiltre);
+  const lignes = filtrerRegistre(duFiltre, onglet);
   const totaux = totauxRegistre(lignes);
   const avecApports = mouvements.some((m) => m.categorie === "APPORT");
   const retards = etat.contratsEnCours.filter((c) => c.finPrevue < d.maintenant);
@@ -332,6 +357,80 @@ async function Contenu({
         />
       </section>
 
+      <GlassCard
+        as="section"
+        variante="admin"
+        aria-labelledby="titre-filiales"
+        className="flex flex-col gap-3.5 rounded-[24px] px-2 pt-[18px] pb-2"
+      >
+        <div className="flex flex-col gap-[3px] px-3">
+          <h2 id="titre-filiales" className="m-0 titre text-lg font-semibold">
+            Par filiale
+          </h2>
+          <span className="text-[13px] text-texte-attenue">
+            Recettes et dépenses de chaque filiale ; le résultat imposable reste celui du groupe.
+          </span>
+        </div>
+        <div
+          className="overflow-x-auto"
+          tabIndex={0}
+          role="region"
+          aria-label="Tableau par filiale (défilement horizontal)"
+        >
+          <DataGrid
+            libelle={`Ventilation par filiale de la semaine ${semaine.numero}`}
+            className="min-w-[620px]"
+            colonnes={[
+              { cle: "filiale", titre: "Filiale", largeur: "minmax(140px,1fr)" },
+              { cle: "operations", titre: "Opérations", largeur: "110px", alignement: "droite" },
+              { cle: "recettes", titre: "Recettes", largeur: "130px", alignement: "droite" },
+              { cle: "depenses", titre: "Dépenses", largeur: "130px", alignement: "droite" },
+              { cle: "resultat", titre: "Résultat", largeur: "130px", alignement: "droite" },
+            ]}
+            lignes={[
+              ...parFiliale.map((l) => ({
+                cle: l.filiale ?? "groupe",
+                cellules: {
+                  filiale: (
+                    <Link
+                      href={lien(semaine.id, onglet, l.filiale ?? "groupe")}
+                      className="bp-cible"
+                      aria-label={`Filtrer le registre : ${libelleFiliale(l.filiale)}`}
+                    >
+                      <TagFiliale filiale={l.filiale} />
+                    </Link>
+                  ),
+                  operations: <span className="chiffres">{l.nombreOperations}</span>,
+                  recettes: montant(l.recettes, "recette"),
+                  depenses: montant(l.depenses, "depense"),
+                  resultat: (
+                    <span className="font-extrabold chiffres">{formaterDollars(l.resultat)}</span>
+                  ),
+                },
+              })),
+              {
+                cle: "total",
+                cellules: {
+                  filiale: (
+                    <span className="libelle text-[10.5px] tracking-[0.2em] text-argent-1">
+                      Groupe · total
+                    </span>
+                  ),
+                  operations: <span className="chiffres">{syn.nombreOperations}</span>,
+                  recettes: montant(syn.recettes, "recette"),
+                  depenses: montant(syn.depenses, "depense"),
+                  resultat: (
+                    <span className="font-extrabold chiffres">
+                      {formaterDollars(syn.resultatImposable)}
+                    </span>
+                  ),
+                },
+              },
+            ]}
+          />
+        </div>
+      </GlassCard>
+
       {!cloturee && (
         <GlassCard
           as="section"
@@ -368,26 +467,50 @@ async function Contenu({
               Chaque opération est numérotée et rattachée à un contrat ou à un justificatif.
             </span>
           </div>
-          <Seg
-            libelle="Filtrer le registre"
-            valeur={onglet}
-            options={ONGLETS.map((o) => ({
-              ...o,
-              compteur: compteurs[o.valeur],
-              href: lien(semaine.id, o.valeur),
-            }))}
-          />
+          <div className="flex flex-wrap gap-2.5">
+            <Seg
+              libelle="Filtrer le registre par filiale"
+              valeur={filtreFiliale ?? "toutes"}
+              options={[
+                {
+                  valeur: "toutes",
+                  libelle: "Toutes filiales",
+                  href: lien(semaine.id, onglet, null),
+                },
+                ...FILTRES_FILIALE.map((f) => ({
+                  valeur: f,
+                  libelle: libelleFiltreFiliale(f),
+                  href: lien(semaine.id, onglet, f),
+                })),
+              ]}
+            />
+            <Seg
+              libelle="Filtrer le registre"
+              valeur={onglet}
+              options={ONGLETS.map((o) => ({
+                ...o,
+                compteur: compteurs[o.valeur],
+                href: lien(semaine.id, o.valeur),
+              }))}
+            />
+          </div>
         </div>
-        <div className="overflow-x-auto">
+        <div
+          className="overflow-x-auto"
+          tabIndex={0}
+          role="region"
+          aria-label="Registre (défilement horizontal)"
+        >
           <DataGrid
             libelle={`Registre des opérations de la semaine ${semaine.numero}`}
-            className="min-w-[1020px]"
+            className="min-w-[1120px]"
             hauteurLigne={50}
             vide="Aucune opération sur cette période."
             colonnes={[
               { cle: "numero", titre: "N°", largeur: "52px" },
               { cle: "date", titre: "Date", largeur: "120px" },
               { cle: "categorie", titre: "Catégorie", largeur: "140px" },
+              { cle: "filiale", titre: "Filiale", largeur: "104px" },
               { cle: "libelle", titre: "Libellé", largeur: "minmax(170px,1fr)" },
               { cle: "piece", titre: "Pièce", largeur: "150px" },
               { cle: "recette", titre: "Recette", largeur: "92px", alignement: "droite" },
@@ -426,6 +549,7 @@ async function Contenu({
                     </span>
                   ),
                   categorie: <span className="bp-tag">{LIBELLES_CATEGORIE[m.categorie]}</span>,
+                  filiale: <TagFiliale filiale={m.filiale} />,
                   libelle: (
                     <span className="flex flex-col gap-0.5">
                       <span className={cx(barre && "line-through")}>{m.motif}</span>
