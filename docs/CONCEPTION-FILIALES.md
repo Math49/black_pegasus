@@ -1,6 +1,6 @@
 # Conception — Filiales (brouillon à valider)
 
-> Statut : **validé le 07/11/2026**. Complète `docs/CONCEPTION.md` (qui reste la référence pour tout ce qui n'est pas dit ici). Développement par phases F-1 à F-6 : plan détaillé et état d'avancement dans **`docs/PLAN-FILIALES.md`** (F-1 et F-2 terminées).
+> Statut : **validé le 07/11/2026**. Complète `docs/CONCEPTION.md` (qui reste la référence pour tout ce qui n'est pas dit ici). Développement par phases F-1 à F-6 : plan détaillé et état d'avancement dans **`docs/PLAN-FILIALES.md`** (F-1 à F-3 terminées).
 
 ## 1. Le groupe et ses filiales
 
@@ -66,6 +66,7 @@ Inchangé fonctionnellement (flotte, contrats, PDF, clôture de contrat, retards
 - **Site** : permis regroupés par domaine (domaines libres, définis dans le panel), avec description, modalités et prix ; formulaire de contact (nom RP, téléphone en jeu, permis visé, message), limité en débit contre les abus.
 - **Panel** : domaines et permis (ajout, modification, ordre, visibilité) ; boîte de réception des demandes (nouvelle / traitée), signalées dans la cloche.
 - **Argent** : les formations encaissées sont saisies au solde (catégorie *Formation*, filiale BPF).
+- **Catalogue initial validé en F-3** : Licence navigation (Navigation) et Licence pilotage (Aérien), à 4 000 $ chacune. Visite médicale en prérequis, questionnaire et test pratique comme épreuves. Durée non renseignée ; tous ces champs sont modifiables dans le panel.
 
 ## 6. Black Pegasus Cards (BPC)
 

@@ -10,7 +10,7 @@
 | Conception filiales | Validée | `4a56975` |
 | **F-1** Modèle des filiales, reprise des données, filiale des mouvements | **Terminée** | `feb2b5a` |
 | **F-2** Site groupe et paramètres des filiales | **Terminée** | `247112c` |
-| F-3 Formation | À faire | |
+| **F-3** Formation | **Terminée** | `efa5eec` |
 | F-4 Cards | À faire | |
 | F-5 Comptabilité ventilée | À faire | |
 | F-6 Paramètres par filiale et finitions | À faire | |
@@ -32,7 +32,7 @@
 
 ### Ce que F-2 a mis en place (à réutiliser)
 
-- **Prochaine phase : F-3 (Formation)**, après validation du rendu de F-2. BPF et BPC restent masquées dans le seed et à la première initialisation de production.
+- **État à la livraison de F-2** : BPF et BPC restent masquées dans le seed et à la première initialisation de production. F-3 active ensuite BPF dans le seed.
 - **Site** : accueil groupe sur `/`, Location sur `/location` et ses sous-routes ; anciennes adresses redirigées en 308 avec leur requête. L’en-tête du groupe et le pied de page affichent les filiales visibles. Dans une filiale, l’en-tête porte son identité et sa navigation, avec « Retour au groupe » à droite d’« Espace admin » (ajustement utilisateur après F-2) ; aucune seconde barre. Le layout Location vérifie la visibilité pour toute la section.
 - **Formation et Cards** : leurs routes existent avec une présentation d’identité et de contact (`PresentationFiliale`), accessible seulement si la filiale est visible. Remplacer ces présentations par les pages métier en F-3 / F-4 ; conserver le contrôle de visibilité et `data-filiale`.
 - **Lectures** : `lireFiliale(code)` et `lireFilialesVisibles()` dans `src/services/site.ts` (React `cache`, `await connection()`). `lireParametresSite()` expose aussi `textesGroupe` ; son contexte de variables historiques (`telephone`, `horaires`, règles) reste celui de Location.
@@ -40,6 +40,19 @@
 - **Paramètres** : identité du groupe, textes de l’accueil groupe et formulaire pour chaque filiale (identité, contact, ordre, visibilité, logo envoyé). Le champ `Filiale.logo` contient une URL publique : `/images/logos/…` ou `/api/fichiers/photos/…`.
 - **Données** : migration `20261107140000_site_groupe`, `Parametres.textesGroupe` ; textes initiaux dans `prisma/contenus.ts`, seed et `init-prod`. Aucune nouvelle dépendance ni variable d’environnement.
 - **Validation** : lint et build réussis, 273 tests unitaires et 78 tests e2e réussis ; 19 tests du site repassés après l’ajustement final de l’en-tête mobile. Captures, limites du statut 404 en streaming et textes à relire : [bilan F-2](validations/f2/README.md).
+
+### Ce que F-3 a mis en place (à réutiliser)
+
+- **Prochaine phase : F-4 (Cards)**, après validation du rendu Formation. Le header conserve le style or et verre demandé, même dans une filiale.
+- **Catalogue validé** : Licence navigation et Licence pilotage, 4 000 $ chacune ; visite médicale, questionnaire et test pratique. Domaines Navigation et Aérien ; durée laissée vide. Constante `formationInitiale` dans `prisma/contenus.ts`, commune au seed et à la première initialisation de production.
+- **Prisma** : migration `20261107160000_formation` ; `DomainePermis`, `Permis` (suppression logique), `DemandeContact`, `StatutDemande`. `Compte.demandesTraitees` conserve l’auteur du traitement.
+- **Audit public** : `JournalAudit.compteId` est nullable ; une réception publique est attribuée à « Site public », sans coordonnées ni message dans le journal. Les autres actions gardent leur auteur connecté. Le journal du panel gère cette valeur nulle.
+- **Services et domaine** : `src/services/formation.ts` orchestre les transactions et revalidations. `src/domaine/formation.ts` contient la validation des coordonnées en jeu, le regroupement/tri des permis et le compte des demandes nouvelles.
+- **Écrans** : `/formation` (catalogue + contact), `/admin/formation/permis` (domaines et permis), `/admin/formation/demandes` (Nouvelles/Toutes, traitement, pagination). Les écritures du panel passent par `exigerRole`, Zod, transaction et audit ; l’action de contact est publique conformément au périmètre F-3.
+- **Permissions et cloche** : `formation.gerer` et `demande.consulter` pour ADMIN/GESTIONNAIRE uniquement. Le FISC ne reçoit pas les notifications Formation. L’en-tête du panel est au-dessus des cartes pour rendre les liens de la cloche cliquables.
+- **Limites** : cinq tentatives par IP sur dix minutes, piège anti-robot ; aucun stockage d’IP. Les visibilités de BPF et du permis sont revérifiées lors de l’envoi. Le limiteur reste en mémoire, comme les limiteurs existants.
+- **Seed et production** : BPF visible et deux demandes de démonstration dans le seed ; aucun changement aux totaux comptables. En production, catalogue créé seulement si ses tables sont vides, aucune demande de démonstration, visibilité de la filiale conservée. Les permis supprimés ne sont pas recréés au redémarrage.
+- **Validation** : lint/build au vert, 297 tests unitaires, 86 tests e2e ; couverture du domaine : lignes/fonctions 100 %, branches 98,37 %. Captures, précisions de déploiement et durées encore vides : [bilan F-3](validations/f3/README.md).
 
 ## 1. Méthode, pour chaque phase
 
@@ -145,7 +158,7 @@ Hero (logo Formation, accroche, contact BPF) ; permis groupés par domaine (nom,
 - Encaissement : saisi au solde, catégorie *Formation* (déjà prête depuis F-1).
 
 ### Seed
-Deux domaines (Navigation, Aérien), quatre ou cinq permis plausibles avec prix, deux demandes de démonstration. Filiale BPF `visible = true` en démo.
+Catalogue fourni et validé par l’utilisateur pendant F-3 : deux domaines (Navigation, Aérien) et deux licences, **Licence navigation** et **Licence pilotage**, à **4 000 $ chacune**. Prérequis : visite médicale ; épreuves : questionnaire et test pratique ; durée non renseignée. Deux demandes de démonstration. Filiale BPF `visible = true` en démo. En production, création du catalogue validé uniquement si les tables sont vides, sans demandes de démonstration et sans changer la visibilité de la filiale.
 
 ### Tests
 Unitaires (validation) ; e2e : page publique, envoi du formulaire → demande visible dans le panel et dans la cloche, limitation de débit (statut d'erreur après N envois), gestion des permis, FISC sans accès aux demandes, axe.
@@ -241,5 +254,5 @@ Unitaires (montant, stock) ; e2e : vente → stock et registre, vente au-delà d
 
 ## Questions encore ouvertes (à poser à l'utilisateur au moment voulu)
 - Textes définitifs de l'accueil du groupe et des accroches des filiales (des textes de départ modifiables suffisent pour développer).
-- Liste réelle des permis et de leurs prix ; catégories et cartes réelles.
+- Catégories et cartes réelles (permis et tarifs de Formation validés pendant F-3).
 - Logos détourés (PNG transparent) pour Compagnie, Formation et Cards.
