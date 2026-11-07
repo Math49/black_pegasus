@@ -14,6 +14,8 @@ import {
   enregistrerReglement,
   enregistrerRegles,
   enregistrerTextes,
+  enregistrerFiliale,
+  enregistrerTextesGroupe,
   renommerCategorie,
   supprimerCategorie,
 } from "@/services/parametres";
@@ -36,8 +38,7 @@ const bloc = z.object({ titre: texte("Titre", 2, 120), texte: texte("Texte", 2, 
 
 const schemas = {
   agence: z.object({
-    telephone: texte("Téléphone", 3, 20),
-    horaires: texte("Horaires", 3, 80),
+    nomEntreprise: texte("Nom du groupe", 2, 100),
     immatriculation: texte("N° d’immatriculation", 1, 40),
     fuseau: texte("Fuseau", 3, 60),
   }),
@@ -75,6 +76,42 @@ export async function actionEnregistrerAgence(d: unknown) {
   return executer(async () =>
     enregistrerAgence(await exigerRole("parametres.gerer"), schemas.agence.parse(d)),
   );
+}
+export async function actionEnregistrerTextesGroupe(d: unknown) {
+  return executer(async () => {
+    const acteur = await exigerRole("parametres.gerer");
+    return enregistrerTextesGroupe(
+      acteur,
+      z.object({ accroche: bloc, presentation: bloc }).parse(d),
+    );
+  });
+}
+
+export async function actionEnregistrerFiliale(formulaire: FormData) {
+  return executer(async () => {
+    const acteur = await exigerRole("parametres.gerer");
+    const code = z.enum(["BPL", "BPF", "BPC"]).parse(formulaire.get("code"));
+    const donnees = z
+      .object({
+        nom: texte("Nom de la filiale", 2, 100),
+        accroche: texte("Accroche", 2, 300),
+        telephone: texte("Téléphone", 3, 100),
+        horaires: texte("Horaires", 3, 80),
+        ordre: entier("Ordre", 0, 1000),
+        visible: z.boolean(),
+      })
+      .parse({
+        nom: formulaire.get("nom"),
+        accroche: formulaire.get("accroche"),
+        telephone: formulaire.get("telephone"),
+        horaires: formulaire.get("horaires"),
+        ordre: Number(formulaire.get("ordre")),
+        visible: formulaire.get("visible") === "1",
+      });
+    const fichier = formulaire.get("logo");
+    if (fichier instanceof File && fichier.size > 0) exigerQuotaEnvoi(acteur.id);
+    return enregistrerFiliale(acteur, code, donnees, await lireImageEnvoyee(fichier));
+  });
 }
 export async function actionEnregistrerTextes(d: unknown) {
   return executer(async () =>

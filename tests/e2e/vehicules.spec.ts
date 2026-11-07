@@ -50,7 +50,7 @@ test.describe("véhicules", () => {
     await expect(page).toHaveURL(/\/admin\/vehicules$/);
     await expect(page.getByRole("row").filter({ hasText: NOM })).toContainText("BP VE 01");
 
-    await page.goto("/flotte?type=AVION");
+    await page.goto("/location/flotte?type=AVION");
     await expect(page.getByRole("heading", { level: 2, name: NOM })).toBeVisible();
     const [{ photo }] = await sql<{ photo: string }>(
       `SELECT photo FROM "Vehicule" WHERE nom = $1`,
@@ -65,7 +65,7 @@ test.describe("véhicules", () => {
     await page.getByRole("dialog").getByRole("button", { name: "Supprimer le véhicule" }).click();
     await expect(page).toHaveURL(/\/admin\/vehicules$/);
     await expect(page.getByRole("row").filter({ hasText: NOM })).toHaveCount(0);
-    await page.goto("/flotte?type=AVION");
+    await page.goto("/location/flotte?type=AVION");
     await expect(page.getByRole("heading", { level: 2, name: NOM })).toHaveCount(0);
   });
 
@@ -107,7 +107,7 @@ test.describe("véhicules", () => {
     await expect(
       page.getByRole("switch", { name: "Afficher Dinghy4 sur le site" }),
     ).toHaveAttribute("aria-checked", "false");
-    await page.goto("/flotte?type=BATEAU");
+    await page.goto("/location/flotte?type=BATEAU");
     await expect(page.getByRole("heading", { level: 2, name: "Dinghy4" })).toHaveCount(0);
   });
 });

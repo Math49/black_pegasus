@@ -32,8 +32,9 @@ export type PhotoEnvoyee = { octets: Uint8Array; extension: string };
 /** Le site public lit la base à chaque requête ; on invalide tout de même ses routes. */
 function revaliderSite(slug?: string) {
   revalidatePath("/");
-  revalidatePath("/flotte");
-  if (slug) revalidatePath(`/flotte/${slug}`);
+  revalidatePath("/location");
+  revalidatePath("/location/flotte");
+  if (slug) revalidatePath(`/location/flotte/${slug}`);
   revalidatePath("/admin/vehicules");
 }
 

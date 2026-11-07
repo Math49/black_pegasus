@@ -8,28 +8,39 @@ import {
   verifierForfaits,
   verifierSuppressionCategorie,
 } from "@/domaine/parametres";
-import { ErreurMetier, type ForfaitDegats, type TypeVehicule } from "@/domaine/types";
+import {
+  ErreurMetier,
+  type CodeFiliale,
+  type ForfaitDegats,
+  type TypeVehicule,
+} from "@/domaine/types";
 import type { CompteConnecte } from "@/lib/garde";
 import { prisma } from "@/lib/prisma";
 import { enTransaction, type Tx } from "@/lib/transaction";
 import { journaliser } from "./audit";
 import type { ImageEnvoyee } from "@/lib/fichiers";
-import { schemaPhotosAccueil, type PhotosAccueil, type Reglement, type TextesSite } from "./site";
+import {
+  schemaPhotosAccueil,
+  type PhotosAccueil,
+  type Reglement,
+  type TextesSite,
+  type TextesGroupe,
+} from "./site";
 import { enregistrerFichier, supprimerFichier } from "./stockage";
 
 // Paramètres du site (CONCEPTION § 9.1). Chaque enregistrement est journalisé et revalide
 // le site public, dont les pages lisent Parametres à chaque requête.
 
 export async function lireParametresAdmin() {
-  const [p, location, categories] = await Promise.all([
+  const [p, filiales, categories] = await Promise.all([
     prisma.parametres.findUniqueOrThrow({ where: { id: 1 } }),
-    prisma.filiale.findUniqueOrThrow({ where: { code: "BPL" } }),
+    prisma.filiale.findMany({ orderBy: [{ ordre: "asc" }, { code: "asc" }] }),
     prisma.categorie.findMany({
       orderBy: [{ type: "asc" }, { ordre: "asc" }, { nom: "asc" }],
       include: { _count: { select: { vehicules: true } } },
     }),
   ]);
-  return { p, location, categories };
+  return { p, filiales, categories };
 }
 
 async function ecrire(
@@ -61,7 +72,7 @@ const textesCitant = (reglement: Reglement, textes: TextesSite) => [
 
 export function enregistrerAgence(
   acteur: CompteConnecte,
-  d: { telephone: string; horaires: string; immatriculation: string; fuseau: string },
+  d: { nomEntreprise: string; immatriculation: string; fuseau: string },
 ) {
   if (!estFuseauValide(d.fuseau))
     throw new ErreurMetier(`Fuseau horaire inconnu : « ${d.fuseau} ».`);
@@ -69,19 +80,64 @@ export function enregistrerAgence(
     const avant = await tx.parametres.findUniqueOrThrow({ where: { id: 1 } });
     await tx.parametres.update({
       where: { id: 1 },
-      data: { numeroImmatriculationEntreprise: d.immatriculation, fuseauServeur: d.fuseau },
-    });
-    await tx.filiale.update({
-      where: { code: "BPL" },
-      data: { telephone: d.telephone, horaires: d.horaires },
+      data: {
+        nomEntreprise: d.nomEntreprise,
+        numeroImmatriculationEntreprise: d.immatriculation,
+        fuseauServeur: d.fuseau,
+      },
     });
     return {
-      telephone: d.telephone,
+      nomEntreprise: { avant: avant.nomEntreprise, apres: d.nomEntreprise },
       ...(avant.fuseauServeur !== d.fuseau && {
         fuseau: { avant: avant.fuseauServeur, apres: d.fuseau },
       }),
     };
   });
+}
+
+export function enregistrerTextesGroupe(acteur: CompteConnecte, textesGroupe: TextesGroupe) {
+  return ecrire(acteur, "parametres.textesGroupe", async (tx) => {
+    const p = await tx.parametres.findUniqueOrThrow({ where: { id: 1 } });
+    const cites = forfaitsCites([textesGroupe.accroche.texte, textesGroupe.presentation.texte]);
+    const forfaits = p.forfaitsDegats as ForfaitDegats[];
+    const inconnu = cites.find((c) => !forfaits.some((f) => f.libelle === c));
+    if (inconnu) throw new ErreurMetier(`Forfait inconnu dans le texte : « ${inconnu} ».`);
+    await tx.parametres.update({ where: { id: 1 }, data: { textesGroupe } });
+  });
+}
+
+export async function enregistrerFiliale(
+  acteur: CompteConnecte,
+  code: CodeFiliale,
+  donnees: {
+    nom: string;
+    accroche: string;
+    telephone: string;
+    horaires: string;
+    ordre: number;
+    visible: boolean;
+  },
+  image: ImageEnvoyee | null,
+) {
+  const cle = image ? await enregistrerFichier("photos", image.octets, image.extension) : null;
+  try {
+    await ecrire(acteur, "parametres.filiale", async (tx) => {
+      const avant = await tx.filiale.findUniqueOrThrow({ where: { code } });
+      await tx.filiale.update({
+        where: { code },
+        data: { ...donnees, ...(cle && { logo: `/api/fichiers/${cle}` }) },
+      });
+      return {
+        code,
+        avant,
+        apres: { ...donnees, logo: cle ? `/api/fichiers/${cle}` : avant.logo },
+      };
+    });
+  } catch (e) {
+    if (cle) await supprimerFichier(cle);
+    throw e;
+  }
+  // Un rendu de PDF en cours peut encore lire l’ancien logo.
 }
 
 export function enregistrerTextes(acteur: CompteConnecte, textes: TextesSite) {
@@ -122,9 +178,14 @@ export function enregistrerRegles(
   return ecrire(acteur, "parametres.regles", async (tx) => {
     const p = await tx.parametres.findUniqueOrThrow({ where: { id: 1 } });
     const forfaits = d.forfaits.map((f) => ({ libelle: f.libelle.trim(), montant: f.montant }));
+    const groupe = p.textesGroupe as TextesGroupe;
     verifierForfaits(
       forfaits,
-      forfaitsCites(textesCitant(p.reglement as Reglement, p.textesSite as TextesSite)),
+      forfaitsCites([
+        ...textesCitant(p.reglement as Reglement, p.textesSite as TextesSite),
+        groupe.accroche.texte,
+        groupe.presentation.texte,
+      ]),
     );
     const data = {
       toleranceRetardMin: d.toleranceRetardMin,

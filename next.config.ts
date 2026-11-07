@@ -32,6 +32,13 @@ const entetes = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  async redirects() {
+    return [
+      { source: "/flotte", destination: "/location/flotte", permanent: true },
+      { source: "/flotte/:slug", destination: "/location/flotte/:slug", permanent: true },
+      { source: "/reglement", destination: "/location/reglement", permanent: true },
+    ];
+  },
   async headers() {
     return [{ source: "/:chemin*", headers: entetes }];
   },

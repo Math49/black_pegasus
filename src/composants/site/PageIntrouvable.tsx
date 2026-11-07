@@ -32,7 +32,7 @@ export function PageErreur({
         <div className="flex flex-wrap justify-center gap-3.5">
           {actions ?? (
             <>
-              <Button href="/flotte" iconeFin="flecheDroite">
+              <Button href="/location/flotte" iconeFin="flecheDroite">
                 Voir la flotte
               </Button>
               <Button href="/" variante="verre">

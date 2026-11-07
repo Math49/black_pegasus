@@ -18,7 +18,7 @@ import type {
   StatutExemplaire,
   TypeVehicule,
 } from "../src/domaine/types";
-import { descriptions, filialesInitiales, reglement, textesSite } from "./contenus";
+import { descriptions, filialesInitiales, reglement, textesGroupe, textesSite } from "./contenus";
 
 if (process.env.NODE_ENV === "production") {
   throw new Error("Le seed de démonstration ne doit jamais être lancé en production.");
@@ -174,6 +174,7 @@ async function main() {
           majorationRetard: p.majorationRetard,
           forfaitsDegats: p.forfaitsDegats,
           textesSite,
+          textesGroupe,
           reglement,
         },
       });

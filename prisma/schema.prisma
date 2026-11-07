@@ -276,7 +276,7 @@ model Filiale {
   slug      String      @unique
   nom       String
   accroche  String      @default("")
-  /// Chemin public du logo (public/images/logos)
+  /// URL publique du logo (public/images/logos ou fichier envoyé)
   logo      String
   telephone String
   horaires  String
@@ -303,6 +303,8 @@ model Parametres {
   forfaitsDegats                  Json
   /// Accroche, présentation de la maison, étapes « Comment louer »
   textesSite                      Json
+  /// Accroche et présentation de l’accueil du groupe
+  textesGroupe                    Json    @default("{}")
   /// { dateMiseAJour, introduction, articles: [{ titre, contenu (markdown) }] }
   reglement                       Json
   /// Photos des cartes « Trois éléments » de l'accueil : { BATEAU?, AVION?, HELICOPTERE? } (clés de stockage).

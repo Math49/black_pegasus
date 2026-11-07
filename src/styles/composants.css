@@ -112,7 +112,7 @@
     letter-spacing: 0;
   }
   .bp-btn--or {
-    background: var(--bp-gold-gradient);
+    background: var(--bp-accent-degrade);
     color: var(--bp-black);
   }
   .bp-btn--or.bp-btn--site,
@@ -172,7 +172,7 @@
     min-height: var(--bp-touch);
     font-weight: 700;
     font-size: 15px;
-    color: var(--bp-gold-text);
+    color: var(--bp-accent-texte);
     text-decoration: none;
   }
   .bp-lien:hover {
@@ -219,7 +219,7 @@
     border-color: var(--bp-argent-50);
   }
   .bp-ibtn--or {
-    background: var(--bp-gold-gradient);
+    background: var(--bp-accent-degrade);
     border: 0;
     color: var(--bp-black);
   }
@@ -241,7 +241,7 @@
     height: 48px;
     border-radius: 14px;
     border: 1px solid var(--bp-or-40);
-    color: var(--bp-gold-icon);
+    color: var(--bp-accent-icone);
     flex: none;
   }
 
@@ -262,7 +262,7 @@
   .bp-badge--dispo {
     background: var(--bp-fond-badge-or);
     border: 1px solid var(--bp-or-60);
-    color: var(--bp-gold-text);
+    color: var(--bp-accent-texte);
   }
   .bp-badge--complet {
     background: var(--bp-noir-55);
@@ -302,7 +302,7 @@
   .bp-st--or {
     background: var(--bp-or-8);
     border: 1px solid var(--bp-or-45);
-    color: var(--bp-gold-text);
+    color: var(--bp-accent-texte);
   }
   .bp-st--alerte {
     background: var(--bp-alert-bg);
@@ -368,7 +368,7 @@
   }
   .bp-champ-cadre:focus-within > .bp-ico,
   .bp-champ-cadre:has([data-apercu-focus]) > .bp-ico {
-    color: var(--bp-gold-text);
+    color: var(--bp-accent-texte);
   }
   .bp-fld {
     width: 100%;
@@ -482,7 +482,7 @@
   }
   .bp-pilule[aria-pressed="true"] {
     border-color: var(--bp-or-70);
-    color: var(--bp-gold-text);
+    color: var(--bp-accent-texte);
     background: var(--bp-or-10);
   }
 
@@ -527,7 +527,7 @@
     border-color: transparent;
   }
   .bp-switch--site[aria-checked="true"] {
-    background: var(--bp-gold-gradient);
+    background: var(--bp-accent-degrade);
   }
   .bp-switch--panel[aria-checked="true"] {
     background: var(--bp-texte-85);
@@ -594,7 +594,7 @@
     color: var(--bp-text);
   }
   .bp-seg--site.bp-seg--actif {
-    background: var(--bp-gold-gradient);
+    background: var(--bp-accent-degrade);
     color: var(--bp-black);
     box-shadow: inset 0 1px 0 color-mix(in srgb, var(--bp-blanc) 50%, transparent);
   }
@@ -628,7 +628,7 @@
   }
   .bp-nav-lien[aria-current] {
     color: var(--bp-text);
-    box-shadow: inset 0 -1px 0 var(--bp-gold-text);
+    box-shadow: inset 0 -1px 0 var(--bp-accent-texte);
   }
 
   /* Sommaire numéroté (règlement) */
@@ -658,7 +658,7 @@
     color: var(--bp-text);
   }
   .bp-sommaire-lien[aria-current] .bp-sommaire-lien__num {
-    color: var(--bp-gold-text);
+    color: var(--bp-accent-texte);
   }
 
   /* ── Navigation latérale (panel) ── */
@@ -687,7 +687,7 @@
     box-shadow: inset 0 1px 0 var(--bp-or-22);
   }
   .bp-nv[aria-current] > .bp-ico {
-    color: var(--bp-gold-text);
+    color: var(--bp-accent-texte);
   }
   .bp-cnt {
     margin-left: auto;
@@ -888,7 +888,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--bp-gold-icon);
+    color: var(--bp-accent-icone);
   }
 
   /* ── Filtre de prix (flotte) ── */
@@ -918,7 +918,7 @@
   }
   .bp-curseur::-moz-range-progress {
     height: 2px;
-    background: var(--bp-gold-gradient);
+    background: var(--bp-accent-degrade);
   }
   .bp-curseur::-webkit-slider-thumb {
     appearance: none;
@@ -926,14 +926,14 @@
     height: 22px;
     margin-top: -10px;
     border-radius: 50%;
-    border: 2px solid var(--bp-gold-text);
+    border: 2px solid var(--bp-accent-texte);
     background: var(--bp-black);
   }
   .bp-curseur::-moz-range-thumb {
     width: 18px;
     height: 18px;
     border-radius: 50%;
-    border: 2px solid var(--bp-gold-text);
+    border: 2px solid var(--bp-accent-texte);
     background: var(--bp-black);
   }
   select.bp-fld option {
@@ -1019,14 +1019,14 @@
     justify-content: center;
   }
   .bp-choix:has(input:checked) .bp-choix__point {
-    border-color: var(--bp-gold-text);
+    border-color: var(--bp-accent-texte);
   }
   .bp-choix:has(input:checked) .bp-choix__point::after {
     content: "";
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: var(--bp-gold-text);
+    background: var(--bp-accent-texte);
   }
 
   /* Pastilles d'exemplaires (liste des véhicules) */

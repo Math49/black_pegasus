@@ -1,7 +1,16 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
-const PAGES = ["/", "/flotte", "/flotte/luxor", "/reglement", "/page-inexistante"];
+const PAGES = [
+  "/",
+  "/location",
+  "/location/flotte",
+  "/location/flotte/luxor",
+  "/location/reglement",
+  "/formation",
+  "/cards",
+  "/page-inexistante",
+];
 
 test.describe("finitions du site public", () => {
   for (const largeur of [390, 768, 1024, 1440]) {

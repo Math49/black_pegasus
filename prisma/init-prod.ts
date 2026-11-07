@@ -19,6 +19,7 @@ import {
   reglement,
   reglesInitiales,
   textesSite,
+  textesGroupe,
 } from "./contenus";
 
 const { values: v } = parseArgs({
@@ -57,6 +58,7 @@ async function main() {
           fuseauServeur: v.fuseau,
           ...reglesInitiales,
           textesSite,
+          textesGroupe,
           reglement: { ...reglement, dateMiseAJour: new Date().toISOString().slice(0, 10) },
         },
       });

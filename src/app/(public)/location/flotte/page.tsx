@@ -44,7 +44,11 @@ const FOND: Record<TypeVehicule, { image: string; position: string }> = {
   HELICOPTERE: { image: FONDS.skyline, position: "center 70%" },
 };
 
-async function Flotte({ searchParams }: { searchParams: PageProps<"/flotte">["searchParams"] }) {
+async function Flotte({
+  searchParams,
+}: {
+  searchParams: PageProps<"/location/flotte">["searchParams"];
+}) {
   const [params, p, flotte] = await Promise.all([
     searchParams,
     lireParametresSite(),
@@ -127,7 +131,7 @@ async function Flotte({ searchParams }: { searchParams: PageProps<"/flotte">["se
               </>
             ),
             compteur: flotte.filter((v) => v.type === type).length,
-            href: `/flotte?${ecrireFiltres({ ...lireFiltres({}), type, dispo: filtres.dispo, tri: filtres.tri })}`,
+            href: `/location/flotte?${ecrireFiltres({ ...lireFiltres({}), type, dispo: filtres.dispo, tri: filtres.tri })}`,
           }))}
         />
       </Wrap>
@@ -189,7 +193,7 @@ async function Flotte({ searchParams }: { searchParams: PageProps<"/flotte">["se
   );
 }
 
-export default function PageFlotte({ searchParams }: PageProps<"/flotte">) {
+export default function PageFlotte({ searchParams }: PageProps<"/location/flotte">) {
   return (
     <Suspense fallback={<div className="min-h-[800px]" />}>
       <Flotte searchParams={searchParams} />

@@ -23,7 +23,9 @@ async function trouver(slug: string) {
   return { flotte, vehicule: flotte.find((v) => v.slug === slug) ?? null };
 }
 
-export async function generateMetadata({ params }: PageProps<"/flotte/[slug]">): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/location/flotte/[slug]">): Promise<Metadata> {
   const { slug } = await params;
   const [{ vehicule: v }, p] = await Promise.all([trouver(slug), lireParametresSite()]);
   if (!v) return { title: "Véhicule introuvable" };
@@ -77,11 +79,11 @@ const A_SAVOIR: { icone: NomIcone; texte: string }[] = [
   { icone: "horloge", texte: "Tout retard au retour est facturé par heure entamée." },
   {
     icone: "document",
-    texte: "Conditions complètes dans le [règlement des locations](/reglement).",
+    texte: "Conditions complètes dans le [règlement des locations](/location/reglement).",
   },
 ];
 
-async function Fiche({ params }: { params: PageProps<"/flotte/[slug]">["params"] }) {
+async function Fiche({ params }: { params: PageProps<"/location/flotte/[slug]">["params"] }) {
   const { slug } = await params;
   const [{ flotte, vehicule: v }, p] = await Promise.all([trouver(slug), lireParametresSite()]);
   if (!v) notFound();
@@ -103,7 +105,7 @@ async function Fiche({ params }: { params: PageProps<"/flotte/[slug]">["params"]
           <FilAriane
             etapes={[
               { libelle: "Accueil", href: "/" },
-              { libelle: libelleType(v.type, true), href: `/flotte?type=${v.type}` },
+              { libelle: libelleType(v.type, true), href: `/location/flotte?type=${v.type}` },
               { libelle: v.nom },
             ]}
           />
@@ -131,7 +133,7 @@ async function Fiche({ params }: { params: PageProps<"/flotte/[slug]">["params"]
           <div className="flex flex-wrap gap-3.5">
             <BoutonAppeler telephone={p.telephone} className="min-h-[58px] px-[30px] text-base" />
             <Button
-              href={`/flotte?type=${v.type}`}
+              href={`/location/flotte?type=${v.type}`}
               variante="verre"
               icone="flecheGauche"
               className="min-h-[58px]"
@@ -285,7 +287,7 @@ async function Fiche({ params }: { params: PageProps<"/flotte/[slug]">["params"]
               titre="Véhicules similaires"
               taille="clamp(26px,2.8vw,38px)"
             />
-            <LienTexte href="/flotte">Toute la flotte</LienTexte>
+            <LienTexte href="/location/flotte">Toute la flotte</LienTexte>
           </div>
           <ul className="m-0 grid list-none grid-cols-[repeat(auto-fit,minmax(min(320px,100%),1fr))] gap-6 p-0">
             {similaires.map((s) => (
@@ -305,7 +307,7 @@ async function Fiche({ params }: { params: PageProps<"/flotte/[slug]">["params"]
   );
 }
 
-export default function PageFiche({ params }: PageProps<"/flotte/[slug]">) {
+export default function PageFiche({ params }: PageProps<"/location/flotte/[slug]">) {
   return (
     <Suspense fallback={<div className="min-h-[880px]" />}>
       <Fiche params={params} />

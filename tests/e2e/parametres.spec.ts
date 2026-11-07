@@ -26,7 +26,7 @@ test.describe("paramètres du site", () => {
   }) => {
     await connexion(page, "Vincent Moretti");
     await page.goto("/admin/parametres");
-    const agence = page.getByRole("region", { name: "Agence" });
+    const agence = page.getByRole("region", { name: "Filiale · Location" });
     await agence.getByLabel("Téléphone en jeu").fill("555-0199");
     await agence.getByRole("button", { name: "Enregistrer" }).click();
     await expect(agence.getByRole("status")).toContainText("Modifications enregistrées");
@@ -38,7 +38,7 @@ test.describe("paramètres du site", () => {
 
     await page.goto("/");
     await expect(page.getByText("555-0199").first()).toBeVisible();
-    await page.goto("/reglement");
+    await page.goto("/location/reglement");
     await expect(
       page.getByRole("heading", { name: /Conditions générales de location/ }),
     ).toBeVisible();

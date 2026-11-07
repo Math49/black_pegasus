@@ -79,7 +79,7 @@ export function CarteVehicule({
   const complet = disponibilite.libres === 0;
   return (
     <Link
-      href={`/flotte/${v.slug}`}
+      href={`/location/flotte/${v.slug}`}
       className={cx("bp-vcard", complet && "bp-vcard--complet", className)}
     >
       <div className="bp-vcard__media" style={{ height: f.photo }}>

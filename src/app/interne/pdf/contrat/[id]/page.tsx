@@ -86,19 +86,13 @@ async function Contrat({ params }: { params: Promise<{ id: string }> }) {
           />
         </svg>
         <div className="flex items-center gap-4">
-          <Image
-            src="/images/bp-logo.png"
-            alt="Black Pégasus – American Transports"
-            width={84}
-            height={84}
-            unoptimized
-          />
+          <Image src={location.logo} alt={location.nom} width={84} height={84} unoptimized />
           <div className="flex flex-col gap-1">
             <span className="mot-symbole text-xl" style={texteOr}>
               BLACK PÉGASUS
             </span>
             <span className="text-[9.5px] font-bold tracking-[0.34em] text-texte-doux">
-              AMERICAN TRANSPORTS
+              {location.nom}
             </span>
             <span className="mt-1 text-[11.5px] text-texte-nav">
               Réservations par téléphone en jeu : {p.telephone}
@@ -220,7 +214,7 @@ async function Contrat({ params }: { params: Promise<{ id: string }> }) {
           </div>
           <div className="pdf-boite relative min-h-[150px] justify-between overflow-hidden">
             <Image
-              src="/images/bp-logo.png"
+              src={location.logo}
               alt=""
               width={120}
               height={120}

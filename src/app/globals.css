@@ -22,8 +22,8 @@
   --color-or-1: var(--bp-gold-1);
   --color-or-2: var(--bp-gold-2);
   --color-or-3: var(--bp-gold-3);
-  --color-or-texte: var(--bp-gold-text);
-  --color-or-icone: var(--bp-gold-icon);
+  --color-or-texte: var(--bp-accent-texte);
+  --color-or-icone: var(--bp-accent-icone);
 
   --color-argent-1: var(--bp-silver-1);
   --color-argent-2: var(--bp-silver-2);
@@ -60,7 +60,7 @@
 }
 
 @utility texte-or {
-  background: var(--bp-gold-gradient);
+  background: var(--bp-accent-degrade);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -74,12 +74,12 @@
 }
 
 @utility fond-or {
-  background: var(--bp-gold-gradient);
+  background: var(--bp-accent-degrade);
 }
 
 @utility filet-or {
   height: 1px;
-  background: var(--bp-gold-rule);
+  background: var(--bp-accent-filet);
 }
 
 @utility libelle {

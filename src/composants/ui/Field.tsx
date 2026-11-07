@@ -2,6 +2,7 @@ import {
   useId,
   type InputHTMLAttributes,
   type ReactNode,
+  type Ref,
   type SelectHTMLAttributes,
   type TextareaHTMLAttributes,
 } from "react";
@@ -67,7 +68,10 @@ export function Field({
   className,
   icone,
   ...input
-}: Habillage & { icone?: NomIcone } & Omit<InputHTMLAttributes<HTMLInputElement>, "className">) {
+}: Habillage & { icone?: NomIcone; ref?: Ref<HTMLInputElement> } & Omit<
+    InputHTMLAttributes<HTMLInputElement>,
+    "className"
+  >) {
   const { idAide, idErreur, decrit } = useDescription(aide, erreur);
   return (
     <Cadre {...{ label, variante, aide, erreur, className, idAide, idErreur }}>

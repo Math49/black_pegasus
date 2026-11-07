@@ -13,19 +13,28 @@ import {
   FormulaireTextes,
 } from "@/composants/admin/parametres/FormulairesTextes";
 import { PhotosAccueil } from "@/composants/admin/parametres/PhotosAccueil";
+import { FormulaireFiliale } from "@/composants/admin/parametres/FormulaireFiliale";
+import { FormulaireTextesGroupe } from "@/composants/admin/parametres/FormulaireTextesGroupe";
 import { FONDS_TYPES } from "@/composants/site/Mise";
 import { GlassCard } from "@/composants/ui/GlassCard";
 import { majorationEnPourcent } from "@/domaine/parametres";
 import type { ForfaitDegats, TypeVehicule } from "@/domaine/types";
 import { exigerPermission } from "@/lib/garde";
 import { lireParametresAdmin } from "@/services/parametres";
-import { schemaPhotosAccueil, type Reglement, type TextesSite } from "@/services/site";
+import {
+  schemaPhotosAccueil,
+  schemaTextesGroupe,
+  type Reglement,
+  type TextesSite,
+} from "@/services/site";
 import { urlPhoto } from "@/services/stockage";
 
 export const metadata: Metadata = { title: "Paramètres" };
 
 const SOMMAIRE = [
-  ["agence", "Agence"],
+  ["agence", "Groupe"],
+  ["textes-groupe", "Accueil du groupe"],
+  ["filiales", "Filiales"],
   ["textes", "Textes du site"],
   ["reglement", "Règlement"],
   ["regles", "Règles de location"],
@@ -35,7 +44,7 @@ const SOMMAIRE = [
 
 async function Contenu() {
   await exigerPermission("parametres.gerer");
-  const { p, location, categories } = await lireParametresAdmin();
+  const { p, filiales, categories } = await lireParametresAdmin();
   const photos = schemaPhotosAccueil.parse(p.photosAccueil);
   return (
     <>
@@ -61,12 +70,18 @@ async function Contenu() {
 
       <FormulaireAgence
         initial={{
-          telephone: location.telephone,
-          horaires: location.horaires,
+          nomEntreprise: p.nomEntreprise,
           immatriculation: p.numeroImmatriculationEntreprise,
           fuseau: p.fuseauServeur,
         }}
       />
+      <FormulaireTextesGroupe initial={schemaTextesGroupe.parse(p.textesGroupe)} />
+      <div id="filiales" className="flex scroll-mt-5 flex-col gap-5">
+        <h2 className="m-0 titre text-xl font-semibold">Filiales</h2>
+        {filiales.map((f) => (
+          <FormulaireFiliale key={f.code} initial={f} />
+        ))}
+      </div>
       <FormulaireTextes initial={p.textesSite as TextesSite} />
       <FormulaireReglement initial={p.reglement as Reglement} />
       <FormulaireRegles

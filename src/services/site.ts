@@ -5,6 +5,7 @@ import { z } from "zod";
 import { disponibilite, type Disponibilite } from "@/domaine/disponibilite";
 import type { VehiculeFlotte } from "@/domaine/flotte";
 import type { ContexteTextes } from "@/domaine/textes";
+import type { CodeFiliale } from "@/domaine/types";
 import { prisma } from "@/lib/prisma";
 import { urlPhoto } from "./stockage";
 
@@ -21,6 +22,25 @@ const schemaReglement = z.object({
   dateMiseAJour: z.string().nullable(),
   introduction: z.string(),
   articles: z.array(z.object({ titre: z.string(), contenu: z.string() })),
+});
+
+export const schemaTextesGroupe = z.object({
+  accroche: z.object({ titre: z.string(), texte: z.string() }),
+  presentation: z.object({ titre: z.string(), texte: z.string() }),
+});
+export type TextesGroupe = z.infer<typeof schemaTextesGroupe>;
+
+export const lireFiliale = cache(async (code: CodeFiliale) => {
+  await connection();
+  return prisma.filiale.findUniqueOrThrow({ where: { code } });
+});
+
+export const lireFilialesVisibles = cache(async () => {
+  await connection();
+  return prisma.filiale.findMany({
+    where: { visible: true },
+    orderBy: [{ ordre: "asc" }, { code: "asc" }],
+  });
 });
 
 /** Photos des cartes « Trois éléments » de l'accueil, par type (clés de stockage). */
@@ -40,6 +60,7 @@ export type ParametresSite = ContexteTextes & {
   nomEntreprise: string;
   fuseauServeur: string;
   textesSite: TextesSite;
+  textesGroupe: TextesGroupe;
   reglement: Reglement;
   photosAccueil: PhotosAccueil;
 };
@@ -49,12 +70,12 @@ export const lireParametresSite = cache(async (): Promise<ParametresSite> => {
   await connection();
   const [p, bpl] = await Promise.all([
     prisma.parametres.findUniqueOrThrow({ where: { id: 1 } }),
-    prisma.filiale.findUniqueOrThrow({ where: { code: "BPL" } }),
+    lireFiliale("BPL"),
   ]);
   return {
     nomEntreprise: p.nomEntreprise,
     fuseauServeur: p.fuseauServeur,
-    // Site actuel = section Location : son contact (F-2 introduit l'accueil du groupe).
+    // Contexte des variables historiques des textes de Location.
     telephone: bpl.telephone,
     horaires: bpl.horaires,
     toleranceRetardMin: p.toleranceRetardMin,
@@ -62,6 +83,7 @@ export const lireParametresSite = cache(async (): Promise<ParametresSite> => {
     seuilDefautRestitutionMin: p.seuilDefautRestitutionMin,
     forfaitsDegats: schemaForfaits.parse(p.forfaitsDegats),
     textesSite: schemaTextes.parse(p.textesSite),
+    textesGroupe: schemaTextesGroupe.parse(p.textesGroupe),
     reglement: schemaReglement.parse(p.reglement),
     photosAccueil: schemaPhotosAccueil.parse(p.photosAccueil),
   };

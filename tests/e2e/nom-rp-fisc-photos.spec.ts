@@ -127,7 +127,7 @@ test.describe("photos des cartes de l'accueil", () => {
         .locator("img")
         .first();
 
-    await page.goto("/");
+    await page.goto("/location");
     await expect(carteBateaux()).toHaveAttribute("src", /bg-mer/);
 
     await connexion(page, "Vincent Moretti");
@@ -140,7 +140,7 @@ test.describe("photos des cartes de l'accueil", () => {
     );
     expect(p.photosAccueil.BATEAU).toMatch(/^photos\/.+\.jpg$/);
 
-    await page.goto("/");
+    await page.goto("/location");
     await expect(carteBateaux()).toHaveAttribute(
       "src",
       /api%2Ffichiers%2Fphotos|api\/fichiers\/photos/,
@@ -149,7 +149,7 @@ test.describe("photos des cartes de l'accueil", () => {
     await page.goto("/admin/parametres#photos");
     await photos.getByRole("button", { name: "Retirer" }).click();
     await expect(photos.getByRole("status")).toContainText("visuel par défaut");
-    await page.goto("/");
+    await page.goto("/location");
     await expect(carteBateaux()).toHaveAttribute("src", /bg-mer/);
   });
 

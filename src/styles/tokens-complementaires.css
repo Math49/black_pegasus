@@ -3,6 +3,14 @@
    marqués « valeur maquette ». Toute nouvelle couleur passe par ce fichier. */
 
 :root {
+  --bp-filiale-location: #6cb4e4;
+  --bp-filiale-formation: #5cc08f;
+  --bp-filiale-cards: #b48cf0;
+  --bp-accent: var(--bp-gold-2);
+  --bp-accent-texte: var(--bp-gold-text);
+  --bp-accent-icone: var(--bp-gold-icon);
+  --bp-accent-degrade: var(--bp-gold-gradient);
+  --bp-accent-filet: var(--bp-gold-rule);
   /* Neutres de base */
   --bp-blanc: #fff; /* valeur maquette : voiles blancs du verre */
   --bp-ombre: #000; /* valeur maquette : ombres portées */
@@ -95,4 +103,44 @@
 
   /* Avatar sans photo */
   --bp-avatar-fond: linear-gradient(145deg, #4a4a52, #1b1b20); /* valeur maquette */
+}
+
+/* Les sections de filiale portent leur accent ; le groupe, le panel et les PDF
+   conservent les valeurs or de :root. */
+[data-filiale="location"] {
+  --bp-accent: var(--bp-filiale-location);
+}
+[data-filiale="formation"] {
+  --bp-accent: var(--bp-filiale-formation);
+}
+[data-filiale="cards"] {
+  --bp-accent: var(--bp-filiale-cards);
+}
+
+[data-filiale] {
+  --bp-accent-texte: var(--bp-accent);
+  --bp-accent-icone: var(--bp-accent);
+  --bp-accent-degrade: linear-gradient(var(--bp-accent), var(--bp-accent));
+  --bp-accent-filet: linear-gradient(90deg, transparent, var(--bp-accent), transparent);
+  --bp-gold-1: var(--bp-accent);
+  --bp-gold-2: var(--bp-accent);
+  --bp-gold-3: var(--bp-accent);
+  --bp-gold-text: var(--bp-accent);
+  --bp-gold-icon: var(--bp-accent);
+  --bp-or-8: color-mix(in srgb, var(--bp-accent) 8%, transparent);
+  --bp-or-10: color-mix(in srgb, var(--bp-accent) 10%, transparent);
+  --bp-or-22: color-mix(in srgb, var(--bp-accent) 22%, transparent);
+  --bp-or-25: color-mix(in srgb, var(--bp-accent) 25%, transparent);
+  --bp-or-30: color-mix(in srgb, var(--bp-accent) 30%, transparent);
+  --bp-or-35: color-mix(in srgb, var(--bp-accent) 35%, transparent);
+  --bp-or-40: color-mix(in srgb, var(--bp-accent) 40%, transparent);
+  --bp-or-45: color-mix(in srgb, var(--bp-accent) 45%, transparent);
+  --bp-or-50: color-mix(in srgb, var(--bp-accent) 50%, transparent);
+  --bp-or-55: color-mix(in srgb, var(--bp-accent) 55%, transparent);
+  --bp-or-60: color-mix(in srgb, var(--bp-accent) 60%, transparent);
+  --bp-or-70: color-mix(in srgb, var(--bp-accent) 70%, transparent);
+  --bp-fond-badge-or: color-mix(in srgb, var(--bp-black) 90%, var(--bp-accent));
+  --bp-ombre-or-site: 0 12px 32px -12px var(--bp-or-55), inset 0 1px 0 var(--bp-voile-10);
+  --bp-ombre-carte: inset 0 1px 0 var(--bp-or-30), 0 30px 60px -28px var(--bp-ombre);
+  --bp-glass-site-shadow: inset 0 1px 0 var(--bp-or-30), 0 30px 60px -24px var(--bp-noir-85);
 }

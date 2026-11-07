@@ -35,7 +35,7 @@ function useFiltres(filtres: Filtres) {
   const [enCours, demarrer] = useTransition();
   const appliquer = (modif: Partial<Filtres>) =>
     demarrer(() =>
-      router.push(`/flotte?${ecrireFiltres({ ...filtres, ...modif })}`, { scroll: false }),
+      router.push(`/location/flotte?${ecrireFiltres({ ...filtres, ...modif })}`, { scroll: false }),
     );
   return { appliquer, enCours };
 }
@@ -94,7 +94,7 @@ export function FiltresFlotte({
         <div className="flex items-center justify-between">
           <h2 className="m-0 titre text-2xl font-semibold">Filtres</h2>
           <Link
-            href={`/flotte?type=${filtres.type}`}
+            href={`/location/flotte?type=${filtres.type}`}
             scroll={false}
             className="flex min-h-11 items-center text-xs font-bold tracking-[0.12em] text-or-texte uppercase hover:text-texte"
           >

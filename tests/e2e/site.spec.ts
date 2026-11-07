@@ -5,10 +5,11 @@ import { sql } from "./outils";
 // Parcours du site public sur les données du seed de démonstration.
 
 const PAGES = [
-  { chemin: "/", titre: /Le ciel et l’océan/ },
-  { chemin: "/flotte", titre: /Choisissez votre appareil/ },
-  { chemin: "/flotte/luxor", titre: "Luxor" },
-  { chemin: "/reglement", titre: /Règlement des locations/ },
+  { chemin: "/", titre: /Plusieurs horizons/ },
+  { chemin: "/location", titre: /Le ciel et l’océan/ },
+  { chemin: "/location/flotte", titre: /Choisissez votre appareil/ },
+  { chemin: "/location/flotte/luxor", titre: "Luxor" },
+  { chemin: "/location/reglement", titre: /Règlement des locations/ },
 ];
 
 for (const { chemin, titre } of PAGES) {
@@ -27,12 +28,16 @@ for (const { chemin, titre } of PAGES) {
 }
 
 test("le Remorqueur (non visible) n'apparaît nulle part", async ({ page }) => {
-  for (const chemin of ["/", "/flotte?type=BATEAU", "/flotte?type=BATEAU&dispo=1"]) {
+  for (const chemin of [
+    "/location",
+    "/location/flotte?type=BATEAU",
+    "/location/flotte?type=BATEAU&dispo=1",
+  ]) {
     await page.goto(chemin);
     await expect(page.getByText("Remorqueur", { exact: true })).toHaveCount(0);
   }
   // La fiche est rendue en streaming : Next sert alors la page introuvable avec « noindex ».
-  await page.goto("/flotte/remorqueur");
+  await page.goto("/location/flotte/remorqueur");
   await expect(
     page.getByRole("heading", { name: "Ce véhicule n’est pas dans la flotte" }),
   ).toBeVisible();
@@ -42,7 +47,7 @@ test("le Remorqueur (non visible) n'apparaît nulle part", async ({ page }) => {
 });
 
 test("filtres de la flotte dans l'URL", async ({ page }) => {
-  await page.goto("/flotte");
+  await page.goto("/location/flotte");
   await expect(page.getByText(/3\s+modèles · Bateaux/)).toBeVisible();
 
   await page
@@ -81,7 +86,7 @@ test("un exemplaire passé « Loué » change le badge sans redéploiement", asy
   );
   try {
     await sql(`UPDATE "Exemplaire" SET statut = 'DISPONIBLE' WHERE immatriculation = 'BP DG 01'`);
-    await page.goto("/flotte/dinghy4");
+    await page.goto("/location/flotte/dinghy4");
     await expect(
       page.getByRole("complementary", { name: "Tarifs" }).getByText("Disponible"),
     ).toBeVisible();
@@ -101,7 +106,7 @@ test("un exemplaire passé « Loué » change le badge sans redéploiement", asy
 
 test("le bouton d'appel copie le numéro en jeu", async ({ page, context }) => {
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
-  await page.goto("/flotte/luxor");
+  await page.goto("/location/flotte/luxor");
   await page.getByRole("button", { name: "Appeler le 555-XXXX" }).first().click();
   await expect(page.getByText("Numéro copié").first()).toBeVisible();
   expect(await page.evaluate(() => navigator.clipboard.readText())).toBe("555-XXXX");
@@ -111,7 +116,13 @@ test.describe("mobile (390 px)", () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
   test("menu repliable et aucun défilement horizontal", async ({ page }) => {
-    for (const chemin of ["/", "/flotte", "/flotte/luxor", "/reglement"]) {
+    for (const chemin of [
+      "/",
+      "/location",
+      "/location/flotte",
+      "/location/flotte/luxor",
+      "/location/reglement",
+    ]) {
       await page.goto(chemin);
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
         390,
@@ -122,12 +133,17 @@ test.describe("mobile (390 px)", () => {
     await expect(navigation).toBeHidden();
     await page.getByRole("button", { name: "Ouvrir le menu" }).click();
     await expect(navigation).toBeVisible();
-    await navigation.getByRole("link", { name: "Règlement" }).click();
-    await expect(page).toHaveURL(/\/reglement$/);
+    await navigation.getByRole("link", { name: "Location", exact: true }).click();
+    await expect(page).toHaveURL(/\/location$/);
+    await page.getByRole("button", { name: "Ouvrir le menu" }).click();
+    await expect(navigation.getByRole("link", { name: "Location", exact: true })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
   });
 
   test("filtres de la flotte dans un tiroir", async ({ page }) => {
-    await page.goto("/flotte");
+    await page.goto("/location/flotte");
     const filtres = page.getByRole("complementary", { name: "Filtres" });
     await expect(filtres).toBeHidden();
     await page.getByRole("button", { name: /^Filtres/ }).click();

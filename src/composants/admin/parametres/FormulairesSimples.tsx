@@ -14,8 +14,7 @@ import { SectionParametres, useEnregistrement } from "./Section";
 const nombre = (t: string) => (t.trim() === "" ? Number.NaN : Number(t.replace(/\s/g, "")));
 
 export type Agence = {
-  telephone: string;
-  horaires: string;
+  nomEntreprise: string;
   immatriculation: string;
   fuseau: string;
 };
@@ -30,20 +29,14 @@ export function FormulaireAgence({ initial }: { initial: Agence }) {
   return (
     <SectionParametres
       id="agence"
-      titre="Agence"
-      description="Contact de Black Pégasus Location (affiché sur le site) et identification du groupe auprès du FISC."
+      titre="Groupe"
+      description="Identité du groupe et identification auprès du FISC. Les coordonnées sont gérées dans chaque filiale."
       onEnregistrer={() => enregistrer(d)}
       enCours={enCours}
       etat={etat}
     >
       <div className="grid grid-cols-2 gap-4 max-md:grid-cols-1">
-        <Field label="Téléphone en jeu" required {...champ("telephone")} />
-        <Field
-          label="Horaires"
-          required
-          aide="Exemple : 10:00 – 02:00, 7 j / 7"
-          {...champ("horaires")}
-        />
+        <Field label="Nom du groupe" required {...champ("nomEntreprise")} />
         <Field
           label="N° d’immatriculation de l’entreprise"
           required

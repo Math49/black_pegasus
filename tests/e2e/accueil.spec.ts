@@ -7,7 +7,7 @@ test("polices locales chargées, aucune requête Google Fonts", async ({ page })
   });
 
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1, name: /Le ciel et l’océan/ })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: /Plusieurs horizons/ })).toBeVisible();
 
   const polices = await page.evaluate(async () => {
     await document.fonts.ready;

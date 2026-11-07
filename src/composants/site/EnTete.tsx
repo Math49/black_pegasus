@@ -1,25 +1,23 @@
 import Image from "next/image";
 import Link from "next/link";
-import { lireParametresSite } from "@/services/site";
+import { lireFilialesVisibles, lireParametresSite } from "@/services/site";
 import { Button } from "../ui/Button";
-import { BoutonAppeler } from "./BoutonAppeler";
 import { NavSite } from "./NavSite";
 
-export function Logo() {
+export function Logo({ nom }: { nom?: string }) {
   return (
     <Link href="/" className="flex items-center gap-3 text-texte">
       <Image
-        src="/images/bp-logo.png"
+        src="/images/logos/bp-compagnie.webp"
         alt=""
         width={46}
         height={46}
         priority
-        className="object-contain"
+        className="rounded-full object-contain"
       />
       <span className="flex flex-col gap-[3px]">
-        <span className="texte-or mot-symbole text-base">BLACK PÉGASUS</span>
-        <span className="text-[9px] font-bold tracking-[0.32em] text-texte-attenue">
-          AMERICAN TRANSPORTS
+        <span className="max-w-[160px] texte-or mot-symbole text-sm sm:max-w-[220px]">
+          {nom ?? "BLACK PÉGASUS"}
         </span>
         <span className="sr-only">– Accueil</span>
       </span>
@@ -39,11 +37,12 @@ function Cadre({ children }: { children: React.ReactNode }) {
 
 /** En-tête commun du site : verre en pilule, navigation, espace admin, téléphone. */
 export async function EnTete() {
-  const { telephone } = await lireParametresSite();
+  const [p, filiales] = await Promise.all([lireParametresSite(), lireFilialesVisibles()]);
   return (
     <Cadre>
-      <Logo />
+      <Logo nom={p.nomEntreprise} />
       <NavSite
+        filiales={filiales.map(({ code, slug }) => ({ code, slug }))}
         actions={
           <>
             <Button
@@ -55,12 +54,6 @@ export async function EnTete() {
             >
               Espace admin
             </Button>
-            <BoutonAppeler
-              telephone={telephone}
-              libelle="{numero}"
-              taille="site-petit"
-              className="min-h-[46px] px-5"
-            />
           </>
         }
       />

@@ -18,8 +18,9 @@ import { genererPdfContrat } from "./pdf";
 function revaliderContrats(slug?: string) {
   revalidatePath("/admin/contrats");
   revalidatePath("/admin");
-  revalidatePath("/flotte");
-  if (slug) revalidatePath(`/flotte/${slug}`);
+  revalidatePath("/location");
+  revalidatePath("/location/flotte");
+  if (slug) revalidatePath(`/location/flotte/${slug}`);
 }
 
 export type DonneesCreation = {

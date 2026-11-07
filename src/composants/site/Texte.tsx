@@ -23,7 +23,11 @@ export function TexteEnLigne({ texte, ctx }: { texte: string; ctx: ContexteTexte
                   {m.texte}
                 </strong>
               ) : m.type === "lien" ? (
-                <Link key={j} href={m.href} className="font-bold text-or-texte hover:text-texte">
+                <Link
+                  key={j}
+                  href={m.href.replace(/^\/(flotte|reglement)(?=[/?#]|$)/, "/location/$1")}
+                  className="font-bold text-or-texte hover:text-texte"
+                >
                   {m.texte}
                 </Link>
               ) : (
