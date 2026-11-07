@@ -9,7 +9,7 @@
 | Phases 0 à 13 (site, panel, contrats, solde, comptabilité, paramètres, déploiement) | Terminées | `dc3f349` et précédents |
 | Conception filiales | Validée | `4a56975` |
 | **F-1** Modèle des filiales, reprise des données, filiale des mouvements | **Terminée** | `feb2b5a` |
-| F-2 Site groupe et paramètres des filiales | À faire | |
+| **F-2** Site groupe et paramètres des filiales | **Terminée** | `247112c` |
 | F-3 Formation | À faire | |
 | F-4 Cards | À faire | |
 | F-5 Comptabilité ventilée | À faire | |
@@ -29,6 +29,17 @@
 - **Panel** : sélecteur « Filiale » dans la modale « Nouveau mouvement » (verrouillé quand la catégorie l'impose) ; filiale affichée dans la fiche d'un mouvement ; champ « N° de licence (facultatif) » à la création d'un contrat (repris sur le PDF).
 - **Contenus initiaux** : `prisma/contenus.ts` → `filialesInitiales` (utilisé par `prisma/seed.ts` et `prisma/init-prod.ts`).
 - **Logos** : `public/images/logos/bp-compagnie.webp`, `bp-location.png` (fond transparent), `bp-formation.webp`, `bp-cards.webp` (fonds noirs carrés → à afficher en médaillon rond `rounded-full overflow-hidden`).
+
+### Ce que F-2 a mis en place (à réutiliser)
+
+- **Prochaine phase : F-3 (Formation)**, après validation du rendu de F-2. BPF et BPC restent masquées dans le seed et à la première initialisation de production.
+- **Site** : accueil groupe sur `/`, Location sur `/location` et ses sous-routes ; anciennes adresses redirigées en 308 avec leur requête. En-tête et pied de page affichent les filiales visibles. Le layout Location vérifie la visibilité pour toute la section.
+- **Formation et Cards** : leurs routes existent avec une présentation d’identité et de contact (`PresentationFiliale`), accessible seulement si la filiale est visible. Remplacer ces présentations par les pages métier en F-3 / F-4 ; conserver le contrôle de visibilité et `data-filiale`.
+- **Lectures** : `lireFiliale(code)` et `lireFilialesVisibles()` dans `src/services/site.ts` (React `cache`, `await connection()`). `lireParametresSite()` expose aussi `textesGroupe` ; son contexte de variables historiques (`telephone`, `horaires`, règles) reste celui de Location.
+- **Couleurs** : les jetons `--bp-accent*` se déclinent sous `data-filiale="location"`, `"formation"` ou `"cards"`. Utilitaires et composants suivent cet accent ; groupe, panel et PDF restent en or.
+- **Paramètres** : identité du groupe, textes de l’accueil groupe et formulaire pour chaque filiale (identité, contact, ordre, visibilité, logo envoyé). Le champ `Filiale.logo` contient une URL publique : `/images/logos/…` ou `/api/fichiers/photos/…`.
+- **Données** : migration `20261107140000_site_groupe`, `Parametres.textesGroupe` ; textes initiaux dans `prisma/contenus.ts`, seed et `init-prod`. Aucune nouvelle dépendance ni variable d’environnement.
+- **Validation** : lint et build réussis, 273 tests unitaires et 78 tests e2e réussis ; 19 tests du site repassés après l’ajustement final de l’en-tête mobile. Captures, limites du statut 404 en streaming et textes à relire : [bilan F-2](validations/f2/README.md).
 
 ## 1. Méthode, pour chaque phase
 
