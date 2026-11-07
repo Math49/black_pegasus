@@ -6,9 +6,11 @@ Les filiales visibles sont triées par ordre d’affichage puis par code. Leur i
 
 Le groupe, le panel et les PDF gardent la palette or. Les sections de filiale utilisent les accents prévus : bleu pour Location, vert pour Formation, violet pour Cards. Les contrastes des accents et du texte sur les boutons sont vérifiés par les tests navigateur.
 
-Après le retour utilisateur sur F-2, la barre principale devient celle de la filiale visitée : logo, nom, accent et liens propres à cette filiale. Location affiche Accueil, La flotte et Règlement. « Retour au groupe » apparaît à droite d’« Espace admin ». Le logo renvoie à l’accueil de l’espace courant et la seconde barre de Location est retirée. La navigation s’adapte également lors d’un changement de page sans rechargement, et dans le menu mobile.
+Après le retour utilisateur sur F-2, la barre principale devient celle de la filiale visitée : logo, nom et liens propres à cette filiale. Elle conserve son style initial or et verre, avec un nom compact sur deux lignes. Location affiche Accueil, La flotte et Règlement. « Retour au groupe » apparaît à droite d’« Espace admin ». Le logo renvoie à l’accueil de l’espace courant et la seconde barre de Location est retirée. La navigation s’adapte également lors d’un changement de page sans rechargement, et dans le menu mobile.
 
 Cet ajustement a été validé par le lint, les 273 tests unitaires, la compilation de production et les tests ciblés des fichiers `site.spec.ts`, `filiales.spec.ts` et `finitions.spec.ts` (27 parcours). L’audit mobile attend le titre et la fin du chargement avant de démarrer axe.
+
+Le maintien du style initial or et verre a ensuite été revérifié par les 12 tests du site, le lint et le build ; les captures de Location ont été actualisées.
 
 La migration `20261107140000_site_groupe` ajoute `Parametres.textesGroupe` et renseigne les installations existantes. Le seed et l’initialisation de production utilisent les mêmes textes de départ. Aucune nouvelle variable d’environnement ni dépendance d’exécution n’est nécessaire.
 

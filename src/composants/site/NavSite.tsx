@@ -37,7 +37,7 @@ export function NavSite({
       ];
 
   return (
-    <BarreSite filiale={filiale?.slug}>
+    <BarreSite>
       <LogoSite
         nom={filiale?.nom ?? nomGroupe}
         logo={filiale?.logo ?? "/images/logos/bp-compagnie.webp"}
