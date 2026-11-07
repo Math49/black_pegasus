@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Cascade, ElementCascade, Revelation } from "@/composants/site/anime/Anime";
+import { Revelation } from "@/composants/site/anime/Anime";
 import { NumerosTelephone } from "@/composants/site/NumerosTelephone";
 import { Suspense } from "react";
 import { BoutonAppeler } from "@/composants/site/BoutonAppeler";
@@ -158,12 +158,12 @@ async function Flotte({
           </div>
 
           {resultats.length > 0 ? (
-            <Cascade
-              as="ul"
-              className="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(min(262px,100%),1fr))] gap-x-[22px] gap-y-6 p-0"
+            <ul
+              // Animation CSS : chaque nouvelle liste (filtre, autre fiche) rejoue son apparition.
+              className="bp-entree m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(min(262px,100%),1fr))] gap-x-[22px] gap-y-6 p-0"
             >
               {resultats.map((v) => (
-                <ElementCascade key={v.slug} as="li" className="flex">
+                <li key={v.slug} className="flex">
                   <CarteVehicule
                     vehicule={v}
                     disponibilite={v.disponibilite}
@@ -171,9 +171,9 @@ async function Flotte({
                     titre="h2"
                     className="w-full"
                   />
-                </ElementCascade>
+                </li>
               ))}
-            </Cascade>
+            </ul>
           ) : (
             <div className="glass-site flex flex-col items-center gap-3 p-10 text-center">
               <h2 className="m-0 titre text-2xl font-semibold">Aucun appareil ne correspond</h2>

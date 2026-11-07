@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Cascade, ElementCascade } from "@/composants/site/anime/Anime";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { BoutonAppeler } from "@/composants/site/BoutonAppeler";
@@ -290,21 +289,21 @@ async function Fiche({ params }: { params: PageProps<"/location/flotte/[slug]">[
             />
             <LienTexte href="/location/flotte">Toute la flotte</LienTexte>
           </div>
-          <Cascade
-            as="ul"
-            className="m-0 grid list-none grid-cols-[repeat(auto-fit,minmax(min(320px,100%),1fr))] gap-6 p-0"
+          <ul
+            // Animation CSS : chaque nouvelle liste (filtre, autre fiche) rejoue son apparition.
+            className="bp-entree m-0 grid list-none grid-cols-[repeat(auto-fit,minmax(min(320px,100%),1fr))] gap-6 p-0"
           >
             {similaires.map((s) => (
-              <ElementCascade key={s.slug} as="li" className="flex">
+              <li key={s.slug} className="flex">
                 <CarteVehicule
                   vehicule={s}
                   disponibilite={s.disponibilite}
                   format="similaire"
                   className="w-full"
                 />
-              </ElementCascade>
+              </li>
             ))}
-          </Cascade>
+          </ul>
         </Wrap>
       )}
     </>
