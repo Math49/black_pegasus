@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { compterDemandesNouvelles, regrouperPermis, schemaDemandeFormation } from "./formation";
+import { regrouperPermis, schemaDemandeFormation } from "./formation";
 
 const valide = {
   nomRp: "Lena Castillo",
@@ -40,16 +40,6 @@ describe("demandes de formation", () => {
     { permisId: "p".repeat(101) },
   ])("refuse une saisie invalide : %j", (saisie) => {
     expect(schemaDemandeFormation.safeParse({ ...valide, ...saisie }).success).toBe(false);
-  });
-  it("compte seulement les demandes nouvelles", () => {
-    expect(compterDemandesNouvelles([])).toBe(0);
-    expect(
-      compterDemandesNouvelles([
-        { statut: "NOUVELLE" },
-        { statut: "TRAITEE" },
-        { statut: "NOUVELLE" },
-      ]),
-    ).toBe(2);
   });
 });
 describe("catalogue de permis", () => {

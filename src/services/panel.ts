@@ -9,7 +9,6 @@ import { maintenant } from "@/lib/horloge";
 import { prisma } from "@/lib/prisma";
 import { exigerSession } from "@/lib/garde";
 import { peut } from "@/domaine/permissions";
-import { compterDemandesNouvelles } from "@/domaine/formation";
 
 export type DonneesPanel = {
   maintenant: Date;
@@ -36,7 +35,7 @@ export const lireDonneesPanel = cache(async (): Promise<DonneesPanel> => {
   const courante = semaineDe(instant, fuseau);
   const precedente = semainePrecedente(courante, fuseau);
 
-  const [vehicules, contrats, semaines, depenses, demandes] = await Promise.all([
+  const [vehicules, contrats, semaines, depenses, demandesNouvelles] = await Promise.all([
     prisma.vehicule.count({ where: { supprimeLe: null } }),
     prisma.contrat.findMany({
       where: { statut: "EN_COURS" },
@@ -58,10 +57,9 @@ export const lireDonneesPanel = cache(async (): Promise<DonneesPanel> => {
       orderBy: { numero: "asc" },
     }),
     peut(compte.role, "demande.consulter")
-      ? prisma.demandeContact.findMany({ where: { statut: "NOUVELLE" }, select: { statut: true } })
-      : Promise.resolve([]),
+      ? prisma.demandeContact.count({ where: { statut: "NOUVELLE" } })
+      : Promise.resolve(0),
   ]);
-  const demandesNouvelles = compterDemandesNouvelles(demandes);
   const statut = (id: string) => semaines.find((s) => s.id === id)?.statut;
 
   return {

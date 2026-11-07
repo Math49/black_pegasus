@@ -54,18 +54,18 @@ export function NavSite({
         aria-expanded={ouvert}
         aria-controls="menu-site"
         onClick={() => setOuvert(!ouvert)}
-        className="rounded-full lg:hidden"
+        className="rounded-full xl:hidden"
       />
       <div
         id="menu-site"
         className={cx(
-          "w-full flex-col gap-4 pb-2 lg:contents",
-          ouvert ? "flex" : "hidden lg:contents",
+          "w-full flex-col gap-4 pb-2 xl:contents",
+          ouvert ? "flex" : "hidden xl:contents",
         )}
       >
         <nav
           aria-label="Navigation principale"
-          className="flex flex-col gap-x-[30px] lg:flex-row lg:flex-wrap"
+          className="flex flex-col gap-x-[30px] xl:flex-row xl:flex-wrap"
         >
           {liens.map((l) => (
             <Link

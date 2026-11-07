@@ -135,7 +135,9 @@ test("paramètres : identité du groupe et textes modifiés, variables remplacé
     .getByLabel("Accroche du groupe · texte")
     .fill("Notre équipe vous répond au {{telephone}}. [Voir la flotte](/flotte).");
   await textes.getByRole("button", { name: "Enregistrer", exact: true }).click();
-  await expect(textes.getByRole("status")).toBeVisible();
+  await expect(textes.getByRole("status")).toContainText("Modifications enregistrées");
+  // Laisse finir le router.refresh() déclenché par l’enregistrement avant de naviguer.
+  await page.waitForLoadState("networkidle");
   await page.goto("/");
   await expect(page).toHaveTitle("Compagnie Pégasus e2e");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Ensemble, plus loin");
@@ -161,7 +163,9 @@ test("filiales : contact, ordre, logo envoyé et visibilité se répercutent aus
   await cards.getByLabel("Logo de la filiale").setInputFiles("public/images/logos/bp-cards.webp");
   await cards.getByRole("switch", { name: "Visible sur le site" }).click();
   await cards.getByRole("button", { name: "Enregistrer", exact: true }).click();
-  await expect(cards.getByRole("status")).toBeVisible();
+  await expect(cards.getByRole("status")).toContainText("Modifications enregistrées");
+  // Laisse finir le router.refresh() déclenché par l’enregistrement avant de naviguer.
+  await page.waitForLoadState("networkidle");
   const [f] = await sql<Filiale>(`SELECT * FROM "Filiale" WHERE code='BPC'`);
   expect(f.logo).toMatch(/^\/api\/fichiers\/photos\/.+\.webp$/);
   await page.goto("/");

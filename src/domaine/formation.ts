@@ -44,6 +44,3 @@ export function regrouperPermis<T extends PermisClasse>(permis: readonly T[]) {
     (a, b) => a.domaine.ordre - b.domaine.ordre || a.domaine.nom.localeCompare(b.domaine.nom, "fr"),
   );
 }
-
-export const compterDemandesNouvelles = (demandes: readonly { statut: string }[]) =>
-  demandes.filter((d) => d.statut === "NOUVELLE").length;

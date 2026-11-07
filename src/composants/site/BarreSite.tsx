@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 
 export function BarreSite({ children }: { children: ReactNode }) {
   return (
-    <div className="glass-site flex flex-wrap items-center justify-between gap-x-7 gap-y-4 rounded-[28px] py-2.5 pr-3 pl-[18px] lg:rounded-full">
+    <div className="glass-site flex flex-wrap items-center justify-between gap-x-7 gap-y-4 rounded-[28px] py-2.5 pr-3 pl-[18px] xl:rounded-full">
       {children}
     </div>
   );
