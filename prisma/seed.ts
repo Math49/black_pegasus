@@ -139,6 +139,40 @@ function verifier(condition: boolean, message: string): asserts condition {
   if (!condition) throw new Error(`Vérification du seed échouée : ${message}`);
 }
 
+/** Catalogue fictif de Black Pégasus Cards : [nom, prix, exemplaires]. */
+const CARTES_DEMO: { nom: string; cartes: [string, number, number][] }[] = [
+  {
+    nom: "Légendaires",
+    cartes: [
+      ["Pégase d’ébène", 2500, 1],
+      ["Dragon des abysses", 1800, 2],
+      ["Phénix solaire", 1500, 0],
+      ["Kraken de Paleto", 1200, 1],
+    ],
+  },
+  {
+    nom: "Rares",
+    cartes: [
+      ["Faucon pèlerin", 450, 4],
+      ["Loup des neiges", 400, 3],
+      ["Capitaine des marées", 380, 0],
+      ["Pilote d’essai", 350, 5],
+      ["Sentinelle d’acier", 320, 2],
+    ],
+  },
+  {
+    nom: "Communes",
+    cartes: [
+      ["Mouette du port", 60, 12],
+      ["Docker de Los Santos", 50, 9],
+      ["Hélice de secours", 40, 0],
+      ["Boussole ancienne", 45, 15],
+      ["Carte des vents", 35, 20],
+      ["Ancre rouillée", 30, 7],
+    ],
+  },
+];
+
 async function main() {
   const prisma = new PrismaClient({
     adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
@@ -161,7 +195,8 @@ async function main() {
       await tx.$executeRawUnsafe(
         `TRUNCATE "JournalAudit", "Mouvement", "Contrat", "Semaine", "Exemplaire", "Vehicule",
          "Categorie", "Compteur", "Parametres", "Filiale", "Session", "Account", "User", "VerificationToken",
-         "Compte", "DomainePermis", "Permis", "DemandeContact" RESTART IDENTITY CASCADE`,
+         "Compte", "DomainePermis", "Permis", "DemandeContact", "VenteCarte", "Carte",
+         "CategorieCarte" RESTART IDENTITY CASCADE`,
       );
 
       // ── Paramètres ──
@@ -169,7 +204,8 @@ async function main() {
       await tx.filiale.createMany({
         data: filialesInitiales.map((f) => ({
           ...f,
-          visible: f.code === "BPF" ? true : f.visible,
+          // Démonstration : les trois filiales sont ouvertes.
+          visible: true,
           telephone: p.telephoneAgence,
           horaires: p.horaires,
         })),
@@ -214,6 +250,21 @@ async function main() {
           },
         ],
       });
+
+      // ── Cards : catalogue de démonstration (aucune vente : les totaux de S43 restent ceux
+      // des maquettes) ──
+      for (const [ordre, { nom, cartes }] of CARTES_DEMO.entries()) {
+        const categorie = await tx.categorieCarte.create({ data: { nom, ordre: ordre + 1 } });
+        await tx.carte.createMany({
+          data: cartes.map(([nomCarte, prix, stock], i) => ({
+            categorieId: categorie.id,
+            nom: nomCarte,
+            prix,
+            stock,
+            ordre: i + 1,
+          })),
+        });
+      }
 
       // ── Comptes ──
       const comptes = new Map<string, string>(); // discordId → id

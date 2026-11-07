@@ -34,6 +34,10 @@ describe("peut (HANDOFF § 7.9)", () => {
     ["parametres.gerer", true, false],
     ["formation.gerer", true, true],
     ["demande.consulter", true, true],
+    ["cards.gerer", true, true],
+    ["vente.consulter", true, true],
+    ["vente.creer", true, true],
+    ["vente.annuler", true, false],
   ];
 
   it.each(tableau)("%s : admin %s, gestionnaire %s", (action, admin, gestionnaire) => {
@@ -122,6 +126,7 @@ describe("rôle FISC (consultation seule)", () => {
       "comptabilite.exporterCsv",
       "declaration.brouillon",
       "declaration.exporter",
+      "vente.consulter",
     ] as const)
       expect(peut("FISC", a), a).toBe(true);
     for (const a of ACTIONS.filter(

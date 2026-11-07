@@ -402,7 +402,12 @@ async function Declaration({
                       {m.categorie === "APPORT" && ` (apport ${cellule("apport")})`}
                     </span>
                     <span style={{ color: "var(--bp-encre-grise-foncee)" }}>
-                      {m.justificatifNumero ?? (m.contrat ? pieceAbregee(m.contrat.numero) : "—")}
+                      {m.justificatifNumero ??
+                        (m.contrat
+                          ? pieceAbregee(m.contrat.numero)
+                          : m.venteCarte
+                            ? pieceAbregee(m.venteCarte.numero)
+                            : "—")}
                     </span>
                     <span className="pdf-d font-bold">{cellule("recette")}</span>
                     <span className="pdf-d font-bold">{cellule("depense")}</span>

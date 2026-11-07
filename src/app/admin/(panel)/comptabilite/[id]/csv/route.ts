@@ -28,7 +28,7 @@ export async function GET(_requete: Request, { params }: { params: Promise<{ id:
       date: format(versHeureServeur(m.date, fuseau), "yyyy-MM-dd HH:mm"),
       categorie: LIBELLES_CATEGORIE[m.categorie],
       libelle: m.motif,
-      piece: m.justificatifNumero ?? m.contrat?.numero ?? "",
+      piece: m.justificatifNumero ?? m.contrat?.numero ?? m.venteCarte?.numero ?? "",
       sens: m.sens,
       categorieCode: m.categorie,
       montant: m.montant,

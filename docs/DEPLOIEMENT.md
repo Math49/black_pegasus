@@ -53,7 +53,7 @@ Les variables sont décrites dans **`.env.production.example`** (à copier en `.
 
 ## Premier lancement
 
-Depuis F-3, `db:init-prod` crée également le catalogue Formation validé (licences navigation et pilotage à 4 000 $) si ses deux tables de catalogue sont vides. Les démarrages suivants ne rétablissent pas les permis supprimés et n’écrasent pas les modifications du panel. Aucune demande de démonstration n’est ajoutée en production. La visibilité de BPF reste celle de ses paramètres ; pour ouvrir la section, activer « Visible sur le site » dans la fiche Formation.
+Depuis F-3, `db:init-prod` crée également le catalogue Formation validé (licences navigation et pilotage à 4 000 $) si ses deux tables de catalogue sont vides. Les démarrages suivants ne rétablissent pas les permis supprimés et n’écrasent pas les modifications du panel. Aucune demande de démonstration n’est ajoutée en production. La visibilité de BPF reste celle de ses paramètres ; pour ouvrir la section, activer « Visible sur le site » dans la fiche Formation. Depuis F-4, le catalogue Cards n'est pas créé automatiquement : saisir catégories et cartes dans **Cards › Cartes**, puis rendre la filiale Cards visible dans Paramètres.
 
 1. Créer la stack dans Portainer à partir de `docker-compose.yml`. Les scripts du dossier `deploiement/` doivent être présents à côté (stack depuis le dépôt Git, ou fichiers copiés sur le VPS).
 2. Renseigner les variables, y compris celles de première initialisation.

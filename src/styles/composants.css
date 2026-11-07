@@ -1274,6 +1274,14 @@
   }
 }
 
+/* Animations réduites : les éléments animés par Motion affichent directement leur état final. */
+@media (prefers-reduced-motion: reduce) {
+  [data-anime] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
 @keyframes bp-monter {
   from {
     opacity: 0;

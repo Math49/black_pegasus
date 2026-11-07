@@ -1,4 +1,3 @@
-import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import type { CodeFiliale } from "@/domaine/types";
 import { libelleFiliale } from "@/domaine/filiales";
@@ -62,16 +61,5 @@ export function HeroFiliale({ filiale: f, actions }: { filiale: Filiale; actions
         {actions}
       </ElementHero>
     </HeroVitrine>
-  );
-}
-
-/** Section d'une filiale sans catalogue en ligne (Cards en attendant F-4). */
-export async function PresentationFiliale({ code }: { code: CodeFiliale }) {
-  const f = await lireFiliale(code);
-  if (!f.visible) notFound();
-  return (
-    <div data-filiale={f.slug}>
-      <HeroFiliale filiale={f} />
-    </div>
   );
 }

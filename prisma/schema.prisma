@@ -187,6 +187,9 @@ model Mouvement {
   motif              String
   contratId          String?
   contrat            Contrat?           @relation(fields: [contratId], references: [id])
+  /// Vente de cartes (BPC) à l'origine du mouvement
+  venteCarteId       String?
+  venteCarte         VenteCarte?        @relation(fields: [venteCarteId], references: [id])
   /// Clé de stockage
   justificatif       String?
   /// JUST-43-03
@@ -205,6 +208,7 @@ model Mouvement {
 
   @@index([semaineId, date])
   @@index([contratId])
+  @@index([venteCarteId])
 }
 
 model Semaine {
@@ -259,6 +263,7 @@ model Compte {
   vehiculesModifies Vehicule[]       @relation("VehiculeModifiePar")
   journal           JournalAudit[]
   demandesTraitees  DemandeContact[]
+  ventesCartes      VenteCarte[]
 }
 
 /// Séquences annuelles (contrats, déclarations).
@@ -356,6 +361,61 @@ model DemandeContact {
   traiteePar   Compte?       @relation(fields: [traiteeParId], references: [id])
 
   @@index([statut, creeLe])
+}
+
+// ── Black Pégasus Cards ─────────────────────────────────────────────────────
+
+model CategorieCarte {
+  id     String  @id @default(cuid())
+  nom    String  @unique
+  ordre  Int     @default(0)
+  cartes Carte[]
+}
+
+model Carte {
+  id          String         @id @default(cuid())
+  categorieId String
+  categorie   CategorieCarte @relation(fields: [categorieId], references: [id])
+  nom         String
+  prix        Int
+  /// Exemplaires restants (≥ 0)
+  stock       Int            @default(0)
+  /// Clé de stockage ; visuel par défaut sinon
+  photo       String?
+  ordre       Int            @default(0)
+  visible     Boolean        @default(true)
+  /// Suppression logique : les ventes restent lisibles.
+  supprimeLe  DateTime?
+  ventes      VenteCarte[]
+
+  @@index([categorieId, ordre])
+}
+
+enum StatutVente {
+  VALIDEE
+  ANNULEE
+}
+
+model VenteCarte {
+  id              String      @id @default(cuid())
+  /// BPC-2026-0001 (compteur « BPC-2026 »)
+  numero          String      @unique
+  carteId         String
+  carte           Carte       @relation(fields: [carteId], references: [id])
+  // Instantanés figés à la vente.
+  carteNom        String
+  prixUnitaire    Int
+  quantite        Int
+  montant         Int
+  clientNom       String
+  clientTelephone String?
+  date            DateTime
+  statut          StatutVente @default(VALIDEE)
+  saisieParId     String
+  saisiePar       Compte      @relation(fields: [saisieParId], references: [id])
+  mouvements      Mouvement[]
+
+  @@index([date])
 }
 
 model JournalAudit {

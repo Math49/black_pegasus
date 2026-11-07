@@ -168,7 +168,7 @@ describe("saisie d'un mouvement (maquette 13)", () => {
     const m = { numero: "2026-OP-43-027", automatique: false, semaineCloturee: false };
     expect(() => verifierContrePassation(m)).not.toThrow();
     expect(() => verifierContrePassation({ ...m, automatique: true })).toThrow(
-      "annulez le contrat",
+      "vient d’un contrat ou d’une vente : annulez-le",
     );
     expect(() => verifierContrePassation({ ...m, semaineCloturee: true })).toThrow(
       "OP-43-027 appartient à une semaine clôturée",

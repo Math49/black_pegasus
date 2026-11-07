@@ -52,11 +52,12 @@ export function Apparition({
   as?: "div" | "li" | "section" | "article" | "span";
 }) {
   const Composant = motion[as];
-  const reduit = useReducedMotion();
+  // Animations réduites : la feuille de style force l'état final (rendu identique serveur/client).
   return (
     <Composant
       className={className}
-      initial={reduit ? false : { opacity: 0, y: decalage }}
+      data-anime=""
+      initial={{ opacity: 0, y: decalage }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "0px 0px -12% 0px" }}
       transition={{ duration: 0.9, ease: COURBE, delay: delai }}
@@ -89,7 +90,6 @@ export function Cascade({
   immediat?: boolean;
 }) {
   const Composant = motion[as];
-  const reduit = useReducedMotion();
   // Haut de page : animation CSS, visible dès le rendu serveur (sans attendre l'hydratation).
   if (immediat) {
     const Element = as;
@@ -99,7 +99,7 @@ export function Cascade({
     <Composant
       className={className}
       variants={variantesCascade}
-      initial={reduit ? false : "cache"}
+      initial="cache"
       whileInView="visible"
       viewport={{ once: true, margin: "0px 0px -10% 0px" }}
     >
@@ -122,7 +122,12 @@ export function ElementCascade({
 }) {
   const Composant = motion[as];
   return (
-    <Composant className={className} variants={variantesElement} data-filiale={filiale}>
+    <Composant
+      className={className}
+      variants={variantesElement}
+      data-filiale={filiale}
+      data-anime=""
+    >
       {children}
     </Composant>
   );
@@ -148,15 +153,15 @@ export function Parallaxe({
   amplitude?: number;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const reduit = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const y = useTransform(scrollYProgress, [0, 1], [-amplitude / 2, amplitude / 2]);
   return (
     <div ref={ref} className={cx("absolute inset-0 overflow-hidden", className)}>
       <motion.div
         className="absolute inset-x-0"
+        data-anime=""
         style={{
-          y: reduit ? 0 : y,
+          y,
           top: -amplitude / 2,
           bottom: -amplitude / 2,
         }}
@@ -177,7 +182,6 @@ export function Inclinable({
   className?: string;
   intensite?: number;
 }) {
-  const reduit = useReducedMotion();
   const x = useMotionValue(0.5);
   const y = useMotionValue(0.5);
   const ressort = { stiffness: 180, damping: 20 };
@@ -188,7 +192,8 @@ export function Inclinable({
   return (
     <motion.div
       className={cx("group/incline relative [transform-style:preserve-3d]", className)}
-      style={reduit ? undefined : { rotateX, rotateY, transformPerspective: 1100 }}
+      data-anime=""
+      style={{ rotateX, rotateY, transformPerspective: 1100 }}
       onPointerMove={(e) => {
         if (e.pointerType !== "mouse") return;
         const r = e.currentTarget.getBoundingClientRect();
@@ -275,12 +280,13 @@ function Mot({
   debut: number;
   fin: number;
 }) {
-  const reduit = useReducedMotion();
   // Opacité minimale 0,55 : le contraste reste ≥ 4,5:1 avant l'éclairage.
   const opacite = useTransform(progression, [debut, fin], [0.55, 1]);
   return (
     <>
-      <motion.span style={{ opacity: reduit ? 1 : opacite }}>{children}</motion.span>{" "}
+      <motion.span data-anime="" style={{ opacity: opacite }}>
+        {children}
+      </motion.span>{" "}
     </>
   );
 }

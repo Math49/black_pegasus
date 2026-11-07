@@ -450,6 +450,14 @@ async function Contenu({
                       <Icon nom="document" taille={13} />
                       {m.contrat.numero}
                     </Link>
+                  ) : m.venteCarte ? (
+                    <Link
+                      href={`/admin/cards/ventes?q=${m.venteCarte.numero}`}
+                      className="bp-tag bp-cible hover:text-texte"
+                    >
+                      <Icon nom="etiquette" taille={13} />
+                      {m.venteCarte.numero}
+                    </Link>
                   ) : (
                     <span className="text-texte-attenue">—</span>
                   ),

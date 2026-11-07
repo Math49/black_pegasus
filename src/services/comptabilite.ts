@@ -23,6 +23,7 @@ const MOUVEMENTS = {
   orderBy: [{ date: "asc" as const }, { numero: "asc" as const }],
   include: {
     contrat: { select: { id: true, numero: true, clientNom: true, statut: true } },
+    venteCarte: { select: { numero: true, clientNom: true } },
     annulePar: { select: { numero: true } },
     annuleMouvement: { select: { numero: true } },
   },

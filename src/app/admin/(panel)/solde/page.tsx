@@ -110,8 +110,8 @@ async function Contenu({
     filtrerHistorique(
       historique.map((m) => ({
         ...m,
-        contratNumero: m.contrat?.numero,
-        clientNom: m.contrat?.clientNom,
+        contratNumero: m.contrat?.numero ?? m.venteCarte?.numero,
+        clientNom: m.contrat?.clientNom ?? m.venteCarte?.clientNom,
         saisiPar: nomCompte(m.saisiPar),
         compte: m.saisiPar,
       })),
@@ -167,7 +167,7 @@ async function Contenu({
             ? "Mouvement contre-passé : plus aucune correction possible."
             : !ouverte
               ? "Semaine clôturée : le registre est en lecture seule."
-              : "Mouvement généré par un contrat : il se corrige en annulant le contrat.",
+              : "Mouvement généré par un contrat ou une vente : il se corrige en annulant celui-ci.",
       contrePassable: peutContrePasser && ouverte && !barre && !m.automatique,
     };
   };

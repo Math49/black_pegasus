@@ -77,6 +77,26 @@ export async function BarreLaterale() {
           },
         ]
       : []),
+    ...(peut(r, "cards.gerer")
+      ? [
+          {
+            href: "/admin/cards",
+            libelle: "Cartes",
+            icone: "couches" as const,
+            groupe: "Cards",
+          },
+        ]
+      : []),
+    ...(peut(r, "vente.consulter")
+      ? [
+          {
+            href: "/admin/cards/ventes",
+            libelle: "Ventes",
+            icone: "etiquette" as const,
+            groupe: "Cards",
+          },
+        ]
+      : []),
     ...(peut(compte.role, "compte.gerer")
       ? [
           {

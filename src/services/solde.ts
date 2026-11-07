@@ -27,6 +27,7 @@ import { enregistrerFichier, supprimerFichier } from "./stockage";
 
 const AVEC_LIENS = {
   contrat: { select: { id: true, numero: true, clientNom: true, statut: true } },
+  venteCarte: { select: { numero: true, clientNom: true } },
   saisiPar: {
     select: { nomRp: true, nomAffiche: true, pseudo: true, discordId: true, avatarUrl: true },
   },
@@ -176,7 +177,7 @@ export async function modifierMouvement(
       if (champsModifiables(m, m.semaine.statut).length === 0) {
         throw new ErreurMetier(
           m.automatique
-            ? "Mouvement généré par un contrat : non modifiable."
+            ? "Mouvement généré par un contrat ou une vente : non modifiable."
             : "Semaine clôturée : le registre est en lecture seule.",
         );
       }

@@ -11,7 +11,7 @@
 | **F-1** Modèle des filiales, reprise des données, filiale des mouvements | **Terminée** | `feb2b5a` |
 | **F-2** Site groupe et paramètres des filiales | **Terminée** | `247112c` |
 | **F-3** Formation | **Terminée** | `efa5eec` |
-| F-4 Cards | À faire | |
+| **F-4** Cards | **Terminée** | voir `git log` (« phase F-4 ») |
 | F-5 Comptabilité ventilée | À faire | |
 | F-6 Paramètres par filiale et finitions | À faire | |
 
@@ -53,6 +53,17 @@
 - **Limites** : cinq tentatives par IP sur dix minutes, piège anti-robot ; aucun stockage d’IP. Les visibilités de BPF et du permis sont revérifiées lors de l’envoi. Le limiteur reste en mémoire, comme les limiteurs existants.
 - **Seed et production** : BPF visible et deux demandes de démonstration dans le seed ; aucun changement aux totaux comptables. En production, catalogue créé seulement si ses tables sont vides, aucune demande de démonstration, visibilité de la filiale conservée. Les permis supprimés ne sont pas recréés au redémarrage.
 - **Validation** : lint/build au vert, 297 tests unitaires, 86 tests e2e ; couverture du domaine : lignes/fonctions 100 %, branches 98,37 %. Captures, précisions de déploiement et durées encore vides : [bilan F-3](validations/f3/README.md).
+
+### Ce que F-4 a mis en place (à réutiliser)
+
+- **Prochaine phase : F-5 (comptabilité ventilée)**.
+- **Prisma** : migration `20261107180000_cards` ; `CategorieCarte`, `Carte` (stock contraint ≥ 0 en base, suppression logique), `VenteCarte` (instantanés figés, statut `VALIDEE` / `ANNULEE`), `Mouvement.venteCarteId`. Ventes numérotées `BPC-AAAA-NNNN` (compteur `BPC-2026`).
+- **Domaine** `src/domaine/cards.ts` : `montantVente`, `verifierStock`, `etatCarte`, `motifVente`, `regrouperCartes`, `correspondRecherche` ; `numeroVente` / `cleCompteurVentes` dans `numerotation.ts`.
+- **Service** `src/services/cards.ts` : `creerVente` (verrou `FOR UPDATE` sur la carte, montant recalculé côté serveur, recette `VENTE_CARTES` / `BPC` / automatique liée à la vente), `annulerVente` (administrateur, refus si semaine clôturée, contre-passation liée à la vente, stock rendu), CRUD des catégories et cartes ; une correction manuelle du stock est journalisée (`cards.stock`, avant → après). Les mouvements automatiques d'une vente ne se modifient ni ne se contre-passent au Solde (message « contrat ou vente »).
+- **Écrans** : `/cards` (hero, catégories `?categorie=<slug>`, recherche `?q=`, carte grisée « Épuisée » à 0, « Appeler pour acheter »), `/admin/cards` (catégories et cartes, photo facultative) et `/admin/cards/ventes` (liste, recherche `?q=`, « Nouvelle vente », annulation). Le registre (Comptabilité, CSV, PDF de déclaration) affiche le n° `BPC-…` comme pièce.
+- **Permissions** : `cards.gerer`, `vente.creer` (ADMIN, GESTIONNAIRE), `vente.annuler` (ADMIN), `vente.consulter` (+ FISC).
+- **Seed** : catalogue fictif (3 catégories, 15 cartes dont 3 épuisées), les trois filiales visibles. **Aucune vente de démonstration** : des ventes en S43 changeraient les totaux des maquettes vérifiés par `verifierSeed` et les tests de comptabilité. En production, aucun catalogue n'est créé et la visibilité de BPC reste celle des paramètres.
+- **Tests** : unitaires du domaine ; e2e `tests/e2e/cards.spec.ts` (catalogue public, vente → stock et registre, annulation, deux ventes simultanées du dernier exemplaire, catalogue du panel, droits gestionnaire / FISC, axe).
 
 ## 1. Méthode, pour chaque phase
 

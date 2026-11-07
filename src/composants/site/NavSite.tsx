@@ -34,7 +34,7 @@ export function NavSite({
                 { href: "/formation#permis", libelle: "Nos licences" },
                 { href: "/formation#contact", libelle: "Contact" },
               ]
-            : []),
+            : [{ href: "/cards#catalogue", libelle: "Catalogue" }]),
       ]
     : [
         { href: "/", libelle: "Accueil" },

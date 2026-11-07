@@ -17,6 +17,12 @@ export const cleCompteurContrats = (annee: number) => `BPL-${annee}`;
 export const numeroContrat = (annee: number, n: number) => `BPL-${annee}-${pad(n, 4)}`;
 
 /** `OP-43-007` (numéro affiché) */
+/** Compteur annuel des ventes de Black Pégasus Cards : `BPC-2026`. */
+export const cleCompteurVentes = (annee: number) => `BPC-${annee}`;
+
+/** N° de vente : `BPC-2026-0001`. */
+export const numeroVente = (annee: number, n: number) => `BPC-${annee}-${pad(n, 4)}`;
+
 export const numeroOperation = (semaine: number, n: number) => `OP-${pad(semaine, 2)}-${pad(n, 3)}`;
 
 /** `2026-OP-43-007` : numéro unique en base, préfixé de l'année ISO. */

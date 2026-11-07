@@ -33,6 +33,10 @@ const MATRICE = {
   "parametres.gerer": ADMIN,
   "formation.gerer": TOUS,
   "demande.consulter": TOUS,
+  "cards.gerer": TOUS,
+  "vente.consulter": LECTURE,
+  "vente.creer": TOUS,
+  "vente.annuler": ADMIN,
 } as const satisfies Record<string, readonly Role[]>;
 
 export type Action = keyof typeof MATRICE;

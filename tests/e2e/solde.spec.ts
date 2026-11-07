@@ -158,7 +158,7 @@ test.describe("solde et mouvements", () => {
     await page.goto("/admin/solde");
     await page.getByRole("button", { name: "Détail de OP-43-035" }).click();
     const fiche = page.getByRole("dialog", { name: "Détail du mouvement" });
-    await expect(fiche).toContainText("Mouvement généré par un contrat");
+    await expect(fiche).toContainText("Mouvement généré par un contrat ou une vente");
     await expect(fiche.getByRole("button", { name: "Contre-passer" })).toHaveCount(0);
   });
 

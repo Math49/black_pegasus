@@ -55,6 +55,8 @@ test.afterEach(async () => {
 test("accueil groupe : seules les filiales visibles apparaissent, liens internes à jour", async ({
   page,
 }) => {
+  // Le seed ouvre les trois filiales : ce scénario masque Cards (rétabli après le test).
+  await sql(`UPDATE "Filiale" SET visible=false WHERE code='BPC'`);
   await page.goto("/");
   const cartes = page.locator("#filiales");
   await expect(
@@ -154,6 +156,7 @@ test("paramètres : identité du groupe et textes modifiés, variables remplacé
 test("filiales : contact, ordre, logo envoyé et visibilité se répercutent aussitôt", async ({
   page,
 }) => {
+  await sql(`UPDATE "Filiale" SET visible=false WHERE code='BPC'`);
   await connexion(page, "Vincent Moretti");
   await page.goto("/admin/parametres");
   const cards = page.getByRole("region", { name: "Filiale · Cards", exact: true });

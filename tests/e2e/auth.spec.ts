@@ -28,6 +28,8 @@ test("administrateur : gabarit complet, Comptes et Paramètres accessibles", asy
     "Comptabilité",
     "Permis",
     "Demandes2",
+    "Cartes",
+    "Ventes",
     "Comptes",
     "Paramètres",
   ]);
