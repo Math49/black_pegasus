@@ -149,14 +149,14 @@ Pour chaque phase, donner à Claude Code le **prompt** indiqué (à copier tel q
 
 ---
 
-## Filiales (F-1 à F-6) — voir `docs/CONCEPTION-FILIALES.md`
+## Filiales (F-1 à F-6) — voir `docs/CONCEPTION-FILIALES.md` et le plan détaillé `docs/PLAN-FILIALES.md`
 
 Le groupe Black Pégasus Compagnie et ses trois filiales : Location (BPL), Formation (BPF), Cards (BPC). Une seule comptabilité.
 
 | Phase | Contenu | Critères |
 |---|---|---|
 | F-1 | Table `Filiale` (code, nom, logo, contact, ordre, visibilité) ; téléphone et horaires déplacés vers la filiale Location ; filiale sur chaque mouvement (« Groupe » pour les frais communs) et dans la saisie ; nouvelles catégories (Formation, Vente de cartes, Achat de stock) ; contrats `BPL-` ; n° de licence facultatif sur le contrat. | Données existantes reprises sans perte ; site et panel inchangés pour l'utilisateur, hormis la filiale à la saisie d'un mouvement et le n° de licence. |
-| F-2 | Site groupe : accueil Black Pégasus Compagnie, section `/location`, redirections des anciennes adresses, couleurs et logos de filiale (jetons). | Aucun lien cassé ; contraste ≥ 4,5:1 par couleur ; capture montrée avant d'affiner. |
+| F-2 | Site groupe : accueil Black Pégasus Compagnie, section `/location`, redirections des anciennes adresses, couleurs et logos de filiale (jetons) ; identité, contact et visibilité des filiales dans les paramètres. | Aucun lien cassé ; contraste ≥ 4,5:1 par couleur ; capture montrée avant d'affiner. |
 | F-3 | Formation : domaines et permis (panel), page `/formation`, formulaire de contact, boîte de réception et notification. | Formulaire limité en débit ; demandes visibles dans le panel. |
 | F-4 | Cards : catégories et cartes (panel), catalogue `/cards` (carte grisée à 0), ventes `BPC-` (stock et recette automatiques, annulation par contre-passation). | Vente impossible au-delà du stock ; numérotation continue. |
 | F-5 | Comptabilité ventilée par filiale : registre et solde filtrables, synthèse, tableau de bord, PDF de déclaration. | Totaux par filiale + Groupe = totaux du groupe. |

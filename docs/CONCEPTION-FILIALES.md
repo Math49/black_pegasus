@@ -1,6 +1,6 @@
 # Conception — Filiales (brouillon à valider)
 
-> Statut : **validé le 07/11/2026**. Complète `docs/CONCEPTION.md` (qui reste la référence pour tout ce qui n'est pas dit ici). Développement par phases F-1 à F-6 (§ 10, repris dans `docs/PLAN.md`).
+> Statut : **validé le 07/11/2026**. Complète `docs/CONCEPTION.md` (qui reste la référence pour tout ce qui n'est pas dit ici). Développement par phases F-1 à F-6 : plan détaillé et état d'avancement dans **`docs/PLAN-FILIALES.md`** (F-1 terminée).
 
 ## 1. Le groupe et ses filiales
 
@@ -105,11 +105,11 @@ Le rouge est exclu : il est réservé aux alertes (retards, actions destructrice
 | Phase | Contenu |
 |---|---|
 | F-1 | Modèle `Filiale`, reprise des données BPL, filiale sur les mouvements ; panel visuellement inchangé |
-| F-2 | Site groupe : accueil groupe, section `/location`, redirections, couleurs de filiale |
+| F-2 | Site groupe : accueil groupe, section `/location`, redirections, couleurs de filiale ; identité, contact et visibilité des filiales dans les paramètres |
 | F-3 | BPF : domaines et permis, page publique, formulaire et boîte de réception |
 | F-4 | BPC : catégories, cartes, catalogue public, ventes et stock |
 | F-5 | Comptabilité ventilée : registre, synthèse, tableau de bord, PDF de déclaration |
-| F-6 | Paramètres par filiale, finitions, tests e2e et accessibilité |
+| F-6 | Paramètres par filiale (textes, règles), finitions, tests e2e et accessibilité |
 
 ## 11. Réponses
 
