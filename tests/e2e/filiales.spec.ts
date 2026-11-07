@@ -158,7 +158,7 @@ test("filiales : contact, ordre, logo envoyé et visibilité se répercutent aus
 }) => {
   await sql(`UPDATE "Filiale" SET visible=false WHERE code='BPC'`);
   await connexion(page, "Vincent Moretti");
-  await page.goto("/admin/parametres");
+  await page.goto("/admin/parametres?onglet=cards");
   const cards = page.getByRole("region", { name: "Filiale · Cards", exact: true });
   await cards.getByLabel("Téléphone en jeu").fill("555-0201 / 555-0202");
   await cards.getByLabel("Horaires", { exact: true }).fill("Tous les soirs en jeu");
@@ -184,7 +184,7 @@ test("filiales : contact, ordre, logo envoyé et visibilité se répercutent aus
 
 test("logo invalide : écriture refusée sans modification de la filiale", async ({ page }) => {
   await connexion(page, "Vincent Moretti");
-  await page.goto("/admin/parametres");
+  await page.goto("/admin/parametres?onglet=formation");
   const f = page.getByRole("region", { name: "Filiale · Formation", exact: true });
   await f.getByLabel("Nom de la filiale").fill("Nom qui ne doit pas être enregistré");
   await f.getByLabel("Logo de la filiale").setInputFiles({

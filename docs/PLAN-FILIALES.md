@@ -13,7 +13,7 @@
 | **F-3** Formation | **Terminée** | `efa5eec` |
 | **F-4** Cards | **Terminée** | voir `git log` (« phase F-4 ») |
 | **F-5** Comptabilité ventilée | **Terminée** | voir `git log` (« phase F-5 ») |
-| F-6 Paramètres par filiale et finitions | À faire | |
+| **F-6** Paramètres par filiale et finitions | **Terminée** | voir `git log` (« phase F-6 ») |
 
 ### Ce que F-1 a mis en place (à réutiliser)
 
@@ -67,7 +67,7 @@
 
 ### Ce que F-5 a mis en place (à réutiliser)
 
-- **Prochaine phase : F-6 (paramètres par filiale et finitions)**.
+- Phase suivante : F-6, terminée (voir ci-dessous).
 - **Domaine** : `syntheseParFiliale` (`comptabilite.ts`) donne recettes, dépenses, résultat et nombre d'opérations pour BPL, BPF, BPC puis Groupe ; un test vérifie que la somme des lignes égale la synthèse du groupe. `filiales.ts` : `SLUGS_FILIALE`, `FILTRES_FILIALE`, `lireFiltreFiliale` (`?filiale=BPL|BPF|BPC|groupe`), `filtrerParFiliale`, `libelleFiltreFiliale`.
 - **Comptabilité** : tableau « Par filiale » sous la synthèse (chaque ligne filtre le registre), filtre de filiale combiné aux onglets, colonne « Filiale » (étiquette à la couleur de la filiale, or pour le Groupe). Les zones défilantes sont focalisables (axe).
 - **Solde** : filtre « Filiale » et colonne « Filiale » dans l'historique ; la colonne « Contrat · vente » relie aussi les ventes de cartes.
@@ -75,6 +75,22 @@
 - **CSV** : colonne « Filiale » après « Catégorie ».
 - **PDF de déclaration** : sous-bloc « Ventilation par filiale » en page 1, sous-totaux Formations / Ventes de cartes / Achats de stock quand ils existent, activité du groupe. La page 1 accueille désormais 5 contrats (au-delà, page de suite) : vérifié sur S43, aucune ligne coupée. Les déclarations déjà archivées ne sont jamais régénérées.
 - **Tests** : `tests/e2e/ventilation.spec.ts` (tableau par filiale, filtres combinés, Solde, CSV, tableau de bord).
+
+### Ce que F-6 a mis en place
+
+- **Option retenue (utilisateur, 07/11/2026)** : les textes, le règlement, les règles de location, les forfaits et les photos de l'accueil de Location **restent dans `Parametres`** (seule Location loue) ; aucune migration de données, pour ne rien risquer en production.
+- **Paramètres en onglets** dans l'URL (`/admin/parametres?onglet=groupe|location|formation|cards`, Groupe par défaut) :
+  - *Groupe* : nom, immatriculation, fuseau, accueil du groupe ;
+  - *Location* : identité et contact de la filiale, textes du site, règlement, règles et forfaits, catégories de véhicules, photos de l'accueil (sommaire d'ancres) ;
+  - *Formation* et *Cards* : identité, contact, visibilité, puis renvoi vers l'écran du catalogue (Permis, Cartes).
+- **Finitions** : axe sur les quatre onglets, aucun défilement horizontal à 390 / 768 px sur les pages du panel ajoutées par les filiales (mesuré), états vides des catalogues, aucune nouvelle variable d'environnement.
+
+### Bilan des filiales : ce qui reste à valider
+
+- **Contenus réels** : textes de l'accueil du groupe et accroches des filiales (textes de départ modifiables) ; catalogue Cards réel (catégories, cartes, prix, stock) ; durée des formations (vide).
+- **Production** : après déploiement, saisir le catalogue Cards puis rendre Cards visible (Paramètres › Cards) ; vérifier que Formation est visible si souhaité ; relire une déclaration brouillon (ventilation par filiale en page 1).
+- **Logos** : versions détourées en place depuis le 07/11/2026 ; un logo envoyé depuis Paramètres remplace celui d'une filiale.
+- **Rendu** : la refonte graphique du site public (Motion) est à juger sur un vrai navigateur (animations au défilement, panneaux extensibles au survol).
 
 ## 1. Méthode, pour chaque phase
 

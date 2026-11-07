@@ -25,7 +25,7 @@ test.describe("paramètres du site", () => {
     page,
   }) => {
     await connexion(page, "Vincent Moretti");
-    await page.goto("/admin/parametres");
+    await page.goto("/admin/parametres?onglet=location");
     const agence = page.getByRole("region", { name: "Filiale · Location" });
     await agence.getByLabel("Téléphone en jeu").fill("555-0199");
     await agence.getByRole("button", { name: "Enregistrer" }).click();
@@ -46,7 +46,7 @@ test.describe("paramètres du site", () => {
 
   test("règles : valeur hors bornes refusée, forfait cité protégé", async ({ page }) => {
     await connexion(page, "Vincent Moretti");
-    await page.goto("/admin/parametres");
+    await page.goto("/admin/parametres?onglet=location");
     const regles = page.getByRole("region", { name: "Règles de location" });
     await regles.getByLabel("Tolérance de retard (min)").fill("999");
     await regles.getByRole("button", { name: "Enregistrer" }).click();
@@ -68,7 +68,7 @@ test.describe("paramètres du site", () => {
     page,
   }) => {
     await connexion(page, "Vincent Moretti");
-    await page.goto("/admin/parametres");
+    await page.goto("/admin/parametres?onglet=location");
     const categories = page.getByRole("region", { name: "Catégories" });
     await expect(
       categories.getByRole("button", { name: /Jet-ski est utilisée par 1 véhicule/ }),
@@ -89,11 +89,41 @@ test.describe("paramètres du site", () => {
     await expect(page).toHaveURL(/\/admin\/acces-refuse\?raison=role/);
   });
 
-  test("accessibilité", async ({ page }) => {
+  test("accessibilité des quatre onglets", async ({ page }) => {
+    await connexion(page, "Vincent Moretti");
+    for (const onglet of ["groupe", "location", "formation", "cards"]) {
+      await page.goto(`/admin/parametres?onglet=${onglet}`);
+      await page.waitForLoadState("networkidle");
+      const { violations } = await new AxeBuilder({ page }).analyze();
+      expect(violations.map((v) => `${onglet} ${v.id} : ${v.nodes[0]?.target.join(" ")}`)).toEqual(
+        [],
+      );
+    }
+  });
+
+  test("onglets : groupe par défaut, une section par filiale", async ({ page }) => {
     await connexion(page, "Vincent Moretti");
     await page.goto("/admin/parametres");
-    await page.waitForLoadState("networkidle");
-    const { violations } = await new AxeBuilder({ page }).analyze();
-    expect(violations.map((v) => `${v.id} : ${v.nodes[0]?.target.join(" ")}`)).toEqual([]);
+    const onglets = page.getByRole("navigation", { name: "Paramètres du groupe et des filiales" });
+    await expect(onglets.getByRole("link", { name: "Groupe" })).toHaveAttribute(
+      "aria-current",
+      "true",
+    );
+    await expect(
+      page.getByRole("region", { name: "Accueil du groupe", exact: true }),
+    ).toBeVisible();
+    await expect(page.getByRole("region", { name: "Règles de location" })).toHaveCount(0);
+
+    await onglets.getByRole("link", { name: "Location" }).click();
+    await expect(page).toHaveURL(/onglet=location/);
+    await expect(
+      page.getByRole("region", { name: "Filiale · Location", exact: true }),
+    ).toBeVisible();
+    await expect(page.getByRole("region", { name: "Règles de location" })).toBeVisible();
+
+    await onglets.getByRole("link", { name: "Cards" }).click();
+    await expect(page.getByRole("region", { name: "Filiale · Cards", exact: true })).toBeVisible();
+    await page.getByRole("link", { name: "Gérer les cartes" }).click();
+    await expect(page).toHaveURL(/\/admin\/cards$/);
   });
 });

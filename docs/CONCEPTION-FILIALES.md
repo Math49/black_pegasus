@@ -1,6 +1,6 @@
 # Conception — Filiales (brouillon à valider)
 
-> Statut : **validé le 07/11/2026**. Complète `docs/CONCEPTION.md` (qui reste la référence pour tout ce qui n'est pas dit ici). Développement par phases F-1 à F-6 : plan détaillé et état d'avancement dans **`docs/PLAN-FILIALES.md`** (F-1 à F-5 terminées).
+> Statut : **validé le 07/11/2026**. Complète `docs/CONCEPTION.md` (qui reste la référence pour tout ce qui n'est pas dit ici). Développement par phases F-1 à F-6 : plan détaillé et état d'avancement dans **`docs/PLAN-FILIALES.md`** (F-1 à F-6 terminées).
 
 ## 1. Le groupe et ses filiales
 
@@ -84,7 +84,7 @@ Inchangé fonctionnellement (flotte, contrats, PDF, clôture de contrat, retards
 ## 8. Panel
 
 - Navigation : Tableau de bord, Solde, Comptabilité (groupe) ; **Location** (Véhicules, Contrats), **Formation** (Permis, Demandes), **Cards** (Cartes, Ventes) ; Comptes ; Paramètres.
-- Paramètres : *Groupe* (nom, immatriculation, fuseau, accueil du groupe) puis une page par filiale (identité, couleur, contact, textes, et ce qui lui est propre).
+- Paramètres : *Groupe* (nom, immatriculation, fuseau, accueil du groupe) puis un onglet par filiale (identité, contact, textes, et ce qui lui est propre). Choix F-6 : les réglages de Location restent stockés dans `Parametres` (pas de migration), seul l'écran est réorganisé.
 - Rôle FISC : consultation des contrats, du solde, de la comptabilité **et des ventes de cartes** ; pas d'accès aux demandes de contact (données personnelles sans intérêt fiscal).
 
 ## 9. Couleurs

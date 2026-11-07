@@ -131,7 +131,7 @@ test.describe("photos des cartes de l'accueil", () => {
     await expect(carteBateaux()).toHaveAttribute("src", /bg-mer/);
 
     await connexion(page, "Vincent Moretti");
-    await page.goto("/admin/parametres#photos");
+    await page.goto("/admin/parametres?onglet=location#photos");
     const photos = page.getByRole("region", { name: "Photos de l’accueil" });
     await photos.locator('input[type="file"]').first().setInputFiles(PHOTO);
     await expect(photos.getByRole("status")).toContainText("« Bateaux » enregistrée");
@@ -146,7 +146,7 @@ test.describe("photos des cartes de l'accueil", () => {
       /api%2Ffichiers%2Fphotos|api\/fichiers\/photos/,
     );
 
-    await page.goto("/admin/parametres#photos");
+    await page.goto("/admin/parametres?onglet=location#photos");
     await photos.getByRole("button", { name: "Retirer" }).click();
     await expect(photos.getByRole("status")).toContainText("visuel par défaut");
     await page.goto("/location");
