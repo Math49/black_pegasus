@@ -91,9 +91,7 @@ export function verifierContrePassation(m: {
 }): void {
   const n = numeroOperationAffiche(m.numero);
   if (m.automatique) {
-    throw new ErreurMetier(
-      `${n} vient d’un contrat ou d’une vente : annulez-le pour le corriger.`,
-    );
+    throw new ErreurMetier(`${n} vient d’un contrat ou d’une vente : annulez-le pour le corriger.`);
   }
   if (m.semaineCloturee) throw new ErreurMetier(`${n} appartient à une semaine clôturée.`);
 }
