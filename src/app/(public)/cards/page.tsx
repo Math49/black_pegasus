@@ -4,7 +4,6 @@ import { correspondRecherche, regrouperCartes } from "@/domaine/cards";
 import { slugifier } from "@/domaine/vehicules";
 import { lireCartesPubliques } from "@/services/cards";
 import { lireFiliale } from "@/services/site";
-import { urlPhoto } from "@/services/stockage";
 import { BoutonAppeler } from "@/composants/site/BoutonAppeler";
 import { CarteCollection } from "@/composants/site/CarteCollection";
 import { HeroFiliale } from "@/composants/site/PresentationFiliale";
@@ -143,7 +142,8 @@ async function Cards({ searchParams }: { searchParams: PageProps<"/cards">["sear
                           nom: c.nom,
                           prix: c.prix,
                           stock: c.stock,
-                          photoUrl: c.photo ? urlPhoto(c.photo) : null,
+                          // Toujours la version filigranée, jamais l'original.
+                          photoUrl: c.photo ? `/api/cartes/${c.id}/photo` : null,
                           categorie: g.categorie.nom,
                         }}
                       />

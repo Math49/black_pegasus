@@ -38,7 +38,7 @@ export async function lireFichier(cle: string): Promise<{ contenu: Buffer; type:
 
 /** Enregistre un fichier sous un nom aléatoire et renvoie sa clé (« photos/3f2a….png »). */
 export async function enregistrerFichier(
-  dossier: "photos" | "justificatifs" | "pdf",
+  dossier: "photos" | "cartes" | "justificatifs" | "pdf",
   contenu: Uint8Array,
   extension: string,
 ) {

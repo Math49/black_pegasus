@@ -71,7 +71,7 @@ Inchangé fonctionnellement (flotte, contrats, PDF, clôture de contrat, retards
 
 ## 6. Black Pegasus Cards (BPC)
 
-- **Site** : cartes par catégorie, avec photo, nom, prix et exemplaires restants ; carte grisée et « Épuisée » à 0 ; bouton « Appeler pour acheter », comme pour les locations.
+- **Site** : cartes par catégorie, avec photo (filigranée, copie dissuadée ; original réservé au panel), nom, prix et exemplaires restants ; carte grisée et « Épuisée » à 0 ; bouton « Appeler pour acheter », comme pour les locations.
 - **Panel** : catégories (un niveau), cartes (nom, prix, stock, photo facultative), **ventes saisies dans le panel** : carte, quantité, client → stock décrémenté (refus si insuffisant), recette *Vente de cartes* inscrite automatiquement, n° `BPC-2026-0001`. Une vente saisie par erreur s'annule par contre-passation (stock rendu), comme un contrat.
 
 ## 7. Comptabilité commune

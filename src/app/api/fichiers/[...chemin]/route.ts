@@ -1,10 +1,11 @@
 import { lireCompteConnecte } from "@/lib/garde";
 import { lireFichier } from "@/services/stockage";
 
-// Fichiers stockés : photos de véhicules publiques ; justificatifs et PDF réservés aux
-// sessions valides (CONCEPTION § 7).
+// Fichiers stockés : photos de véhicules publiques ; justificatifs, PDF et originaux des
+// photos de cartes réservés aux sessions valides (CONCEPTION § 7). Le public voit les cartes
+// filigranées par /api/cartes/[id]/photo.
 const PUBLICS = new Set(["photos"]);
-const PRIVES = new Set(["justificatifs", "pdf"]);
+const PRIVES = new Set(["justificatifs", "pdf", "cartes"]);
 
 export async function GET(
   _requete: Request,

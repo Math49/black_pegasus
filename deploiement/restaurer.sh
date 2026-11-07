@@ -66,6 +66,7 @@ for cle in $(psql --tuples-only --no-align --command '
 	SELECT photo FROM "Vehicule" WHERE photo IS NOT NULL
 	UNION SELECT justificatif FROM "Mouvement" WHERE justificatif IS NOT NULL
 	UNION SELECT pdf FROM "Contrat" WHERE pdf IS NOT NULL
+	UNION SELECT photo FROM "Carte" WHERE photo IS NOT NULL
 	UNION SELECT "declarationPdf" FROM "Semaine" WHERE "declarationPdf" IS NOT NULL'); do
 	attendus=$((attendus + 1))
 	if [ ! -f "${CIBLE_FICHIERS}/${cle}" ]; then

@@ -1,11 +1,14 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
+import { readFile, unlink } from "node:fs/promises";
+import path from "node:path";
 import { connexion, sql } from "./outils";
 
 // Black Pégasus Cards (phase F-4) sur le catalogue de démonstration du seed.
 
 const CLIENT = "Client Essai Cards";
 const CARTE_E2E = "Carte essai e2e";
+const PHOTO = "public/images/vehicule-placeholder.jpg";
 
 let compteurVentes: number | null = null;
 let compteursSemaines: { id: string; compteurOperations: number }[] = [];
@@ -210,6 +213,56 @@ test.describe("Black Pégasus Cards", () => {
     await expect(page.getByRole("heading", { name: CARTE_E2E })).toHaveCount(0);
     await page.goto("/cards");
     await expect(page.getByRole("heading", { name: CARTE_E2E })).toHaveCount(0);
+  });
+
+  test("photo : filigranée sur le site, original réservé au panel, image protégée", async ({
+    page,
+    request,
+  }) => {
+    await connexion(page, "Lena Castillo");
+    await page.goto("/admin/cards");
+    await page.getByRole("button", { name: "Ajouter une carte" }).click();
+    const ajout = page.getByRole("dialog", { name: "Ajouter une carte" });
+    await ajout.getByLabel("Nom de la carte").fill(CARTE_E2E);
+    await ajout.getByLabel("Prix ($)").fill("90");
+    await ajout.getByLabel("Exemplaires en stock").fill("2");
+    await ajout.getByLabel("Photo (facultative)").setInputFiles(PHOTO);
+    await ajout.getByRole("button", { name: "Enregistrer la carte" }).click();
+    await expect(ajout).toBeHidden();
+    const [carte] = await sql<{ id: string; photo: string }>(
+      `SELECT id, photo FROM "Carte" WHERE nom = $1 AND "supprimeLe" IS NULL`,
+      [CARTE_E2E],
+    );
+    expect(carte.photo).toMatch(/^cartes\/.+\.jpg$/);
+
+    // Hors session : l'original est refusé, la version publique est un WebP filigrané.
+    expect((await request.get(`/api/fichiers/${carte.photo}`)).status()).toBe(401);
+    const publique = await request.get(`/api/cartes/${carte.id}/photo`);
+    expect(publique.status()).toBe(200);
+    expect(publique.headers()["content-type"]).toBe("image/webp");
+    const original = await readFile(PHOTO);
+    expect(Buffer.compare(await publique.body(), original)).not.toBe(0);
+
+    await page.goto("/cards");
+    const article = page
+      .getByRole("article")
+      .filter({ has: page.getByRole("heading", { name: CARTE_E2E }) });
+    const image = article.getByRole("img", { name: `Carte ${CARTE_E2E}` });
+    await expect(image).toHaveAttribute("src", /api%2Fcartes|api\/cartes/);
+    await expect(image).toHaveAttribute("draggable", "false");
+    // Un calque couvre l'image : le clic droit ne vise jamais l'<img>, et le menu est bloqué.
+    const cible = await image.evaluate((img) => {
+      const r = img.getBoundingClientRect();
+      return document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2)?.tagName;
+    });
+    expect(cible).not.toBe("IMG");
+    const bloque = await image.evaluate((img) => {
+      const e = new MouseEvent("contextmenu", { bubbles: true, cancelable: true });
+      img.parentElement!.dispatchEvent(e);
+      return e.defaultPrevented;
+    });
+    expect(bloque).toBe(true);
+    await unlink(path.resolve(process.env.STOCKAGE_DIR ?? "data", carte.photo));
   });
 
   test("droits : gestionnaire sans annulation, FISC en consultation", async ({ page }) => {

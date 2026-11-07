@@ -167,7 +167,7 @@ export async function enregistrerCarte(
   donnees: DonneesCarte,
   photo: ImageEnvoyee | null | undefined,
 ) {
-  const cle = photo ? await enregistrerFichier("photos", photo.octets, photo.extension) : null;
+  const cle = photo ? await enregistrerFichier("cartes", photo.octets, photo.extension) : null;
   let ancienne: string | null = null;
   try {
     await ecrire(acteur, "cards.carte", id ? `Carte:${id}` : "Carte", async (tx) => {

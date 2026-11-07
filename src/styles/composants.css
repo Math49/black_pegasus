@@ -1209,6 +1209,18 @@
     }
   }
 
+  /* Visuel protégé (cartes) : ni sélection, ni glisser, ni menu d'appui long sur mobile. */
+  .bp-image-protegee,
+  .bp-image-protegee img {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-user-drag: none;
+    -webkit-touch-callout: none;
+  }
+  .bp-image-protegee img {
+    pointer-events: none;
+  }
+
   /* Indicateur « défiler » */
   .bp-indice-defilement {
     width: 1px;

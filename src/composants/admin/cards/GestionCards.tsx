@@ -186,6 +186,8 @@ function FormulaireCarte({
         <div className="flex flex-wrap items-center gap-4">
           <Image
             src={carte.photoUrl}
+            // Original privé (session du panel) : pas d'optimisation côté serveur.
+            unoptimized
             alt={`Photo actuelle de ${carte.nom}`}
             width={72}
             height={100}
@@ -269,6 +271,7 @@ export function GestionCards({
               >
                 <Image
                   src={c.photoUrl ?? "/images/logos/bp-cards.webp"}
+                  unoptimized={c.photoUrl !== null}
                   alt=""
                   width={48}
                   height={66}

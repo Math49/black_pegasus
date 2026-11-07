@@ -2,6 +2,7 @@ import Image from "next/image";
 import { formaterDollars } from "@/domaine/argent";
 import { etatCarte } from "@/domaine/cards";
 import { cx } from "@/lib/classes";
+import { ImageProtegee } from "./ImageProtegee";
 
 /** Carte du catalogue Cards : photo au format carte à collectionner, prix, stock. */
 export function CarteCollection({
@@ -16,13 +17,16 @@ export function CarteCollection({
     >
       <div className="bp-vcard__media aspect-[63/88]">
         {carte.photoUrl ? (
-          <Image
-            src={carte.photoUrl}
-            alt={`Carte ${carte.nom}`}
-            fill
-            sizes="(max-width: 640px) 50vw, 260px"
-            className="bp-vcard__photo transition-transform duration-700 group-hover:scale-105"
-          />
+          <ImageProtegee>
+            <Image
+              src={carte.photoUrl}
+              alt={`Carte ${carte.nom}`}
+              fill
+              draggable={false}
+              sizes="(max-width: 640px) 50vw, 260px"
+              className="bp-vcard__photo transition-transform duration-700 group-hover:scale-105"
+            />
+          </ImageProtegee>
         ) : (
           // Visuel par défaut : logo Cards sur un dégradé de l'accent.
           <span

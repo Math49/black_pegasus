@@ -51,7 +51,11 @@ const nextConfig: NextConfig = {
   },
   images: {
     // Photos des véhicules servies par /api/fichiers, visuels fixes dans /public/images.
-    localPatterns: [{ pathname: "/api/fichiers/photos/**" }, { pathname: "/images/**" }],
+    localPatterns: [
+      { pathname: "/api/fichiers/photos/**" },
+      { pathname: "/api/cartes/**" },
+      { pathname: "/images/**" },
+    ],
   },
   turbopack: {
     rules: {
