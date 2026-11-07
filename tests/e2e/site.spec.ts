@@ -27,6 +27,47 @@ for (const { chemin, titre } of PAGES) {
   });
 }
 
+test("la barre suit la filiale et permet le retour au groupe sans rechargement", async ({
+  page,
+}) => {
+  const entete = page.getByRole("banner");
+  const navigation = entete.getByRole("navigation", { name: "Navigation principale" });
+  await page.goto("/");
+  await expect(entete.getByRole("link", { name: /Black Pégasus Compagnie/ })).toHaveAttribute(
+    "href",
+    "/",
+  );
+  await expect(entete.getByRole("link", { name: "Retour au groupe" })).toHaveCount(0);
+  await navigation.getByRole("link", { name: "Location", exact: true }).click();
+  await expect(page).toHaveURL(/\/location$/);
+  await expect(entete.getByRole("link", { name: /Black Pégasus Location/ })).toHaveAttribute(
+    "href",
+    "/location",
+  );
+  await expect(entete.locator("img")).toHaveAttribute("src", /bp-location/);
+  await expect(
+    page.getByRole("navigation", { name: "Navigation Location", exact: true }),
+  ).toHaveCount(0);
+  await expect(navigation.getByRole("link", { name: "Location", exact: true })).toHaveCount(0);
+  await expect(navigation.getByRole("link", { name: "Accueil", exact: true })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+  await navigation.getByRole("link", { name: "La flotte", exact: true }).click();
+  await expect(page).toHaveURL(/\/location\/flotte$/);
+  await expect(navigation.getByRole("link", { name: "La flotte", exact: true })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+  await expect(navigation.getByRole("link", { name: "Accueil", exact: true })).not.toHaveAttribute(
+    "aria-current",
+  );
+  await entete.getByRole("link", { name: "Retour au groupe" }).click();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(entete.getByRole("link", { name: /Black Pégasus Compagnie/ })).toBeVisible();
+  await expect(navigation.getByRole("link", { name: "Location", exact: true })).toBeVisible();
+});
+
 test("le Remorqueur (non visible) n'apparaît nulle part", async ({ page }) => {
   for (const chemin of [
     "/location",
@@ -136,10 +177,20 @@ test.describe("mobile (390 px)", () => {
     await navigation.getByRole("link", { name: "Location", exact: true }).click();
     await expect(page).toHaveURL(/\/location$/);
     await page.getByRole("button", { name: "Ouvrir le menu" }).click();
-    await expect(navigation.getByRole("link", { name: "Location", exact: true })).toHaveAttribute(
+    await expect(navigation.getByRole("link", { name: "Accueil", exact: true })).toHaveAttribute(
       "aria-current",
       "page",
     );
+    await navigation.getByRole("link", { name: "Règlement", exact: true }).click();
+    await expect(page).toHaveURL(/\/location\/reglement$/);
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await page.getByRole("button", { name: "Ouvrir le menu" }).click();
+    await page.waitForLoadState("networkidle");
+    const { violations } = await new AxeBuilder({ page }).analyze();
+    expect(violations.map((v) => v.id)).toEqual([]);
+    await page.getByRole("banner").getByRole("link", { name: "Retour au groupe" }).click();
+    await expect(page).toHaveURL(/\/$/);
+    await expect(navigation).toBeHidden();
   });
 
   test("filtres de la flotte dans un tiroir", async ({ page }) => {

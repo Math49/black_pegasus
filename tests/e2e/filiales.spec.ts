@@ -180,13 +180,11 @@ test("logo invalide : écriture refusée sans modification de la filiale", async
   await page.goto("/admin/parametres");
   const f = page.getByRole("region", { name: "Filiale · Formation", exact: true });
   await f.getByLabel("Nom de la filiale").fill("Nom qui ne doit pas être enregistré");
-  await f
-    .getByLabel("Logo de la filiale")
-    .setInputFiles({
-      name: "faux.png",
-      mimeType: "image/png",
-      buffer: Buffer.from("image invalide"),
-    });
+  await f.getByLabel("Logo de la filiale").setInputFiles({
+    name: "faux.png",
+    mimeType: "image/png",
+    buffer: Buffer.from("image invalide"),
+  });
   await f.getByRole("button", { name: "Enregistrer", exact: true }).click();
   await expect(f.getByRole("alert")).toContainText("Format refusé");
   expect((await sql<Filiale>(`SELECT * FROM "Filiale" WHERE code='BPF'`))[0].nom).toBe(
@@ -199,6 +197,18 @@ test("trois filiales visibles : responsive, axe et contrastes des accents", asyn
   for (const route of ["/", "/location", "/formation", "/cards"]) {
     await page.goto(route);
     await page.waitForLoadState("networkidle");
+    const entete = page.getByRole("banner");
+    const courante = filiales.find(
+      (f) =>
+        `/${f.code === "BPL" ? "location" : f.code === "BPF" ? "formation" : "cards"}` === route,
+    );
+    if (courante) {
+      await expect(entete.getByRole("link", { name: `${courante.nom} – Accueil` })).toHaveAttribute(
+        "href",
+        route,
+      );
+      await expect(entete.getByRole("link", { name: "Retour au groupe" })).toBeVisible();
+    }
     for (const largeur of [390, 768, 1024, 1440]) {
       await page.setViewportSize({ width: largeur, height: 900 });
       expect(

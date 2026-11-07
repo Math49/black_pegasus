@@ -52,7 +52,7 @@ Reprise de l'existant : la filiale BPL est créée à partir de `Parametres` (t�
 /cards                         BPC : catalogue par catégorie, recherche, carte grisée si épuisée
 ```
 - Anciennes adresses (`/flotte`, `/flotte/[slug]`, `/reglement`) redirigées vers `/location/…`.
-- En-tête : logo du groupe, liens vers les trois filiales ; sur une page de filiale, son nom, son téléphone et ses horaires.
+- En-tête contextuel (ajustement validé après F-2) : sur le groupe, logo du groupe et liens vers les filiales visibles ; dans une filiale, son logo, son nom, sa couleur et ses propres liens. Pour Location : Accueil, La flotte, Règlement. Un bouton « Retour au groupe » se place à droite d’« Espace admin ». Une seule barre de navigation ; le logo renvoie à l’accueil de l’espace courant. Les contacts restent dans les pages et le pied de page.
 - Couleur de filiale (F6) : sert d'accent (titres en accent, boutons, filets, icônes) dans sa section ; l'or reste réservé au groupe. Contraste ≥ 4,5:1 vérifié pour chaque couleur.
 - Pas de maquette pour ces nouvelles pages : composition avec les composants existants, capture montrée avant d'affiner.
 

@@ -6,6 +6,10 @@ Les filiales visibles sont triées par ordre d’affichage puis par code. Leur i
 
 Le groupe, le panel et les PDF gardent la palette or. Les sections de filiale utilisent les accents prévus : bleu pour Location, vert pour Formation, violet pour Cards. Les contrastes des accents et du texte sur les boutons sont vérifiés par les tests navigateur.
 
+Après le retour utilisateur sur F-2, la barre principale devient celle de la filiale visitée : logo, nom, accent et liens propres à cette filiale. Location affiche Accueil, La flotte et Règlement. « Retour au groupe » apparaît à droite d’« Espace admin ». Le logo renvoie à l’accueil de l’espace courant et la seconde barre de Location est retirée. La navigation s’adapte également lors d’un changement de page sans rechargement, et dans le menu mobile.
+
+Cet ajustement a été validé par le lint, les 273 tests unitaires, la compilation de production et les tests ciblés des fichiers `site.spec.ts`, `filiales.spec.ts` et `finitions.spec.ts` (27 parcours). L’audit mobile attend le titre et la fin du chargement avant de démarrer axe.
+
 La migration `20261107140000_site_groupe` ajoute `Parametres.textesGroupe` et renseigne les installations existantes. Le seed et l’initialisation de production utilisent les mêmes textes de départ. Aucune nouvelle variable d’environnement ni dépendance d’exécution n’est nécessaire.
 
 Une filiale masquée affiche la page introuvable sur toute sa section. Avec le rendu en streaming de Next.js, le statut HTTP peut rester 200 si l’envoi de la réponse a commencé ; la page porte alors `noindex`, comme les fiches de véhicule introuvables existantes. Les tests vérifient la page introuvable et cette directive.
@@ -30,3 +34,5 @@ Le premier rendu de l’accueil a été présenté avant les ajustements. Les ca
 - [Accueil Location](accueil-location.jpg)
 - [Accueil sur mobile](accueil-mobile.jpg)
 - [Paramètres des filiales](parametres-filiales.jpg)
+- [Barre de Location après ajustement](navbar-location.jpg)
+- [Menu de Location sur mobile](navbar-location-mobile.jpg)
