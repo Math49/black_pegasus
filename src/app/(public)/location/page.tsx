@@ -130,7 +130,7 @@ async function Accueil() {
           <Surtitre>Location de prestige · Los Santos</Surtitre>
         </ElementHero>
         <h1 className="m-0 titre text-[clamp(44px,6vw,88px)] leading-[1.02] font-semibold tracking-[-0.025em] text-balance">
-          <Revelation delai={0.1}>
+          <Revelation>
             <TitreAccent titre={accroche.titre} />
           </Revelation>
         </h1>

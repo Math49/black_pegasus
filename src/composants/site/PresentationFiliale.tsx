@@ -38,7 +38,7 @@ export function HeroFiliale({ filiale: f, actions }: { filiale: Filiale; actions
         <Surtitre>Black Pégasus · {libelleFiliale(f.code)}</Surtitre>
       </ElementHero>
       <h1 className="m-0 titre text-[clamp(44px,6vw,88px)] leading-[1.02] font-semibold tracking-[-0.025em] text-balance">
-        <Revelation delai={0.1}>{f.nom}</Revelation>
+        <Revelation>{f.nom}</Revelation>
       </h1>
       <ElementHero
         as="p"

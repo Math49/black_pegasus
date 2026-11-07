@@ -90,14 +90,18 @@ export function Cascade({
 }) {
   const Composant = motion[as];
   const reduit = useReducedMotion();
+  // Haut de page : animation CSS, visible dès le rendu serveur (sans attendre l'hydratation).
+  if (immediat) {
+    const Element = as;
+    return <Element className={cx("bp-entree", className)}>{children}</Element>;
+  }
   return (
     <Composant
       className={className}
       variants={variantesCascade}
       initial={reduit ? false : "cache"}
-      {...(immediat
-        ? { animate: "visible" }
-        : { whileInView: "visible", viewport: { once: true, margin: "0px 0px -10% 0px" } })}
+      whileInView="visible"
+      viewport={{ once: true, margin: "0px 0px -10% 0px" }}
     >
       {children}
     </Composant>
@@ -124,27 +128,11 @@ export function ElementCascade({
   );
 }
 
-/** Titre révélé par un masque qui remonte (le texte reste lisible par les lecteurs d'écran). */
-export function Revelation({
-  children,
-  className,
-  delai = 0,
-}: {
-  children: ReactNode;
-  className?: string;
-  delai?: number;
-}) {
-  const reduit = useReducedMotion();
+/** Titre révélé par un masque qui remonte (animation CSS : visible sans JavaScript). */
+export function Revelation({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <span className={cx("block overflow-hidden pb-[0.08em]", className)}>
-      <motion.span
-        className="block"
-        initial={reduit ? false : { y: "105%" }}
-        animate={{ y: 0 }}
-        transition={{ duration: 1.1, ease: COURBE, delay: delai }}
-      >
-        {children}
-      </motion.span>
+    <span className={cx("bp-revelation block overflow-hidden pb-[0.08em]", className)}>
+      <span className="block">{children}</span>
     </span>
   );
 }

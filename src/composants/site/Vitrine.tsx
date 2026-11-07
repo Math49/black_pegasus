@@ -119,11 +119,7 @@ export function HeroVitrine({
         <Cascade immediat className="flex min-w-0 flex-col items-start gap-7">
           {children}
         </Cascade>
-        {visuel && (
-          <Apparition decalage={0} delai={0.25} className="min-w-0 max-lg:order-first">
-            {visuel}
-          </Apparition>
-        )}
+        {visuel && <div className="bp-entree-visuel min-w-0 max-lg:order-first">{visuel}</div>}
       </div>
       <div
         aria-hidden="true"

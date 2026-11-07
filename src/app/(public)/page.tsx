@@ -78,7 +78,7 @@ async function AccueilGroupe() {
           <Surtitre>{p.nomEntreprise}</Surtitre>
         </ElementCascade>
         <h1 className="m-0 titre text-[clamp(44px,6.6vw,96px)] leading-[1] font-semibold tracking-[-0.025em] text-balance">
-          <Revelation delai={0.1}>
+          <Revelation>
             <TitreAccent titre={accroche.titre} />
           </Revelation>
         </h1>
