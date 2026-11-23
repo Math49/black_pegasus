@@ -80,6 +80,7 @@ async function Cards({ searchParams }: { searchParams: PageProps<"/cards">["sear
       />
       <Wrap
         as="section"
+        large
         id="catalogue"
         aria-labelledby="titre-catalogue"
         className="flex scroll-mt-28 flex-col gap-10 py-20"
@@ -97,7 +98,7 @@ async function Cards({ searchParams }: { searchParams: PageProps<"/cards">["sear
           </p>
         ) : (
           <>
-            <div className="grid items-start gap-10 lg:grid-cols-[280px_minmax(0,1fr)]">
+            <div className="grid items-start gap-10 lg:grid-cols-[260px_minmax(0,1fr)] xl:gap-8">
               <aside
                 aria-label="Filtrer le catalogue"
                 className="glass-site flex min-w-0 flex-col gap-5 rounded-[24px] p-5 lg:sticky lg:top-28 lg:max-h-[calc(100svh-8rem)] lg:overflow-y-auto"
@@ -229,7 +230,7 @@ async function Cards({ searchParams }: { searchParams: PageProps<"/cards">["sear
                       </h2>
                       <span className="filet-or h-px flex-1" aria-hidden="true" />
                     </Apparition>
-                    <ul className="bp-entree m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(min(200px,100%),1fr))] gap-5 p-0">
+                    <ul className="bp-entree m-0 grid list-none grid-cols-2 gap-4 p-0 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-5">
                       {g.cartes.map((c) => (
                         <li key={c.id}>
                           <CarteCollection

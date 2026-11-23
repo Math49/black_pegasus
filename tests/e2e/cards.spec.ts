@@ -442,4 +442,21 @@ test.describe("Black Pégasus Cards", () => {
       [],
     );
   });
+
+  test("vue d'ensemble : toutes les catégories dans l'ordre, cartes numérotées", async ({
+    page,
+  }) => {
+    await connexion(page, "Lena Castillo");
+    await page.goto("/admin/cards");
+    await page.getByRole("button", { name: /^Vue d’ensemble/ }).click();
+    await expect(page.getByRole("heading", { level: 2, name: "Vue d’ensemble" })).toBeVisible();
+    const attendues = (
+      await sql<{ nom: string }>(`SELECT nom FROM "CategorieCarte" ORDER BY ordre, nom`)
+    ).map((c) => c.nom);
+    await expect(page.getByRole("heading", { level: 3 })).toHaveText(attendues);
+    const premiere = page.getByRole("list", { name: `Cartes de ${attendues[0]}` });
+    await expect(premiere.getByRole("listitem").first()).toContainText("Position 1");
+    const { violations } = await new AxeBuilder({ page }).analyze();
+    expect(violations.map((v) => `${v.id} ${v.nodes[0]?.target}`)).toEqual([]);
+  });
 });

@@ -116,6 +116,8 @@ test.describe("enchères", () => {
     await expect(form.getByRole("alert")).toContainText(`au moins $500`);
     form = await encherir(page, "Ada Lovelace", "500");
     await expect(form.getByRole("status")).toContainText("Offre enregistrée");
+    // Attendre l'actualisation : le champ remonte alors au nouveau minimum.
+    await expect(form.getByLabel("Votre offre ($)")).toHaveValue("550");
     form = await encherir(page, "Bob Marley", "520");
     await expect(form.getByRole("alert")).toContainText(`au moins $550`);
     form = await encherir(page, "Bob Marley", "600");

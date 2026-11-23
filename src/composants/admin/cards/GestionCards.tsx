@@ -119,6 +119,9 @@ function EncartEnchere({
 
 type Etat = { ok: boolean; texte: string } | null;
 
+/** Choix « Vue d'ensemble » dans la liste des catégories. */
+const VUE_ENSEMBLE = "vue-ensemble";
+
 const trierParOrdre = <T extends { ordre: number; nom: string }>(l: readonly T[]) =>
   [...l].sort((a, b) => a.ordre - b.ordre || a.nom.localeCompare(b.nom, "fr"));
 
@@ -327,6 +330,7 @@ function NouvelleCategorie() {
 
 function TuileCarte({
   carte,
+  position,
   triable,
   avecCategorie,
   enCours,
@@ -336,6 +340,8 @@ function TuileCarte({
   extra,
 }: {
   carte: CarteAdmin;
+  /** Rang de la carte dans sa catégorie (1 = première sur le site). */
+  position?: number;
   triable: boolean;
   avecCategorie: boolean;
   enCours: boolean;
@@ -371,6 +377,11 @@ function TuileCarte({
           className="h-[78px] w-14 flex-none rounded-[6px] bg-noir object-cover"
         />
         <div className="flex min-w-0 flex-1 flex-col gap-1">
+          {position !== undefined && (
+            <span className="text-[11px] font-bold chiffres text-texte-attenue">
+              Position {position}
+            </span>
+          )}
           <span className="line-clamp-2 text-sm leading-tight font-bold">{carte.nom}</span>
           {avecCategorie && (
             <span className="truncate text-xs text-texte-attenue">{carte.categorie.nom}</span>
@@ -473,20 +484,43 @@ export function GestionCards({
   }
 
   const [choisie, setChoisie] = useState<string | null>(categoriesServeur[0]?.id ?? null);
-  const categorie = categories.find((c) => c.id === choisie) ?? categories[0] ?? null;
   const [filtres, setFiltres] = useState<FiltresCatalogue>(FILTRES_PAR_DEFAUT);
   const recherche = filtres.q.trim() !== "";
+  // Vue d'ensemble : toutes les catégories dans leur ordre, chacune avec ses cartes.
+  const ensemble = !recherche && choisie === VUE_ENSEMBLE;
+  const categorie = ensemble
+    ? null
+    : (categories.find((c) => c.id === choisie) ?? categories[0] ?? null);
   const triable = !filtresActifs(filtres);
 
   const [edition, setEdition] = useState<CarteAdmin | null | undefined>(undefined);
   const [suppression, setSuppression] = useState<CarteAdmin | null>(null);
   const [categorieModifiee, setCategorieModifiee] = useState<CategorieCards | null>(null);
 
+  // Cartes de chaque catégorie dans l'ordre du site ; position = rang dans la catégorie.
+  const parCategorie = new Map(
+    categories.map((c) => [c.id, trierParOrdre(cartes.filter((x) => x.categorieId === c.id))]),
+  );
+  const positions = new Map(
+    [...parCategorie.values()].flatMap((l) => l.map((c, i) => [c.id, i + 1] as const)),
+  );
   // Une recherche porte sur tout le catalogue ; sinon, la catégorie choisie.
   const affichees = filtrerCatalogue(
-    recherche ? cartes : trierParOrdre(cartes.filter((c) => c.categorieId === categorie?.id)),
+    recherche ? cartes : ensemble ? [] : (parCategorie.get(categorie?.id ?? "") ?? []),
     filtres,
   );
+  const groupes = ensemble
+    ? categories
+        .map((c) => ({
+          categorie: c,
+          cartes: filtrerCatalogue(parCategorie.get(c.id) ?? [], filtres),
+        }))
+        // Les catégories vides restent visibles, sauf quand un filtre les vide.
+        .filter((g) => !filtresActifs(filtres) || g.cartes.length > 0)
+    : [];
+  const nombreAffiche = ensemble
+    ? groupes.reduce((n, g) => n + g.cartes.length, 0)
+    : affichees.length;
 
   const executer = (action: () => Promise<Resultat<unknown>>, succes?: string) =>
     demarrer(async () => {
@@ -511,13 +545,16 @@ export function GestionCards({
       const nouvel = arrayMove(ids, ids.indexOf(String(active.id)), ids.indexOf(String(over.id)));
       setCategories(nouvel.map((id) => categories.find((c) => c.id === id)!));
       executer(() => actionOrdonnerCategories(nouvel), "Ordre des catégories enregistré.");
-    } else if (type === "carte" && cible === "carte" && categorie) {
-      const ids = affichees.map((c) => c.id);
+    } else if (type === "carte" && cible === "carte") {
+      // Réordonnancement au sein d'une même catégorie (vue d'ensemble comprise).
+      const categorieId = String(active.data.current?.categorieId ?? "");
+      if (over.data.current?.categorieId !== categorieId) return;
+      const ids = (parCategorie.get(categorieId) ?? []).map((c) => c.id);
       const nouvel = arrayMove(ids, ids.indexOf(String(active.id)), ids.indexOf(String(over.id)));
       setCartes(
         cartes.map((c) => (nouvel.includes(c.id) ? { ...c, ordre: nouvel.indexOf(c.id) + 1 } : c)),
       );
-      executer(() => actionOrdonnerCartes(categorie.id, nouvel), "Ordre des cartes enregistré.");
+      executer(() => actionOrdonnerCartes(categorieId, nouvel), "Ordre des cartes enregistré.");
     } else if (type === "carte" && cible === "categorie") {
       const vers = categories.find((c) => c.id === over.id);
       const carte = cartes.find((c) => c.id === active.id);
@@ -556,6 +593,36 @@ export function GestionCards({
     return r;
   });
 
+  // Une liste triable par catégorie : une carte ne se réordonne qu'au sein de la sienne.
+  const listeTuiles = (liste: CarteAdmin[], libelle: string, avecCategorie: boolean) => (
+    <SortableContext items={liste.map((c) => c.id)} strategy={rectSortingStrategy}>
+      <ul
+        aria-label={libelle}
+        className="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-3 p-0"
+      >
+        {liste.map((c) => (
+          <TuileCarte
+            key={c.id}
+            carte={c}
+            position={recherche ? undefined : positions.get(c.id)}
+            triable={triable}
+            avecCategorie={avecCategorie}
+            enCours={enCours}
+            onStock={(delta) => ajusterStock(c, delta)}
+            onModifier={() => setEdition(c)}
+            onRetirer={() => {
+              retirer.effacer();
+              setSuppression(c);
+            }}
+            extra={
+              c.enchere && <EncartEnchere enchere={c.enchere} maintenant={maintenant} nom={c.nom} />
+            }
+          />
+        ))}
+      </ul>
+    </SortableContext>
+  );
+
   return (
     <DndContext
       // Identifiant fixe : évite un décalage d'hydratation des attributs ARIA de dnd-kit.
@@ -581,6 +648,28 @@ export function GestionCards({
               déplacer.
             </span>
           </div>
+          {categories.length > 0 && (
+            <button
+              type="button"
+              aria-current={ensemble ? "true" : undefined}
+              onClick={() => {
+                setChoisie(VUE_ENSEMBLE);
+                setFiltres({ ...filtres, q: "" });
+              }}
+              className={cx(
+                "flex min-h-11 cursor-pointer items-center justify-between gap-2 rounded-[12px] border border-transparent bg-transparent py-2 pr-3 pl-3 text-left font-[inherit] text-texte",
+                ensemble && "border-[var(--bp-trait-18)] bg-[var(--bp-voile-6)]",
+              )}
+            >
+              <span className="flex items-center gap-2 text-sm font-bold">
+                <Icon nom="grille" taille={16} className="text-texte-attenue" />
+                Vue d’ensemble
+              </span>
+              <span className="flex-none rounded-full bg-[var(--bp-voile-6)] px-2 py-0.5 text-xs chiffres text-texte-doux">
+                {cartes.length}
+              </span>
+            </button>
+          )}
           {categories.length === 0 ? (
             <p className="m-0 text-sm text-texte-doux">Aucune catégorie.</p>
           ) : (
@@ -620,11 +709,24 @@ export function GestionCards({
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex flex-col gap-1">
               <h2 id="titre-cartes" className="m-0 titre text-xl font-semibold">
-                {recherche ? `Recherche « ${filtres.q.trim()} »` : (categorie?.nom ?? "Cartes")}
+                {recherche
+                  ? `Recherche « ${filtres.q.trim()} »`
+                  : ensemble
+                    ? "Vue d’ensemble"
+                    : (categorie?.nom ?? "Cartes")}
               </h2>
               <span className="text-[13px] text-texte-attenue">
-                {affichees.length} carte{affichees.length > 1 ? "s" : ""}
-                {recherche ? " dans tout le catalogue" : ""} · {cartes.length} au total
+                {ensemble ? (
+                  <>
+                    {nombreAffiche} carte{nombreAffiche > 1 ? "s" : ""} · {categories.length}{" "}
+                    catégorie{categories.length > 1 ? "s" : ""}, dans l’ordre du site
+                  </>
+                ) : (
+                  <>
+                    {affichees.length} carte{affichees.length > 1 ? "s" : ""}
+                    {recherche ? " dans tout le catalogue" : ""} · {cartes.length} au total
+                  </>
+                )}
               </span>
             </div>
             <Button
@@ -701,40 +803,46 @@ export function GestionCards({
           )}
           <MessageEtat etat={etat} />
 
-          {affichees.length === 0 ? (
+          {ensemble ? (
+            groupes.length === 0 ? (
+              <p className="m-0 text-texte-doux">Aucune carte à afficher.</p>
+            ) : (
+              groupes.map((g) => (
+                <section
+                  key={g.categorie.id}
+                  aria-labelledby={`ensemble-${g.categorie.id}`}
+                  className="flex flex-col gap-3"
+                >
+                  <div className="flex items-center gap-3 border-b border-[var(--bp-trait-8)] pb-2">
+                    <span className="text-xs font-bold chiffres text-texte-attenue">
+                      {categories.indexOf(g.categorie) + 1}.
+                    </span>
+                    <h3
+                      id={`ensemble-${g.categorie.id}`}
+                      className="m-0 titre text-base font-semibold"
+                    >
+                      {g.categorie.nom}
+                    </h3>
+                    <span className="rounded-full bg-[var(--bp-voile-6)] px-2 py-0.5 text-xs chiffres text-texte-doux">
+                      {g.cartes.length}
+                    </span>
+                  </div>
+                  {g.cartes.length === 0 ? (
+                    <p className="m-0 text-sm text-texte-attenue">Aucune carte.</p>
+                  ) : (
+                    listeTuiles(g.cartes, `Cartes de ${g.categorie.nom}`, false)
+                  )}
+                </section>
+              ))
+            )
+          ) : affichees.length === 0 ? (
             <p className="m-0 text-texte-doux">
               {categories.length === 0
                 ? "Créez une catégorie avant d’ajouter une carte."
                 : "Aucune carte à afficher."}
             </p>
           ) : (
-            <SortableContext items={affichees.map((c) => c.id)} strategy={rectSortingStrategy}>
-              <ul
-                aria-label="Cartes"
-                className="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-3 p-0"
-              >
-                {affichees.map((c) => (
-                  <TuileCarte
-                    key={c.id}
-                    carte={c}
-                    triable={triable}
-                    avecCategorie={recherche}
-                    enCours={enCours}
-                    onStock={(delta) => ajusterStock(c, delta)}
-                    onModifier={() => setEdition(c)}
-                    onRetirer={() => {
-                      retirer.effacer();
-                      setSuppression(c);
-                    }}
-                    extra={
-                      c.enchere && (
-                        <EncartEnchere enchere={c.enchere} maintenant={maintenant} nom={c.nom} />
-                      )
-                    }
-                  />
-                ))}
-              </ul>
-            </SortableContext>
+            listeTuiles(affichees, "Cartes", recherche)
           )}
         </GlassCard>
       </div>
