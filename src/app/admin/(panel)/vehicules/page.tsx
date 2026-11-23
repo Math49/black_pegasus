@@ -61,7 +61,7 @@ async function Contenu({
 
   return (
     <>
-      <EnTetePanel titre="Véhicules" fil={[{ libelle: "Gestion" }, { libelle: "Véhicules" }]} />
+      <EnTetePanel titre="Véhicules" fil={[{ libelle: "Location" }, { libelle: "Véhicules" }]} />
 
       <section
         aria-label="Compteurs de la flotte"

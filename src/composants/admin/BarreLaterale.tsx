@@ -33,24 +33,39 @@ function Cadre({ accueil, children }: { accueil: string; children: React.ReactNo
 export async function BarreLaterale() {
   const [compte, d] = await Promise.all([exigerSession(), lireDonneesPanel()]);
   const r = compte.role;
-  const liens: LienPanel[] = [
-    ...(peut(r, "tableauDeBord.consulter")
-      ? [{ href: "/admin", libelle: "Tableau de bord", icone: "tableauDeBord" as const }]
-      : []),
-    ...(peut(r, "solde.consulter")
-      ? [{ href: "/admin/solde", libelle: "Solde", icone: "solde" as const }]
-      : []),
-    ...(peut(r, "vehicule.consulter")
-      ? [
-          {
-            href: "/admin/vehicules",
-            libelle: "Véhicules",
-            icone: "avion" as const,
-            compteur: d.vehicules,
-          },
-        ]
-      : []),
+  // Navigation groupée par filiale (docs/REFONTE-ADMIN.md § 1) ; chaque entrée suit les permissions.
+  const entrees: (LienPanel & { visible: boolean })[] = [
     {
+      groupe: "Groupe",
+      href: "/admin",
+      libelle: "Tableau de bord",
+      icone: "tableauDeBord",
+      visible: peut(r, "tableauDeBord.consulter"),
+    },
+    {
+      groupe: "Groupe",
+      href: "/admin/solde",
+      libelle: "Solde",
+      icone: "solde",
+      visible: peut(r, "solde.consulter"),
+    },
+    {
+      groupe: "Groupe",
+      href: "/admin/comptabilite",
+      libelle: "Comptabilité",
+      icone: "balance",
+      visible: peut(r, "comptabilite.consulter"),
+    },
+    {
+      groupe: "Location",
+      href: "/admin/vehicules",
+      libelle: "Véhicules",
+      icone: "avion",
+      compteur: d.vehicules,
+      visible: peut(r, "vehicule.consulter"),
+    },
+    {
+      groupe: "Location",
       href: "/admin/contrats",
       libelle: "Contrats",
       icone: "contrat",
@@ -58,66 +73,53 @@ export async function BarreLaterale() {
         compteur: `${d.retards} retard${d.retards > 1 ? "s" : ""}`,
         compteurAlerte: true,
       }),
+      visible: peut(r, "contrat.consulter"),
     },
-    { href: "/admin/comptabilite", libelle: "Comptabilité", icone: "balance" },
-    ...(peut(r, "formation.gerer")
-      ? [
-          {
-            href: "/admin/formation/permis",
-            libelle: "Permis",
-            icone: "contrat" as const,
-            groupe: "Formation",
-          },
-          {
-            href: "/admin/formation/demandes",
-            libelle: "Demandes",
-            icone: "personnes" as const,
-            groupe: "Formation",
-            compteur: d.demandesNouvelles,
-          },
-        ]
-      : []),
-    ...(peut(r, "cards.gerer")
-      ? [
-          {
-            href: "/admin/cards",
-            libelle: "Cartes",
-            icone: "couches" as const,
-            groupe: "Cards",
-          },
-        ]
-      : []),
-    ...(peut(r, "vente.consulter")
-      ? [
-          {
-            href: "/admin/cards/ventes",
-            libelle: "Ventes",
-            icone: "etiquette" as const,
-            groupe: "Cards",
-          },
-        ]
-      : []),
-    ...(peut(compte.role, "compte.gerer")
-      ? [
-          {
-            href: "/admin/comptes",
-            libelle: "Comptes",
-            icone: "personnes" as const,
-            groupe: "Administration",
-          },
-        ]
-      : []),
-    ...(peut(compte.role, "parametres.gerer")
-      ? [
-          {
-            href: "/admin/parametres",
-            libelle: "Paramètres",
-            icone: "reglages" as const,
-            groupe: "Administration",
-          },
-        ]
-      : []),
+    {
+      groupe: "Formation",
+      href: "/admin/formation/permis",
+      libelle: "Permis",
+      icone: "diplome",
+      visible: peut(r, "formation.gerer"),
+    },
+    {
+      groupe: "Formation",
+      href: "/admin/formation/demandes",
+      libelle: "Demandes",
+      icone: "discussion",
+      compteur: d.demandesNouvelles || undefined,
+      visible: peut(r, "demande.consulter"),
+    },
+    {
+      groupe: "Cards",
+      href: "/admin/cards",
+      libelle: "Cartes",
+      icone: "couches",
+      visible: peut(r, "cards.gerer"),
+    },
+    {
+      groupe: "Cards",
+      href: "/admin/cards/ventes",
+      libelle: "Ventes",
+      icone: "etiquette",
+      visible: peut(r, "vente.consulter"),
+    },
+    {
+      groupe: "Administration",
+      href: "/admin/comptes",
+      libelle: "Comptes",
+      icone: "personnes",
+      visible: peut(r, "compte.gerer"),
+    },
+    {
+      groupe: "Administration",
+      href: "/admin/parametres",
+      libelle: "Paramètres",
+      icone: "reglages",
+      visible: peut(r, "parametres.gerer"),
+    },
   ];
+  const liens: LienPanel[] = entrees.filter((e) => e.visible);
   const ouverte = d.semaine.statut === "OUVERTE";
 
   return (

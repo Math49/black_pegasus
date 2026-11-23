@@ -190,7 +190,7 @@ async function Contenu({
     <>
       <EnTetePanel
         titre="Comptabilité hebdomadaire"
-        fil={[{ libelle: "Gestion" }, { libelle: "Comptabilité" }, { libelle: "FISC" }]}
+        fil={[{ libelle: "Groupe" }, { libelle: "Comptabilité" }, { libelle: "FISC" }]}
       />
 
       <GlassCard

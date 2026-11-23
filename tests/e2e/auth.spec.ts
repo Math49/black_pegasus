@@ -19,13 +19,13 @@ test("sans session, le panel redirige vers la connexion", async ({ page }) => {
 test("administrateur : gabarit complet, Comptes et Paramètres accessibles", async ({ page }) => {
   await connexion(page, "Vincent Moretti");
   await expect(page.getByRole("heading", { level: 1, name: "Bonsoir, Vincent" })).toBeVisible();
-  const nav = page.getByRole("navigation", { name: "Gestion" });
+  const nav = page.getByRole("navigation", { name: "Menu du panel" });
   await expect(nav.getByRole("link")).toHaveText([
     "Tableau de bord",
     "Solde",
+    "Comptabilité",
     "Véhicules9",
     "Contrats1 retard",
-    "Comptabilité",
     "Permis",
     "Demandes2",
     "Cartes",
@@ -56,7 +56,7 @@ test("cloche : alertes calculées (retard de CTR-2026-0039)", async ({ page }) =
 
 test("gestionnaire : ni Comptes ni Paramètres", async ({ page }) => {
   await connexion(page, "Lena Castillo");
-  const nav = page.getByRole("navigation", { name: "Gestion" });
+  const nav = page.getByRole("navigation", { name: "Menu du panel" });
   await expect(nav.getByRole("link", { name: "Véhicules" })).toBeVisible();
   await expect(nav.getByRole("link", { name: "Comptes" })).toHaveCount(0);
   await expect(nav.getByRole("link", { name: "Paramètres" })).toHaveCount(0);

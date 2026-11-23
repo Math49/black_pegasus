@@ -55,7 +55,7 @@ async function Contenu({
               </Link>
             </p>
           )}
-          {peutCreer && <NouvelleVente cartes={cartes} />}
+          {peutCreer && <NouvelleVente cartes={cartes} ouvertInitial={params.nouvelle === "1"} />}
         </div>
         <DataGrid
           libelle="Ventes de cartes"

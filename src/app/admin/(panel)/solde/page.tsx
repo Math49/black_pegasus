@@ -194,7 +194,7 @@ async function Contenu({
     <>
       <EnTetePanel
         titre="Solde de l’entreprise"
-        fil={[{ libelle: "Gestion" }, { libelle: "Solde" }]}
+        fil={[{ libelle: "Groupe" }, { libelle: "Solde" }]}
       />
 
       <section aria-label="Solde actuel" className="flex flex-wrap items-stretch gap-5">

@@ -116,8 +116,15 @@ function FormulaireVente({ cartes, fermer }: { cartes: CarteVendable[]; fermer: 
 }
 
 /** Bouton « Nouvelle vente » et sa modale. */
-export function NouvelleVente({ cartes }: { cartes: CarteVendable[] }) {
-  const [ouvert, setOuvert] = useState(false);
+export function NouvelleVente({
+  cartes,
+  ouvertInitial = false,
+}: {
+  cartes: CarteVendable[];
+  /** Modale ouverte d'emblée (raccourci « Nouvelle vente » du tableau de bord). */
+  ouvertInitial?: boolean;
+}) {
+  const [ouvert, setOuvert] = useState(ouvertInitial);
   return (
     <>
       <Button taille="panel" icone="plus" onClick={() => setOuvert(true)}>

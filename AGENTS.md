@@ -14,7 +14,7 @@ Projet : site public et panel d'administration du groupe **Black Pégasus Compag
 
 ## À lire, dans cet ordre
 1. **`CLAUDE.md`** : règles du projet. Elles s'appliquent à tout agent, pas seulement à Claude : stack, commandes, règles de code, méthode de travail.
-2. **`docs/PLAN-FILIALES.md`** : état d'avancement et plan détaillé de la suite (phases F-2 à F-6). **C'est le document de travail courant.**
+2. **`docs/REFONTE-ADMIN.md`** : refonte de l'espace admin (phases R-1 à R-5), décisions et état. **C'est le document de travail courant.** `docs/PLAN-FILIALES.md` décrit les phases F terminées.
 3. `docs/CONCEPTION-FILIALES.md` : décisions validées avec l'utilisateur pour les filiales.
 4. `docs/CONCEPTION.md` : conception d'origine (schéma, transactions, sécurité). Elle fait foi pour tout ce que la conception des filiales ne change pas.
 5. `docs/DEPLOIEMENT.md` : image Docker, workflow GitHub, stack Portainer, sauvegardes.

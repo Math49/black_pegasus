@@ -55,7 +55,7 @@ async function Contenu({
 
   return (
     <>
-      <EnTetePanel titre="Contrats" fil={[{ libelle: "Gestion" }, { libelle: "Contrats" }]} />
+      <EnTetePanel titre="Contrats" fil={[{ libelle: "Location" }, { libelle: "Contrats" }]} />
 
       {cree && (
         <GlassCard

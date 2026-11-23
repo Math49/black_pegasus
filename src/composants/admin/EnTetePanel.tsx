@@ -23,7 +23,7 @@ export async function EnTetePanel({
   retour,
 }: {
   titre: ReactNode;
-  /** Fil d'Ariane affiché en petites capitales : « Gestion · Véhicules ». */
+  /** Fil d'Ariane affiché en petites capitales : « Location · Véhicules ». */
   fil?: EtapeFil[];
   /** Surtitre libre (date du jour sur le tableau de bord). */
   surtitre?: ReactNode;
