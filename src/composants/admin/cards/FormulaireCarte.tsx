@@ -22,6 +22,9 @@ export function FormulaireCarte({
   fermer: () => void;
 }) {
   const [visible, setVisible] = useState(carte?.visible ?? true);
+  // Mise en enchère : à la création, ou sur une carte sans enchère ouverte.
+  const [mode, setMode] = useState<"vente" | "enchere">("vente");
+  const enchereOuverte = Boolean(carte?.enchere);
   const { enregistrer, enCours, etat } = useEnregistrement(async (donnees: FormData) => {
     const r = await actionEnregistrerCarte(donnees);
     if (r.ok) fermer();
@@ -36,6 +39,7 @@ export function FormulaireCarte({
         const d = new FormData(e.currentTarget);
         d.set("id", carte?.id ?? "");
         d.set("visible", visible ? "1" : "0");
+        d.set("mode", enchereOuverte ? "vente" : mode);
         enregistrer(d);
       }}
     >
@@ -99,6 +103,65 @@ export function FormulaireCarte({
           />
           <Checkbox name="retirerPhoto" value="1" label="Retirer la photo" />
         </div>
+      )}
+      {enchereOuverte ? (
+        <p className="m-0 text-sm text-texte-doux">
+          Une enchère est en cours sur cette carte : elle se gère depuis sa page d’enchère.
+        </p>
+      ) : (
+        <fieldset className="m-0 flex flex-col gap-4 rounded-[14px] border border-[var(--bp-trait-8)] p-4">
+          <legend className="px-1 titre text-[15px] font-semibold">Mode de vente</legend>
+          <Select
+            label="Mettre en vente"
+            value={mode}
+            onChange={(e) => setMode(e.target.value as "vente" | "enchere")}
+            options={[
+              { valeur: "vente", libelle: "Vente classique (prix fixe)" },
+              { valeur: "enchere", libelle: "Enchère (un exemplaire)" },
+            ]}
+          />
+          {mode === "enchere" && (
+            <div className="grid grid-cols-2 gap-4 max-sm:grid-cols-1">
+              <Field
+                label="Montant de départ ($)"
+                name="montantDepart"
+                type="number"
+                required
+                min={1}
+                max={10_000_000}
+                step={1}
+              />
+              <Field
+                label="Pas minimum entre deux offres ($)"
+                name="pasMinimum"
+                type="number"
+                required
+                min={1}
+                max={1_000_000}
+                step={1}
+              />
+              <Field
+                label="Durée (heures)"
+                name="dureeHeures"
+                type="number"
+                required
+                min={1}
+                max={720}
+                step={1}
+              />
+              <Field
+                label="Temps additionnel (minutes)"
+                name="tempsAdditionnelMin"
+                type="number"
+                required
+                min={0}
+                max={1440}
+                step={1}
+                aide="Une offre reçue alors qu’il reste moins que ce délai repousse la fin d’autant."
+              />
+            </div>
+          )}
+        </fieldset>
       )}
       <Switch label="Visible sur le site" coche={visible} onChange={setVisible} />
       <MessageEtat etat={etat} />

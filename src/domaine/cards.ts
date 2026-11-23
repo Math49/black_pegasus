@@ -189,23 +189,29 @@ export type FiltresCatalogue = {
   q: string;
   visibilite: "toutes" | "visibles" | "masquees";
   stock: "tous" | "enStock" | "epuisees";
+  mode: "tous" | "vente" | "enchere";
 };
 
-export const FILTRES_PAR_DEFAUT: FiltresCatalogue = { q: "", visibilite: "toutes", stock: "tous" };
+export const FILTRES_PAR_DEFAUT: FiltresCatalogue = {
+  q: "",
+  visibilite: "toutes",
+  stock: "tous",
+  mode: "tous",
+};
 
 /** Le glisser-déposer n'a de sens que sur la liste complète d'une catégorie. */
 export const filtresActifs = (f: FiltresCatalogue) =>
-  f.q.trim() !== "" || f.visibilite !== "toutes" || f.stock !== "tous";
+  f.q.trim() !== "" || f.visibilite !== "toutes" || f.stock !== "tous" || f.mode !== "tous";
 
 /** Filtres de l'écran Cartes du panel (recherche sur toutes les catégories). */
-export function filtrerCatalogue<C extends { nom: string; visible: boolean; stock: number }>(
-  cartes: readonly C[],
-  f: FiltresCatalogue,
-): C[] {
+export function filtrerCatalogue<
+  C extends { nom: string; visible: boolean; stock: number; enchere?: unknown },
+>(cartes: readonly C[], f: FiltresCatalogue): C[] {
   return cartes.filter(
     (c) =>
       correspondRecherche(c.nom, f.q) &&
       (f.visibilite === "toutes" || c.visible === (f.visibilite === "visibles")) &&
-      (f.stock === "tous" || c.stock > 0 === (f.stock === "enStock")),
+      (f.stock === "tous" || c.stock > 0 === (f.stock === "enStock")) &&
+      (f.mode === "tous" || Boolean(c.enchere) === (f.mode === "enchere")),
   );
 }

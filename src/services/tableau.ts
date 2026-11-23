@@ -23,13 +23,19 @@ export function lireDernieresDemandes() {
 }
 
 /** Cards : ventes validées de la semaine et état du catalogue. */
-export async function lireActiviteCards(semaine: SemaineFiscale) {
-  const [ventes, cartes, epuisees] = await Promise.all([
+export async function lireActiviteCards(semaine: SemaineFiscale, instant: Date) {
+  const [ventes, cartes, epuisees, encheres] = await Promise.all([
     prisma.venteCarte.count({
       where: { statut: "VALIDEE", date: { gte: semaine.debut, lt: semaine.fin } },
     }),
     prisma.carte.count({ where: { supprimeLe: null } }),
     prisma.carte.count({ where: { supprimeLe: null, stock: 0 } }),
+    // Enchères en cours, la plus proche de sa fin d'abord.
+    prisma.enchere.findMany({
+      where: { statut: "OUVERTE", finPrevue: { gt: instant } },
+      select: { id: true, finPrevue: true, carte: { select: { nom: true } } },
+      orderBy: { finPrevue: "asc" },
+    }),
   ]);
-  return { ventes, cartes, epuisees };
+  return { ventes, cartes, epuisees, encheres };
 }

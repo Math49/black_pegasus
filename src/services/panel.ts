@@ -35,31 +35,53 @@ export const lireDonneesPanel = cache(async (): Promise<DonneesPanel> => {
   const courante = semaineDe(instant, fuseau);
   const precedente = semainePrecedente(courante, fuseau);
 
-  const [vehicules, contrats, semaines, depenses, demandesNouvelles] = await Promise.all([
-    prisma.vehicule.count({ where: { supprimeLe: null } }),
-    prisma.contrat.findMany({
-      where: { statut: "EN_COURS" },
-      select: { numero: true, clientNom: true, finPrevue: true },
-    }),
-    prisma.semaine.findMany({
-      where: { id: { in: [courante.id, precedente.id] } },
-      select: { id: true, statut: true },
-    }),
-    prisma.mouvement.findMany({
-      where: {
-        semaine: { statut: "OUVERTE" },
-        sens: "SORTIE",
-        categorie: { in: [...CATEGORIES_DEPENSES] },
-        justificatifNumero: null,
-        annuleMouvementId: null,
-      },
-      select: { numero: true },
-      orderBy: { numero: "asc" },
-    }),
-    peut(compte.role, "demande.consulter")
-      ? prisma.demandeContact.count({ where: { statut: "NOUVELLE" } })
-      : Promise.resolve(0),
-  ]);
+  const voitEncheres = peut(compte.role, "enchere.gerer");
+  const [vehicules, contrats, semaines, depenses, demandesNouvelles, encheres, offresRecentes] =
+    await Promise.all([
+      prisma.vehicule.count({ where: { supprimeLe: null } }),
+      prisma.contrat.findMany({
+        where: { statut: "EN_COURS" },
+        select: { numero: true, clientNom: true, finPrevue: true },
+      }),
+      prisma.semaine.findMany({
+        where: { id: { in: [courante.id, precedente.id] } },
+        select: { id: true, statut: true },
+      }),
+      prisma.mouvement.findMany({
+        where: {
+          semaine: { statut: "OUVERTE" },
+          sens: "SORTIE",
+          categorie: { in: [...CATEGORIES_DEPENSES] },
+          justificatifNumero: null,
+          annuleMouvementId: null,
+        },
+        select: { numero: true },
+        orderBy: { numero: "asc" },
+      }),
+      peut(compte.role, "demande.consulter")
+        ? prisma.demandeContact.count({ where: { statut: "NOUVELLE" } })
+        : Promise.resolve(0),
+      // Enchères terminées (fin passée) : à conclure si une offre est retenue.
+      voitEncheres
+        ? prisma.enchere.findMany({
+            where: { statut: "OUVERTE", finPrevue: { lte: instant } },
+            select: {
+              id: true,
+              carte: { select: { nom: true } },
+              offres: { where: { invalidee: false }, select: { id: true }, take: 1 },
+            },
+            orderBy: { finPrevue: "asc" },
+          })
+        : Promise.resolve([]),
+      voitEncheres
+        ? prisma.offreEnchere.count({
+            where: {
+              invalidee: false,
+              date: { gt: new Date(instant.getTime() - 24 * 3_600_000), lte: instant },
+            },
+          })
+        : Promise.resolve(0),
+    ]);
   const statut = (id: string) => semaines.find((s) => s.id === id)?.statut;
 
   return {
@@ -86,6 +108,10 @@ export const lireDonneesPanel = cache(async (): Promise<DonneesPanel> => {
       maintenant: instant,
       fuseau,
       demandesFormationNouvelles: demandesNouvelles,
+      encheresAConclure: encheres
+        .filter((e) => e.offres.length > 0)
+        .map((e) => ({ id: e.id, carte: e.carte.nom })),
+      offresRecentes,
     }),
   };
 });

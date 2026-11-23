@@ -1,19 +1,38 @@
 import Image from "next/image";
+import Link from "next/link";
 import { formaterDollars } from "@/domaine/argent";
 import { etatCarte } from "@/domaine/cards";
 import { cx } from "@/lib/classes";
+import { CompteARebours } from "../ui/CompteARebours";
 import { ImageProtegee } from "./ImageProtegee";
+
+/** Carte mise aux enchères : offre actuelle, temps restant, lien vers la page d'enchère. */
+export type EnchereCarte = {
+  href: string;
+  /** Meilleure offre, ou mise à prix sans offre. */
+  montant: number;
+  avecOffre: boolean;
+  /** ISO 8601 */
+  fin: string;
+  maintenant: string;
+  terminee: boolean;
+};
 
 /** Carte du catalogue Cards : photo au format carte à collectionner, prix, stock. */
 export function CarteCollection({
   carte,
+  enchere,
 }: {
   carte: { nom: string; prix: number; stock: number; photoUrl: string | null; categorie: string };
+  enchere?: EnchereCarte;
 }) {
-  const etat = etatCarte(carte.stock);
+  const etat = enchere ? { epuisee: false, libelle: "Enchère" } : etatCarte(carte.stock);
   return (
     <article
-      className={cx("bp-vcard group h-full overflow-hidden", etat.epuisee && "bp-vcard--complet")}
+      className={cx(
+        "bp-vcard group relative h-full overflow-hidden",
+        etat.epuisee && "bp-vcard--complet",
+      )}
     >
       <div className="bp-vcard__media aspect-[63/88]">
         {carte.photoUrl ? (
@@ -59,10 +78,47 @@ export function CarteCollection({
       </div>
       <div className="flex flex-1 flex-col gap-2 px-4 pt-3 pb-4">
         <span className="libelle text-[10px]">{carte.categorie}</span>
-        <h3 className="m-0 titre text-lg leading-tight font-semibold">{carte.nom}</h3>
-        <span className="mt-auto texte-or titre text-2xl font-bold chiffres">
-          {formaterDollars(carte.prix)}
-        </span>
+        <h3 className="m-0 titre text-lg leading-tight font-semibold">
+          {enchere ? (
+            // Toute la carte mène à l'enchère (lien étiré sur l'article).
+            <Link
+              href={enchere.href}
+              className="text-texte after:absolute after:inset-0 after:z-10"
+            >
+              {carte.nom}
+            </Link>
+          ) : (
+            carte.nom
+          )}
+        </h3>
+        {enchere ? (
+          <span className="mt-auto flex flex-col gap-1">
+            <span className="libelle text-[10px]">
+              {enchere.avecOffre ? "Offre actuelle" : "Mise à prix"}
+            </span>
+            <span className="texte-or titre text-2xl font-bold chiffres">
+              {formaterDollars(enchere.montant)}
+            </span>
+            <span className="text-sm text-texte-doux">
+              {enchere.terminee ? (
+                "Enchère terminée"
+              ) : (
+                <>
+                  Fin dans{" "}
+                  <CompteARebours
+                    fin={enchere.fin}
+                    maintenant={enchere.maintenant}
+                    className="font-bold chiffres text-texte"
+                  />
+                </>
+              )}
+            </span>
+          </span>
+        ) : (
+          <span className="mt-auto texte-or titre text-2xl font-bold chiffres">
+            {formaterDollars(carte.prix)}
+          </span>
+        )}
       </div>
     </article>
   );

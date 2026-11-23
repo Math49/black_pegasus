@@ -122,6 +122,15 @@ describe("catalogue à gros volume (R-3)", () => {
     expect(f({ visibilite: "masquees" })).toEqual(["Dragon"]);
     expect(f({ stock: "enStock" })).toEqual(["Pégase d'ébène"]);
     expect(f({ stock: "epuisees", visibilite: "visibles" })).toEqual(["Pegase blanc"]);
+    const avecEnchere = [
+      ...cartes,
+      { nom: "Licorne", visible: true, stock: 1, enchere: { id: "e" } },
+    ];
+    expect(
+      filtrerCatalogue(avecEnchere, { ...FILTRES_PAR_DEFAUT, mode: "enchere" }).map((c) => c.nom),
+    ).toEqual(["Licorne"]);
+    expect(filtrerCatalogue(avecEnchere, { ...FILTRES_PAR_DEFAUT, mode: "vente" })).toHaveLength(3);
+    expect(filtresActifs({ ...FILTRES_PAR_DEFAUT, mode: "vente" })).toBe(true);
     expect(filtresActifs(FILTRES_PAR_DEFAUT)).toBe(false);
     expect(filtresActifs({ ...FILTRES_PAR_DEFAUT, q: " " })).toBe(false);
     expect(filtresActifs({ ...FILTRES_PAR_DEFAUT, stock: "epuisees" })).toBe(true);

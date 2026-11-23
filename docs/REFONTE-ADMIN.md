@@ -9,8 +9,8 @@
 | **R-1** | Navigation par filiale, icônes, tableau de bord du groupe | Terminée (`7ed1add`) |
 | **R-2** | Comptabilité : nature par le sens, impôt sur les recettes, catégories de mouvements personnalisables | Terminée (`a0a50d9`) |
 | **R-3** | Gestion des cartes à gros volume, glisser-déposer | Terminée (`c136c4a`) |
-| **R-4** | Ventes de plusieurs cartes, montant encaissé modifiable | Terminée, à valider |
-| **R-5** | Enchères (panel et site public) | À faire |
+| **R-4** | Ventes de plusieurs cartes, montant encaissé modifiable | Terminée (`b346a3b`) |
+| **R-5** | Enchères (panel et site public) | Terminée, à valider |
 
 ## 1. Navigation et tableau de bord (R-1)
 
@@ -84,3 +84,10 @@
   - la cloche signale chaque nouvelle offre et chaque enchère terminée ;
   - un administrateur peut invalider une offre fantaisiste (journalisé).
 - **Fin** : l'enchère passe à « Terminée · à conclure ». Après paiement en jeu, « Conclure » crée la vente (montant de l'offre gagnante, client gagnant), le mouvement et décrémente le stock. Si le gagnant ne paie pas : passer à l'enchérisseur suivant ou annuler. Sans offre : relancer ou repasser en vente classique.
+- **Livré en R-5** :
+  - tables `Enchere` (paramètres, `finPrevue` repoussée par les offres tardives, statut `OUVERTE` / `CONCLUE` / `ANNULEE`) et `OffreEnchere` (écartée : `fantaisiste` ou `defaillant`), migration `20261123160000_encheres` ; l'état « à conclure » ou « sans offre » se déduit de la fin et des offres (`domaine/encheres.ts`) ;
+  - mise en enchère depuis le formulaire d'une carte (création ou carte sans enchère ouverte) ; une carte aux enchères n'est plus proposée à la vente classique ;
+  - site : carte « Enchère » dans le catalogue (offre actuelle, compte à rebours), page `/cards/encheres/[id]` (photo filigranée, offres sans nom, formulaire, actualisation toutes les 15 s) ; offres limitées à 10 par 10 minutes, par adresse et par enchère, avec piège anti-robot ; le journal ne garde que le montant ;
+  - panel : page `/admin/cards/encheres/[id]` (aperçu, enchérisseurs avec téléphone, conclure, enchérisseur suivant, relancer, annuler ; écarter une offre : administrateur) ; filtre « Mode de vente » dans Cartes ; cloche (enchères à conclure, offres des dernières 24 h) ; bloc Cards du tableau de bord (enchères en cours) ;
+  - la conclusion crée une vente BPC au montant de l'offre gagnante, à son auteur, et inscrit la recette au registre ;
+  - captures : `docs/validations/r5/`.

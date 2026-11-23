@@ -12,6 +12,7 @@ import { EnTetePanel } from "@/composants/admin/EnTetePanel";
 import { RecettesSemaines } from "@/composants/admin/tableau/RecettesSemaines";
 import { Avatar } from "@/composants/ui/Avatar";
 import { Button } from "@/composants/ui/Button";
+import { CompteARebours } from "@/composants/ui/CompteARebours";
 import { DataGrid } from "@/composants/ui/DataGrid";
 import { GlassCard } from "@/composants/ui/GlassCard";
 import { Kpi } from "@/composants/ui/Kpi";
@@ -127,7 +128,7 @@ async function Contenu() {
     voitFormation ? lireDernieresDemandes() : Promise.resolve([]),
   ]);
   const { courante, synthese: syn } = s;
-  const cards = voitCards ? await lireActiviteCards(courante) : null;
+  const cards = voitCards ? await lireActiviteCards(courante, d.maintenant) : null;
   const identite = (code: CodeFiliale) => identites.find((f) => f.code === code);
 
   // Fenêtre du graphique : les 8 semaines qui finissent par la semaine en cours.
@@ -390,6 +391,23 @@ async function Contenu() {
                 <Chiffre
                   libelle={`Recettes · S${courante.numero}`}
                   valeur={formaterDollars(recettesDe("BPC"))}
+                />
+                <Chiffre
+                  libelle="Enchères en cours"
+                  valeur={cards.encheres.length}
+                  detail={
+                    cards.encheres[0] ? (
+                      <>
+                        {cards.encheres[0].carte.nom} · fin dans{" "}
+                        <CompteARebours
+                          fin={cards.encheres[0].finPrevue.toISOString()}
+                          maintenant={d.maintenant.toISOString()}
+                        />
+                      </>
+                    ) : (
+                      "Aucune"
+                    )
+                  }
                 />
                 <Chiffre
                   libelle="Cartes épuisées"

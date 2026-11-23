@@ -4,7 +4,7 @@ import { minutesDepassement, estEnRetard } from "./retard";
 
 export type Notification = {
   cle: string;
-  type: "retard" | "semaine" | "justificatif" | "formation";
+  type: "retard" | "semaine" | "justificatif" | "formation" | "enchere";
   message: string;
   href: string;
 };
@@ -26,6 +26,10 @@ export function notificationsPanel(p: {
   maintenant: Date;
   fuseau: string;
   demandesFormationNouvelles?: number;
+  /** Enchères terminées à conclure : identifiant et nom de la carte. */
+  encheresAConclure?: readonly { id: string; carte: string }[];
+  /** Offres reçues sur les dernières 24 heures. */
+  offresRecentes?: number;
 }): Notification[] {
   const notifications: Notification[] = p.contratsEnCours
     .filter((c) => estEnRetard(c.finPrevue, p.maintenant))
@@ -65,6 +69,21 @@ export function notificationsPanel(p: {
       type: "formation",
       message: `${demandes} demande${demandes > 1 ? "s" : ""} de formation`,
       href: "/admin/formation/demandes",
+    });
+  for (const e of p.encheresAConclure ?? [])
+    notifications.push({
+      cle: `enchere:${e.id}`,
+      type: "enchere",
+      message: `Enchère terminée sur ${e.carte} : à conclure`,
+      href: `/admin/cards/encheres/${e.id}`,
+    });
+  const offres = p.offresRecentes ?? 0;
+  if (offres > 0)
+    notifications.push({
+      cle: "offres",
+      type: "enchere",
+      message: `${offres} nouvelle${offres > 1 ? "s" : ""} offre${offres > 1 ? "s" : ""} d’enchère (24 h)`,
+      href: "/admin/cards",
     });
   return notifications;
 }

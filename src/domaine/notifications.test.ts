@@ -38,6 +38,42 @@ describe("notifications de Formation", () => {
 });
 
 describe("notificationsPanel", () => {
+  it("enchères à conclure et offres récentes (R-5)", () => {
+    const n = notificationsPanel({
+      contratsEnCours: [],
+      semainePrecedenteOuverte: null,
+      depensesSansJustificatif: [],
+      maintenant: h("2026-10-24T21:40"),
+      fuseau: PARIS,
+      encheresAConclure: [{ id: "e1", carte: "Licorne" }],
+      offresRecentes: 3,
+    });
+    expect(n).toEqual([
+      {
+        cle: "enchere:e1",
+        type: "enchere",
+        message: "Enchère terminée sur Licorne : à conclure",
+        href: "/admin/cards/encheres/e1",
+      },
+      {
+        cle: "offres",
+        type: "enchere",
+        message: "3 nouvelles offres d’enchère (24 h)",
+        href: "/admin/cards",
+      },
+    ]);
+    expect(
+      notificationsPanel({
+        contratsEnCours: [],
+        semainePrecedenteOuverte: null,
+        depensesSansJustificatif: [],
+        maintenant: h("2026-10-24T21:40"),
+        fuseau: PARIS,
+        offresRecentes: 1,
+      })[0].message,
+    ).toBe("1 nouvelle offre d’enchère (24 h)");
+  });
+
   const contrats = [
     { numero: "CTR-2026-0038", clientNom: "Kenji Mori", finPrevue: h("2026-10-24T22:00") },
     { numero: "CTR-2026-0041", clientNom: "Marisol Vega", finPrevue: h("2026-10-24T20:30") },

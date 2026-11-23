@@ -2,7 +2,10 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { correspondRecherche, regrouperCartes } from "@/domaine/cards";
 import { slugifier } from "@/domaine/vehicules";
+import { meilleureOffre } from "@/domaine/encheres";
+import { maintenant } from "@/lib/horloge";
 import { lireCartesPubliques } from "@/services/cards";
+import { lireEncheresOuvertes } from "@/services/encheres";
 import { lireFiliale } from "@/services/site";
 import { BoutonAppeler } from "@/composants/site/BoutonAppeler";
 import { CarteCollection } from "@/composants/site/CarteCollection";
@@ -23,7 +26,11 @@ async function Cards({ searchParams }: { searchParams: PageProps<"/cards">["sear
   const f = await lireFiliale("BPC");
   if (!f.visible) notFound();
   const params = await searchParams;
-  const cartes = await lireCartesPubliques();
+  const [cartes, encheres, instant] = await Promise.all([
+    lireCartesPubliques(),
+    lireEncheresOuvertes(),
+    maintenant(),
+  ]);
   const groupes = regrouperCartes(cartes);
   const categorie = groupes.find((g) => slugifier(g.categorie.nom) === params.categorie);
   const q = typeof params.q === "string" ? params.q.slice(0, 80) : "";
@@ -146,6 +153,19 @@ async function Cards({ searchParams }: { searchParams: PageProps<"/cards">["sear
                           photoUrl: c.photo ? `/api/cartes/${c.id}/photo` : null,
                           categorie: g.categorie.nom,
                         }}
+                        enchere={(() => {
+                          const e = encheres.get(c.id);
+                          if (!e) return undefined;
+                          const m = meilleureOffre(e.offres);
+                          return {
+                            href: `/cards/encheres/${e.id}`,
+                            montant: m?.montant ?? e.montantDepart,
+                            avecOffre: m !== null,
+                            fin: e.finPrevue.toISOString(),
+                            maintenant: instant.toISOString(),
+                            terminee: instant >= e.finPrevue,
+                          };
+                        })()}
                       />
                     </li>
                   ))}

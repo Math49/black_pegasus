@@ -43,6 +43,13 @@ const schemaCarte = z.object({
   visible: z.enum(["0", "1"]).transform((v) => v === "1"),
 });
 
+const schemaEnchere = z.object({
+  montantDepart: entier("Montant de départ", 10_000_000),
+  pasMinimum: entier("Pas minimum", 1_000_000),
+  dureeHeures: entier("Durée (heures)", 720),
+  tempsAdditionnelMin: entier("Temps additionnel (minutes)", 1440),
+});
+
 const schemaVente = z.object({
   lignes: z
     .array(
@@ -103,7 +110,12 @@ export async function actionEnregistrerCarte(formulaire: FormData) {
         if (!photo) throw new ErreurMetier("Photo illisible.");
       }
     }
-    return enregistrerCarte(acteur, cible, donnees, photo);
+    // Mise en enchère : paramètres saisis avec la carte (REFONTE-ADMIN § 5).
+    const enchere =
+      formulaire.get("mode") === "enchere"
+        ? schemaEnchere.parse(Object.fromEntries(formulaire))
+        : undefined;
+    return enregistrerCarte(acteur, cible, donnees, photo, enchere);
   });
 }
 

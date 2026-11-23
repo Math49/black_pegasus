@@ -5,7 +5,10 @@ import { adresseClient, creerLimiteur } from "./limiteur";
 
 // Limites appliquées par l'application (CONCEPTION § 7), partagées par processus.
 const globalLimites = globalThis as unknown as {
-  limitesBp?: Record<"connexion" | "envoi" | "formation", ReturnType<typeof creerLimiteur>>;
+  limitesBp?: Record<
+    "connexion" | "envoi" | "formation" | "enchere",
+    ReturnType<typeof creerLimiteur>
+  >;
 };
 const limites = (globalLimites.limitesBp ??= {
   /** Connexion Discord et retours OAuth : 20 tentatives par minute et par adresse. */
@@ -13,7 +16,17 @@ const limites = (globalLimites.limitesBp ??= {
   /** Envois de fichiers (photos, justificatifs) : 30 par tranche de 10 minutes et par compte. */
   envoi: creerLimiteur({ limite: 30, fenetreMs: 10 * 60_000 }),
   formation: creerLimiteur({ limite: 5, fenetreMs: 10 * 60_000 }),
+  /** Offres d'enchère publiques : 10 par tranche de 10 minutes, par adresse et par enchère. */
+  enchere: creerLimiteur({ limite: 10, fenetreMs: 10 * 60_000 }),
 });
+
+export async function exigerQuotaOffreEnchere(enchereId: string) {
+  const r = limites.enchere.essayer(`${adresseClient(await headers())}:${enchereId}`);
+  if (!r.autorise)
+    throw new ErreurMetier(
+      `Trop d’offres envoyées : réessayez dans ${Math.ceil(r.reessayerDansS / 60)} min.`,
+    );
+}
 
 /** Vrai si la tentative de connexion est autorisée pour l'adresse de la requête. */
 export async function connexionAutorisee(entetes?: Headers) {

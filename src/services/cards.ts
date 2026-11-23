@@ -11,6 +11,7 @@ import {
   type LigneSaisie,
 } from "@/domaine/cards";
 import { preparerContrePassation } from "@/domaine/comptabilite";
+import type { ParametresEnchere } from "@/domaine/encheres";
 import { cleCompteurVentes, numeroVente } from "@/domaine/numerotation";
 import { ErreurMetier } from "@/domaine/types";
 import type { ImageEnvoyee } from "@/lib/fichiers";
@@ -19,10 +20,11 @@ import { maintenant } from "@/lib/horloge";
 import { prisma } from "@/lib/prisma";
 import { enTransaction, type Tx } from "@/lib/transaction";
 import { journaliser } from "./audit";
+import { ouvrirEnchereTx } from "./encheres";
 import { inscrireMouvement, lireRegles } from "./mouvements";
 import { enregistrerFichier, supprimerFichier } from "./stockage";
 
-function revaliderCards() {
+export function revaliderCards() {
   revalidatePath("/cards");
   revalidatePath("/");
   revalidatePath("/admin", "layout");
@@ -94,7 +96,7 @@ export async function lireVentes(page = 1, q = "") {
 /** Cartes proposées à la vente : en stock et non retirées (on ne vend pas ce qu'on n'a plus). */
 export async function lireCartesVendables() {
   return prisma.carte.findMany({
-    where: { supprimeLe: null, stock: { gt: 0 } },
+    where: { supprimeLe: null, stock: { gt: 0 }, encheres: { none: { statut: "OUVERTE" } } },
     select: { id: true, nom: true, prix: true, stock: true, categorie: { select: { nom: true } } },
     orderBy: [{ categorie: { ordre: "asc" } }, { ordre: "asc" }, { nom: "asc" }],
   });
@@ -188,7 +190,10 @@ export async function enregistrerCarte(
   id: string | null,
   donnees: DonneesCarte,
   photo: ImageEnvoyee | null | undefined,
+  /** Mise en enchère (à la création ou sur une carte sans enchère ouverte). */
+  enchere?: ParametresEnchere,
 ) {
+  const instant = await maintenant();
   const cle = photo ? await enregistrerFichier("cartes", photo.octets, photo.extension) : null;
   let ancienne: string | null = null;
   try {
@@ -199,6 +204,7 @@ export async function enregistrerCarte(
       if (!id) {
         const ordre = await ordreEnFin(tx, donnees.categorieId);
         const cree = await tx.carte.create({ data: { ...data, ordre } });
+        if (enchere) await ouvrirEnchereTx(tx, acteur, cree.id, enchere, instant);
         return { details: { nom: cree.nom, stock: cree.stock }, valeur: undefined };
       }
       // Verrou : une vente simultanée ne peut pas croiser une correction du stock.
@@ -212,6 +218,7 @@ export async function enregistrerCarte(
           ? avant.ordre
           : await ordreEnFin(tx, donnees.categorieId);
       await tx.carte.update({ where: { id }, data: { ...data, ordre } });
+      if (enchere) await ouvrirEnchereTx(tx, acteur, id, enchere, instant);
       if (avant.stock !== donnees.stock)
         await journaliser(tx, {
           compteId: acteur.id,
@@ -316,77 +323,105 @@ export type DonneesVente = {
   clientTelephone: string | null;
 };
 
-/** Verrou sur les cartes, contrôle du stock, numéro BPC, recette inscrite au registre. */
+/**
+ * Enregistre une vente dans une transaction : verrou sur les cartes, contrôle du stock,
+ * numéro BPC, lignes, stock, recette au registre. `prixImposes` remplace le prix du catalogue
+ * (vente d'une enchère au montant de l'offre gagnante) ; `enchereId` autorise la carte en
+ * enchère concernée.
+ */
+export async function vendreTx(
+  tx: Tx,
+  acteur: CompteConnecte,
+  d: DonneesVente,
+  instant: Date,
+  options: { prixImposes?: ReadonlyMap<string, number>; enchereId?: string } = {},
+) {
+  // Deux ventes simultanées du dernier exemplaire s'excluent ; ordre fixe contre l'interblocage.
+  const ids = [...new Set(d.lignes.map((l) => l.carteId))].sort();
+  await tx.$queryRaw`SELECT id FROM "Carte" WHERE id = ANY(${ids}) ORDER BY id FOR UPDATE`;
+  const cartes = await tx.carte.findMany({
+    where: { id: { in: ids }, supprimeLe: null },
+    include: { encheres: { where: { statut: "OUVERTE" }, select: { id: true } } },
+  });
+  // Une carte aux enchères ne se vend qu'en concluant son enchère.
+  const enEnchere = cartes.find((c) => c.encheres.some((e) => e.id !== options.enchereId));
+  if (enEnchere)
+    throw new ErreurMetier(`${enEnchere.nom} est aux enchères : vente classique impossible.`);
+  // Montants toujours recalculés ici, jamais repris du navigateur (sauf l'encaissé, borné).
+  const calcul = calculerVente(
+    cartes.map((c) => ({ ...c, prix: options.prixImposes?.get(c.id) ?? c.prix })),
+    d.lignes,
+    d.montantEncaisse,
+  );
+
+  const regles = await lireRegles(tx);
+  const annee = new TZDate(instant.getTime(), regles.fuseau).getFullYear();
+  const compteur = await tx.compteur.upsert({
+    where: { cle: cleCompteurVentes(annee) },
+    create: { cle: cleCompteurVentes(annee), valeur: 1 },
+    update: { valeur: { increment: 1 } },
+  });
+  const clientNom = d.clientNom.trim();
+  const cree = await tx.venteCarte.create({
+    data: {
+      numero: numeroVente(annee, compteur.valeur),
+      montantCatalogue: calcul.montantCatalogue,
+      remise: calcul.remise,
+      montant: calcul.montant,
+      clientNom,
+      clientTelephone: d.clientTelephone?.trim() || null,
+      date: instant,
+      saisieParId: acteur.id,
+      lignes: {
+        create: calcul.lignes.map((l) => ({
+          carteId: l.carteId,
+          carteNom: l.carteNom,
+          prixUnitaire: l.prixUnitaire,
+          quantite: l.quantite,
+          montant: l.montant,
+        })),
+      },
+    },
+  });
+  for (const l of calcul.lignes)
+    await tx.carte.update({ where: { id: l.carteId }, data: { stock: l.stockRestant } });
+  const mouvement = await inscrireMouvement(
+    tx,
+    {
+      date: instant,
+      sens: "ENTREE",
+      categorie: "VENTE_CARTES",
+      montant: calcul.montant,
+      motif:
+        (options.enchereId ? "Enchère · " : "") +
+        motifVente({ lignes: calcul.lignes, clientNom, remise: calcul.remise }),
+      automatique: true,
+      filiale: "BPC",
+      saisiParId: acteur.id,
+    },
+    regles.fuseau,
+  );
+  await tx.mouvement.update({ where: { id: mouvement.id }, data: { venteCarteId: cree.id } });
+  await journaliser(tx, {
+    compteId: acteur.id,
+    action: "vente.creer",
+    cible: `VenteCarte:${cree.numero}`,
+    details: {
+      cartes: calcul.lignes.map((l) => `${l.quantite} × ${l.carteNom}`).join(", "),
+      montantCatalogue: calcul.montantCatalogue,
+      remise: calcul.remise,
+      montant: calcul.montant,
+      client: clientNom,
+      ...(options.enchereId && { enchere: options.enchereId }),
+    },
+  });
+  return cree;
+}
+
+/** Vente saisie dans le panel. */
 export async function creerVente(acteur: CompteConnecte, d: DonneesVente) {
   const instant = await maintenant();
-  const vente = await enTransaction(async (tx) => {
-    // Deux ventes simultanées du dernier exemplaire s'excluent ; ordre fixe contre l'interblocage.
-    const ids = [...new Set(d.lignes.map((l) => l.carteId))].sort();
-    await tx.$queryRaw`SELECT id FROM "Carte" WHERE id = ANY(${ids}) ORDER BY id FOR UPDATE`;
-    const cartes = await tx.carte.findMany({ where: { id: { in: ids }, supprimeLe: null } });
-    // Montants toujours recalculés ici, jamais repris du navigateur (sauf l'encaissé, borné).
-    const calcul = calculerVente(cartes, d.lignes, d.montantEncaisse);
-
-    const regles = await lireRegles(tx);
-    const annee = new TZDate(instant.getTime(), regles.fuseau).getFullYear();
-    const compteur = await tx.compteur.upsert({
-      where: { cle: cleCompteurVentes(annee) },
-      create: { cle: cleCompteurVentes(annee), valeur: 1 },
-      update: { valeur: { increment: 1 } },
-    });
-    const clientNom = d.clientNom.trim();
-    const cree = await tx.venteCarte.create({
-      data: {
-        numero: numeroVente(annee, compteur.valeur),
-        montantCatalogue: calcul.montantCatalogue,
-        remise: calcul.remise,
-        montant: calcul.montant,
-        clientNom,
-        clientTelephone: d.clientTelephone?.trim() || null,
-        date: instant,
-        saisieParId: acteur.id,
-        lignes: {
-          create: calcul.lignes.map((l) => ({
-            carteId: l.carteId,
-            carteNom: l.carteNom,
-            prixUnitaire: l.prixUnitaire,
-            quantite: l.quantite,
-            montant: l.montant,
-          })),
-        },
-      },
-    });
-    for (const l of calcul.lignes)
-      await tx.carte.update({ where: { id: l.carteId }, data: { stock: l.stockRestant } });
-    const mouvement = await inscrireMouvement(
-      tx,
-      {
-        date: instant,
-        sens: "ENTREE",
-        categorie: "VENTE_CARTES",
-        montant: calcul.montant,
-        motif: motifVente({ lignes: calcul.lignes, clientNom, remise: calcul.remise }),
-        automatique: true,
-        filiale: "BPC",
-        saisiParId: acteur.id,
-      },
-      regles.fuseau,
-    );
-    await tx.mouvement.update({ where: { id: mouvement.id }, data: { venteCarteId: cree.id } });
-    await journaliser(tx, {
-      compteId: acteur.id,
-      action: "vente.creer",
-      cible: `VenteCarte:${cree.numero}`,
-      details: {
-        cartes: calcul.lignes.map((l) => `${l.quantite} × ${l.carteNom}`).join(", "),
-        montantCatalogue: calcul.montantCatalogue,
-        remise: calcul.remise,
-        montant: calcul.montant,
-        client: clientNom,
-      },
-    });
-    return cree;
-  });
+  const vente = await enTransaction((tx) => vendreTx(tx, acteur, d, instant));
   revaliderCards();
   return vente;
 }

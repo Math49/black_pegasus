@@ -276,6 +276,8 @@ model Compte {
   journal           JournalAudit[]
   demandesTraitees  DemandeContact[]
   ventesCartes      VenteCarte[]
+  encheresCreees    Enchere[]
+  offresEcartees    OffreEnchere[]   @relation("OffresEcartees")
 }
 
 /// Séquences annuelles (contrats, déclarations).
@@ -401,6 +403,7 @@ model Carte {
   /// Suppression logique : les ventes restent lisibles.
   supprimeLe  DateTime?
   lignesVente LigneVente[]
+  encheres    Enchere[]
 
   @@index([categorieId, ordre])
 }
@@ -429,6 +432,8 @@ model VenteCarte {
   saisieParId      String
   saisiePar        Compte       @relation(fields: [saisieParId], references: [id])
   mouvements       Mouvement[]
+  /// Enchère conclue par cette vente
+  enchere          Enchere?
 
   @@index([date])
 }
@@ -448,6 +453,62 @@ model LigneVente {
 
   @@index([venteId])
   @@index([carteId])
+}
+
+// ── Enchères de cartes (REFONTE-ADMIN § 5) ─────────────────────────────────
+
+enum StatutEnchere {
+  /// En cours, ou terminée en attente de conclusion (selon finPrevue et les offres)
+  OUVERTE
+  /// Vente enregistrée avec l'offre gagnante
+  CONCLUE
+  /// Annulée (repassée en vente classique, ou gagnants défaillants)
+  ANNULEE
+}
+
+/// Mise en vente d'un exemplaire d'une carte aux enchères.
+model Enchere {
+  id                  String         @id @default(cuid())
+  carteId             String
+  carte               Carte          @relation(fields: [carteId], references: [id])
+  montantDepart       Int
+  /// Pas minimum entre deux offres
+  pasMinimum          Int
+  dureeHeures         Int
+  /// Prolongation : une offre arrivée à moins de ce délai repousse la fin d'autant
+  tempsAdditionnelMin Int
+  debut               DateTime
+  /// Fin prévue, repoussée par les offres tardives
+  finPrevue           DateTime
+  statut              StatutEnchere  @default(OUVERTE)
+  venteId             String?        @unique
+  vente               VenteCarte?    @relation(fields: [venteId], references: [id])
+  creeParId           String
+  creePar             Compte         @relation(fields: [creeParId], references: [id])
+  creeLe              DateTime       @default(now())
+  offres              OffreEnchere[]
+
+  @@index([carteId, statut])
+  @@index([statut, finPrevue])
+}
+
+/// Offre déposée sur le site public ; nom et téléphone ne sont visibles que dans le panel.
+model OffreEnchere {
+  id           String   @id @default(cuid())
+  enchereId    String
+  enchere      Enchere  @relation(fields: [enchereId], references: [id], onDelete: Cascade)
+  montant      Int
+  nom          String
+  telephone    String
+  date         DateTime
+  /// Écartée : offre fantaisiste (administrateur) ou gagnant défaillant
+  invalidee    Boolean  @default(false)
+  motifEcart   String?
+  ecarteeParId String?
+  ecarteePar   Compte?  @relation("OffresEcartees", fields: [ecarteeParId], references: [id])
+
+  @@index([enchereId, montant])
+  @@index([date])
 }
 
 model JournalAudit {

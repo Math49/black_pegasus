@@ -37,6 +37,10 @@ const MATRICE = {
   "vente.consulter": LECTURE,
   "vente.creer": TOUS,
   "vente.annuler": ADMIN,
+  /** Ouvrir, conclure, relancer, annuler une enchère ; voir les enchérisseurs. */
+  "enchere.gerer": TOUS,
+  /** Écarter une offre fantaisiste. */
+  "enchere.ecarter": ADMIN,
 } as const satisfies Record<string, readonly Role[]>;
 
 export type Action = keyof typeof MATRICE;

@@ -1,6 +1,9 @@
 import { Suspense } from "react";
 import { exigerPermission } from "@/lib/garde";
+import { etatEnchere, meilleureOffre } from "@/domaine/encheres";
+import { maintenant } from "@/lib/horloge";
 import { lireCardsAdmin } from "@/services/cards";
+import { lireEncheresOuvertes } from "@/services/encheres";
 import { urlPhoto } from "@/services/stockage";
 import { EnTetePanel } from "@/composants/admin/EnTetePanel";
 import { ChargementPanel } from "@/composants/admin/ChargementPanel";
@@ -10,11 +13,16 @@ export const metadata = { title: "Cartes" };
 
 async function Contenu() {
   await exigerPermission("cards.gerer");
-  const { categories, cartes } = await lireCardsAdmin();
+  const [{ categories, cartes }, encheres, instant] = await Promise.all([
+    lireCardsAdmin(),
+    lireEncheresOuvertes(),
+    maintenant(),
+  ]);
   return (
     <>
       <EnTetePanel titre="Cartes" fil={[{ libelle: "Cards" }, { libelle: "Cartes" }]} />
       <GestionCards
+        maintenant={instant.toISOString()}
         categories={categories.map((c) => ({
           id: c.id,
           nom: c.nom,
@@ -32,6 +40,17 @@ async function Contenu() {
           visible: c.visible,
           photoUrl: c.photo ? urlPhoto(c.photo) : null,
           categorie: { nom: c.categorie.nom },
+          enchere: (() => {
+            const e = encheres.get(c.id);
+            if (!e) return undefined;
+            return {
+              id: e.id,
+              fin: e.finPrevue.toISOString(),
+              meilleure: meilleureOffre(e.offres)?.montant ?? null,
+              montantDepart: e.montantDepart,
+              etat: etatEnchere(e, e.offres, instant),
+            };
+          })(),
         }))}
       />
     </>

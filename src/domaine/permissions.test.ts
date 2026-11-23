@@ -38,6 +38,8 @@ describe("peut (HANDOFF § 7.9)", () => {
     ["vente.consulter", true, true],
     ["vente.creer", true, true],
     ["vente.annuler", true, false],
+    ["enchere.gerer", true, true],
+    ["enchere.ecarter", true, false],
   ];
 
   it.each(tableau)("%s : admin %s, gestionnaire %s", (action, admin, gestionnaire) => {

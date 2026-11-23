@@ -22,6 +22,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition, type ReactNode } from "react";
 import {
@@ -41,7 +42,9 @@ import {
   FILTRES_PAR_DEFAUT,
   type FiltresCatalogue,
 } from "@/domaine/cards";
+import { LIBELLES_ETAT_ENCHERE, type EtatEnchere } from "@/domaine/encheres";
 import { Button, IconButton } from "@/composants/ui/Button";
+import { CompteARebours } from "@/composants/ui/CompteARebours";
 import { Field, Select } from "@/composants/ui/Field";
 import { GlassCard } from "@/composants/ui/GlassCard";
 import { Icon } from "@/composants/ui/Icon";
@@ -62,7 +65,51 @@ export type CarteAdmin = {
   visible: boolean;
   photoUrl: string | null;
   categorie: { nom: string };
+  /** Enchère ouverte sur la carte (REFONTE-ADMIN § 5). */
+  enchere?: {
+    id: string;
+    fin: string;
+    meilleure: number | null;
+    montantDepart: number;
+    etat: EtatEnchere;
+  };
 };
+
+/** Encart d'une carte aux enchères : meilleure offre, temps restant, lien vers l'enchère. */
+function EncartEnchere({
+  enchere,
+  maintenant,
+  nom,
+}: {
+  enchere: NonNullable<CarteAdmin["enchere"]>;
+  maintenant: string;
+  nom: string;
+}) {
+  return (
+    <span className="flex flex-col gap-1 rounded-[10px] border border-[var(--bp-or-30)] px-3 py-2 text-xs">
+      <span className="flex items-center justify-between gap-2">
+        <span className="font-bold text-or-texte">Enchère</span>
+        {enchere.etat === "en_cours" ? (
+          <CompteARebours fin={enchere.fin} maintenant={maintenant} className="chiffres" />
+        ) : (
+          <span>{LIBELLES_ETAT_ENCHERE[enchere.etat]}</span>
+        )}
+      </span>
+      <span className="chiffres text-texte-doux">
+        {enchere.meilleure !== null
+          ? `Meilleure offre ${formaterDollars(enchere.meilleure)}`
+          : `Mise à prix ${formaterDollars(enchere.montantDepart)}`}
+      </span>
+      <Link
+        href={`/admin/cards/encheres/${enchere.id}`}
+        className="bp-nav-lien self-start"
+        aria-label={`Voir l’enchère de ${nom}`}
+      >
+        Voir l’enchère
+      </Link>
+    </span>
+  );
+}
 
 type Etat = { ok: boolean; texte: string } | null;
 
@@ -326,7 +373,6 @@ function TuileCarte({
             {formaterDollars(carte.prix)}
           </span>
           {!carte.visible && <span className="bp-tag self-start text-[11px]">Masquée</span>}
-          {extra}
         </div>
         <div className="flex flex-none flex-col items-center gap-1">
           {triable && (
@@ -355,6 +401,7 @@ function TuileCarte({
           />
         </div>
       </div>
+      {extra}
       <div className="flex items-center justify-between gap-2 border-t border-[var(--bp-trait-8)] pt-2">
         <div
           className="flex w-full items-center justify-between gap-1"
@@ -398,9 +445,12 @@ function TuileCarte({
 export function GestionCards({
   categories: categoriesServeur,
   cartes: cartesServeur,
+  maintenant,
 }: {
   categories: CategorieCards[];
   cartes: CarteAdmin[];
+  /** Heure du serveur (ISO), référence des comptes à rebours. */
+  maintenant: string;
 }) {
   const router = useRouter();
   const [enCours, demarrer] = useTransition();
@@ -581,7 +631,7 @@ export function GestionCards({
             </Button>
           </div>
 
-          <div className="grid grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)] items-end gap-3">
+          <div className="grid grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] items-end gap-3">
             <Field
               label="Rechercher dans tout le catalogue"
               type="search"
@@ -614,6 +664,18 @@ export function GestionCards({
                 { valeur: "tous", libelle: "Tous" },
                 { valeur: "enStock", libelle: "En stock" },
                 { valeur: "epuisees", libelle: "Épuisées" },
+              ]}
+            />
+            <Select
+              label="Mode de vente"
+              value={filtres.mode}
+              onChange={(e) =>
+                setFiltres({ ...filtres, mode: e.target.value as FiltresCatalogue["mode"] })
+              }
+              options={[
+                { valeur: "tous", libelle: "Tous" },
+                { valeur: "vente", libelle: "Vente classique" },
+                { valeur: "enchere", libelle: "Aux enchères" },
               ]}
             />
           </div>
@@ -658,6 +720,11 @@ export function GestionCards({
                       retirer.effacer();
                       setSuppression(c);
                     }}
+                    extra={
+                      c.enchere && (
+                        <EncartEnchere enchere={c.enchere} maintenant={maintenant} nom={c.nom} />
+                      )
+                    }
                   />
                 ))}
               </ul>

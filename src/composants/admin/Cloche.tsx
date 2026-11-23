@@ -9,7 +9,8 @@ const ICONES: Record<Notification["type"], NomIcone> = {
   retard: "alerte",
   semaine: "cadenasOuvert",
   justificatif: "trombone",
-  formation: "contrat",
+  formation: "diplome",
+  enchere: "etiquette",
 };
 
 /** Cloche de l'en-tête (CONCEPTION § 9.3) : liste déroulante des alertes. */
