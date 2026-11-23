@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { formaterTelephoneEnJeu } from "./telephone";
 import {
+  signalEnchere,
   dureeEnHeures,
   formaterDureeEnchere,
   phaseEnchere,
@@ -154,5 +155,14 @@ describe("téléphone en jeu des enchères", () => {
     expect(formaterTelephoneEnJeu("5550")).toBe("555-0");
     expect(formaterTelephoneEnJeu("555-01234567")).toBe("555-0123");
     expect(formaterTelephoneEnJeu("ab5c")).toBe("5");
+  });
+});
+
+describe("signal du catalogue", () => {
+  it("se termine bientôt dans la dernière heure", () => {
+    expect(signalEnchere(2 * 3_600_000)).toBe("en_cours");
+    expect(signalEnchere(3_600_000)).toBe("fin_proche");
+    expect(signalEnchere(1000)).toBe("fin_proche");
+    expect(signalEnchere(0)).toBe("terminee");
   });
 });

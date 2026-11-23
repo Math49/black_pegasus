@@ -205,6 +205,13 @@ const TRACES = {
       <path d="M3 13l9 5 9-5" />
     </>
   ),
+  /** Marteau d'enchère. */
+  marteau: (
+    <>
+      <path d="M13 3.5l7.5 7.5M10.5 6l7.5 7.5M12 4.8l-4.2 4.2a1 1 0 0 0 0 1.4l4.8 4.8a1 1 0 0 0 1.4 0l4.2-4.2" />
+      <path d="M10.2 12.6l-6.4 6.4a1.4 1.4 0 0 0 2 2l6.4-6.4M3 21h8" />
+    </>
+  ),
   /** Poignée de glisser-déposer (six points). */
   poignee: <path d="M9 5h.01M15 5h.01M9 12h.01M15 12h.01M9 19h.01M15 19h.01" strokeWidth={3} />,
   diplome: (

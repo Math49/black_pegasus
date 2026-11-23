@@ -4,7 +4,9 @@ import { formaterDollars } from "@/domaine/argent";
 import { etatCarte } from "@/domaine/cards";
 import { cx } from "@/lib/classes";
 import { CompteARebours } from "../ui/CompteARebours";
+import { Icon } from "../ui/Icon";
 import { ImageProtegee } from "./ImageProtegee";
+import { PastilleEnchere } from "./PastilleEnchere";
 
 /** Carte mise aux enchères : offre actuelle, temps restant, lien vers la page d'enchère. */
 export type EnchereCarte = {
@@ -34,6 +36,7 @@ export function CarteCollection({
       className={cx(
         "bp-vcard group relative h-full overflow-hidden",
         etat.epuisee && "bp-vcard--complet",
+        enchere && "bp-vcard--enchere",
       )}
     >
       <div className="bp-vcard__media aspect-[63/88]">
@@ -67,55 +70,63 @@ export function CarteCollection({
           </span>
         )}
         <span className="bp-vcard__fondu" aria-hidden="true" />
-        <span
-          className={cx(
-            "absolute top-3 left-3 rounded-full px-3 py-1 text-xs font-bold",
-            etat.epuisee
-              ? "border border-[var(--bp-trait-18)] bg-[var(--bp-noir-85)] text-[var(--bp-text-off)]"
-              : "border border-[var(--bp-or-45)] bg-[var(--bp-fond-badge-or)] text-or-texte",
-          )}
-        >
-          {etat.libelle}
-        </span>
-      </div>
-      <div className="flex flex-1 flex-col gap-2 px-4 pt-3 pb-4">
-        <span className="libelle text-[10px]">{carte.categorie}</span>
-        <h3 className="m-0 titre text-lg leading-tight font-semibold">
-          {enchere ? (
-            // Toute la carte mène à l'enchère (lien étiré sur l'article).
-            <Link
-              href={enchere.href}
-              className="text-texte after:absolute after:inset-0 after:z-10"
-            >
-              {carte.nom}
-            </Link>
-          ) : (
-            carte.nom
-          )}
-        </h3>
         {enchere ? (
-          <span className="mt-auto flex flex-col gap-1">
-            <span className="libelle text-[10px]">
-              {enchere.avecOffre ? "Offre actuelle" : "Mise à prix"}
-            </span>
-            <span className="texte-or titre text-2xl font-bold chiffres">
-              {formaterDollars(enchere.montant)}
-            </span>
-            <span className="text-sm text-texte-doux">
+          <>
+            <PastilleEnchere
+              fin={enchere.fin}
+              maintenant={enchere.maintenant}
+              className="absolute top-3 left-3 z-[2]"
+            />
+            {/* Temps restant posé en bas de la photo. */}
+            <span className="absolute inset-x-3 bottom-3 z-[2] flex items-center justify-center gap-2 rounded-full border border-[var(--bp-trait-18)] bg-[var(--bp-noir-85)] px-3 py-1.5 text-sm">
+              <Icon nom="horloge" taille={15} className="text-[var(--bp-accent-icone)]" />
               {enchere.terminee ? (
                 "Enchère terminée"
               ) : (
-                <>
-                  Fin dans{" "}
-                  <CompteARebours
-                    fin={enchere.fin}
-                    finDuree={enchere.finDuree}
-                    maintenant={enchere.maintenant}
-                    className="font-bold chiffres text-texte"
-                  />
-                </>
+                <CompteARebours
+                  fin={enchere.fin}
+                  finDuree={enchere.finDuree}
+                  maintenant={enchere.maintenant}
+                  className="font-bold chiffres text-texte"
+                />
               )}
             </span>
+          </>
+        ) : (
+          <span
+            className={cx(
+              "absolute top-3 left-3 rounded-full px-3 py-1 text-xs font-bold",
+              etat.epuisee
+                ? "border border-[var(--bp-trait-18)] bg-[var(--bp-noir-85)] text-[var(--bp-text-off)]"
+                : "border border-[var(--bp-or-45)] bg-[var(--bp-fond-badge-or)] text-or-texte",
+            )}
+          >
+            {etat.libelle}
+          </span>
+        )}
+      </div>
+      <div className="flex flex-1 flex-col gap-2 px-4 pt-3 pb-4">
+        <span className="libelle text-[10px]">{carte.categorie}</span>
+        <h3 className="m-0 titre text-lg leading-tight font-semibold">{carte.nom}</h3>
+        {enchere ? (
+          <span className="mt-auto flex flex-col gap-3">
+            <span className="flex flex-col gap-1">
+              <span className="libelle text-[10px]">
+                {enchere.avecOffre ? "Offre actuelle" : "Mise à prix"}
+              </span>
+              <span className="texte-or titre text-2xl font-bold chiffres">
+                {formaterDollars(enchere.montant)}
+              </span>
+            </span>
+            {/* Toute la carte mène à l'enchère : le bouton porte un lien étiré sur l'article. */}
+            <Link
+              href={enchere.href}
+              className="bp-btn bp-btn--or bp-btn--site-petit justify-center after:absolute after:inset-0 after:z-10 after:rounded-[22px]"
+            >
+              <Icon nom="marteau" taille={18} />
+              {enchere.terminee ? "Voir l’enchère" : "Enchérir"}
+              <span className="sr-only"> sur {carte.nom}</span>
+            </Link>
           </span>
         ) : (
           <span className="mt-auto texte-or titre text-2xl font-bold chiffres">

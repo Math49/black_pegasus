@@ -946,6 +946,34 @@
   }
 
   /* ── Carte véhicule (site) ── */
+  /* Carte aux enchères : contour et halo à l'accent de la filiale (REFONTE-ADMIN § 5). */
+  .bp-vcard.bp-vcard--enchere {
+    border: 2px solid color-mix(in srgb, var(--bp-accent) 70%, transparent);
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--bp-accent) 20%, transparent),
+      0 0 36px color-mix(in srgb, var(--bp-accent) 28%, transparent);
+  }
+  .bp-pastille-enchere {
+    background: var(--bp-accent-degrade);
+    color: var(--bp-black);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .bp-pastille-enchere--fin-proche {
+      animation: bp-pulsation-enchere 1.6s ease-in-out infinite;
+    }
+  }
+  @keyframes bp-pulsation-enchere {
+    50% {
+      box-shadow: 0 0 0 6px color-mix(in srgb, var(--bp-accent) 0%, transparent);
+      transform: scale(1.04);
+    }
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 color-mix(in srgb, var(--bp-accent) 55%, transparent);
+      transform: scale(1);
+    }
+  }
+
   .bp-vcard {
     display: flex;
     flex-direction: column;

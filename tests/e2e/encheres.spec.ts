@@ -107,7 +107,9 @@ test.describe("enchères", () => {
     await page.goto("/cards");
     const carte = page.getByRole("article").filter({ hasText: CARTE });
     await expect(carte).toContainText("Mise à prix");
-    await carte.getByRole("link", { name: CARTE }).click();
+    // Carte mise en valeur : pastille « Enchère », bouton « Enchérir ».
+    await expect(carte).toContainText("Enchère");
+    await carte.getByRole("link", { name: `Enchérir sur ${CARTE}` }).click();
     await expect(page.getByRole("heading", { level: 1, name: CARTE })).toBeVisible();
 
     let form = await encherir(page, "Ada Lovelace", "400");

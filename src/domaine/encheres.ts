@@ -163,6 +163,17 @@ export function verifierOffre(
     throw new ErreurMetier(`Votre offre doit être d’au moins ${formaterDollars(minimum)}.`);
 }
 
+/** Dernière heure d'une enchère : signal « Se termine bientôt » sur le catalogue. */
+export const SEUIL_FIN_PROCHE_MS = 60 * MINUTE;
+
+export type SignalEnchere = "en_cours" | "fin_proche" | "terminee";
+
+/** Pastille d'une enchère selon le temps restant jusqu'à la fin prévue. */
+export function signalEnchere(restantMs: number): SignalEnchere {
+  if (restantMs <= 0) return "terminee";
+  return restantMs <= SEUIL_FIN_PROCHE_MS ? "fin_proche" : "en_cours";
+}
+
 /** Temps restant compact : « 2 j 5 h », « 3 h 12 min », « 4 min 08 s », « Terminée ». */
 export function formaterTempsRestant(ms: number): string {
   if (ms <= 0) return "Terminée";

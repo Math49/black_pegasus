@@ -4,6 +4,18 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { formaterTempsRestant } from "@/domaine/encheres";
 
+/** Heure du serveur qui avance chaque seconde (écart avec le navigateur mesuré au montage). */
+export function useHeureServeur(maintenant: string): number {
+  const serveurMs = new Date(maintenant).getTime();
+  const [instant, setInstant] = useState(serveurMs);
+  useEffect(() => {
+    const ecart = serveurMs - Date.now();
+    const minuterie = setInterval(() => setInstant(Date.now() + ecart), 1000);
+    return () => clearInterval(minuterie);
+  }, [serveurMs]);
+  return instant;
+}
+
 /**
  * Temps restant d'une enchère, mis à jour chaque seconde : d'abord jusqu'à la fin de la
  * durée choisie (`finDuree`), puis, si l'enchère a été prolongée, le temps additionnel
@@ -26,13 +38,7 @@ export function CompteARebours({
 }) {
   const finMs = new Date(fin).getTime();
   const finDureeMs = new Date(finDuree ?? fin).getTime();
-  const serveurMs = new Date(maintenant).getTime();
-  const [instant, setInstant] = useState(serveurMs);
-  useEffect(() => {
-    const ecart = serveurMs - Date.now();
-    const minuterie = setInterval(() => setInstant(Date.now() + ecart), 1000);
-    return () => clearInterval(minuterie);
-  }, [serveurMs]);
+  const instant = useHeureServeur(maintenant);
   const additionnel = instant >= finDureeMs && finMs > finDureeMs && instant < finMs;
   const restant = (additionnel ? finMs : Math.min(finDureeMs, finMs)) - instant;
   return (

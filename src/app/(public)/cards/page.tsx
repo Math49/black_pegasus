@@ -34,12 +34,32 @@ async function Cards({ searchParams }: { searchParams: PageProps<"/cards">["sear
     maintenant(),
   ]);
   const groupes = regrouperCartes(cartes);
-  const categorie = groupes.find((g) => slugifier(g.categorie.nom) === params.categorie);
+  // Enchères encore ouvertes aux offres (fin prévue non atteinte).
+  const enCours = (id: string) => {
+    const e = encheres.get(id);
+    return Boolean(e && instant < e.finPrevue);
+  };
+  const nombreEncheres = cartes.filter((c) => enCours(c.id)).length;
+  // « ?categorie=encheres » : vue des seules cartes aux enchères, toutes catégories.
+  const vueEncheres = params.categorie === "encheres" && nombreEncheres > 0;
+  const categorie = vueEncheres
+    ? undefined
+    : groupes.find((g) => slugifier(g.categorie.nom) === params.categorie);
   const q = typeof params.q === "string" ? params.q.slice(0, 80) : "";
   const affiches = groupes
     .filter((g) => !categorie || g === categorie)
-    .map((g) => ({ ...g, cartes: g.cartes.filter((c) => correspondRecherche(c.nom, q)) }))
+    .map((g) => ({
+      ...g,
+      cartes: g.cartes.filter(
+        (c) => correspondRecherche(c.nom, q) && (!vueEncheres || enCours(c.id)),
+      ),
+    }))
     .filter((g) => g.cartes.length > 0);
+  const filtreActif = vueEncheres
+    ? "encheres"
+    : categorie
+      ? slugifier(categorie.categorie.nom)
+      : "toutes";
   const lien = (cat?: string) => {
     const p = new URLSearchParams();
     if (cat) p.set("categorie", cat);
@@ -88,12 +108,8 @@ async function Cards({ searchParams }: { searchParams: PageProps<"/cards">["sear
                   aria-label="Rechercher une carte"
                   className="flex min-w-0 flex-col gap-2"
                 >
-                  {categorie && (
-                    <input
-                      type="hidden"
-                      name="categorie"
-                      value={slugifier(categorie.categorie.nom)}
-                    />
+                  {filtreActif !== "toutes" && (
+                    <input type="hidden" name="categorie" value={filtreActif} />
                   )}
                   <label className="bp-champ-cadre min-w-0">
                     <Icon nom="recherche" taille={15} />
@@ -116,6 +132,17 @@ async function Cards({ searchParams }: { searchParams: PageProps<"/cards">["sear
                   {/* Mobile : rangée défilante ; grand écran : liste verticale. */}
                   <RangeeDefilante className="relative m-0 flex list-none gap-1.5 overflow-x-auto p-0 pb-1 lg:flex-col lg:overflow-visible lg:pb-0">
                     {[
+                      // En tête de la liste, seulement s'il y a des enchères ouvertes.
+                      ...(nombreEncheres > 0
+                        ? [
+                            {
+                              cle: "encheres",
+                              nom: "Enchères en cours",
+                              nombre: nombreEncheres,
+                              href: lien("encheres"),
+                            },
+                          ]
+                        : []),
                       {
                         cle: "toutes",
                         nom: "Toutes les cartes",
@@ -129,8 +156,8 @@ async function Cards({ searchParams }: { searchParams: PageProps<"/cards">["sear
                         href: lien(slugifier(g.categorie.nom)),
                       })),
                     ].map((o) => {
-                      const actif =
-                        (categorie ? slugifier(categorie.categorie.nom) : "toutes") === o.cle;
+                      const actif = filtreActif === o.cle;
+                      const estEncheres = o.cle === "encheres";
                       const { code, titre } = decouperNomCategorie(o.nom);
                       return (
                         <li key={o.cle} className="flex-none lg:flex-auto">
@@ -141,10 +168,19 @@ async function Cards({ searchParams }: { searchParams: PageProps<"/cards">["sear
                               "flex min-h-11 items-center justify-between gap-3 rounded-[14px] border px-3.5 py-2 text-texte transition-colors",
                               actif
                                 ? "border-[color-mix(in_srgb,var(--bp-accent)_45%,transparent)] bg-[color-mix(in_srgb,var(--bp-accent)_12%,transparent)]"
-                                : "border-transparent hover:bg-[var(--bp-voile-6)]",
+                                : estEncheres
+                                  ? "border-[color-mix(in_srgb,var(--bp-accent)_30%,transparent)] hover:bg-[var(--bp-voile-6)]"
+                                  : "border-transparent hover:bg-[var(--bp-voile-6)]",
                             )}
                           >
-                            <span className="flex min-w-0 flex-col">
+                            {estEncheres && (
+                              <Icon
+                                nom="marteau"
+                                taille={18}
+                                className="flex-none text-[var(--bp-accent-icone)]"
+                              />
+                            )}
+                            <span className="flex min-w-0 flex-1 flex-col">
                               {code && (
                                 <span className="libelle text-[10px] text-texte-attenue">
                                   {code}
@@ -154,7 +190,14 @@ async function Cards({ searchParams }: { searchParams: PageProps<"/cards">["sear
                                 {titre}
                               </span>
                             </span>
-                            <span className="flex-none rounded-full bg-[var(--bp-voile-6)] px-2 py-0.5 text-xs chiffres text-texte-doux">
+                            <span
+                              className={cx(
+                                "flex-none rounded-full px-2 py-0.5 text-xs chiffres",
+                                estEncheres
+                                  ? "bp-pastille-enchere font-bold"
+                                  : "bg-[var(--bp-voile-6)] text-texte-doux",
+                              )}
+                            >
                               {o.nombre}
                             </span>
                           </Link>
