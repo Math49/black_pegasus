@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   ajusterStock,
+  decouperNomCategorie,
   calculerVente,
   remisePourcent,
   resumeLignes,
@@ -214,5 +215,16 @@ describe("vente de plusieurs cartes (R-4)", () => {
     ).toBe("Vente de cartes · Dragon · Ada · remise $300");
     expect(remisePourcent(300, 1800)).toBe(17);
     expect(remisePourcent(0, 0)).toBe(0);
+  });
+});
+
+describe("nom de catégorie du catalogue public", () => {
+  it("sépare le code de série", () => {
+    expect(decouperNomCategorie("BP-00 Echoes of the Past")).toEqual({
+      code: "BP-00",
+      titre: "Echoes of the Past",
+    });
+    expect(decouperNomCategorie("Légendaires")).toEqual({ code: null, titre: "Légendaires" });
+    expect(decouperNomCategorie("BP-01")).toEqual({ code: null, titre: "BP-01" });
   });
 });

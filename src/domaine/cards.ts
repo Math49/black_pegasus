@@ -215,3 +215,12 @@ export function filtrerCatalogue<
       (f.mode === "tous" || Boolean(c.enchere) === (f.mode === "enchere")),
   );
 }
+
+/**
+ * Sépare un code de série en tête de nom (« BP-00 Echoes of the Past » → code « BP-00 »,
+ * titre « Echoes of the Past ») pour l'afficher en petit au-dessus du titre.
+ */
+export function decouperNomCategorie(nom: string): { code: string | null; titre: string } {
+  const m = /^([A-Z]{1,5}-\d{1,4})\s+(.+)$/.exec(nom.trim());
+  return m ? { code: m[1], titre: m[2] } : { code: null, titre: nom.trim() };
+}
