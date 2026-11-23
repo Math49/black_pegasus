@@ -3,7 +3,13 @@ import { TZDate } from "@date-fns/tz";
 import { cache } from "react";
 import { connection } from "next/server";
 import { revalidatePath } from "next/cache";
-import { montantVente, motifVente, verifierStock } from "@/domaine/cards";
+import {
+  ajusterStock,
+  montantVente,
+  motifVente,
+  verifierNouvelOrdre,
+  verifierStock,
+} from "@/domaine/cards";
 import { preparerContrePassation } from "@/domaine/comptabilite";
 import { cleCompteurVentes, numeroVente } from "@/domaine/numerotation";
 import { ErreurMetier } from "@/domaine/types";
@@ -110,7 +116,7 @@ async function ecrire<T>(
 export function enregistrerCategorie(
   acteur: CompteConnecte,
   id: string | null,
-  donnees: { nom: string; ordre: number },
+  donnees: { nom: string },
 ) {
   return ecrire(
     acteur,
@@ -128,7 +134,11 @@ export function enregistrerCategorie(
         if (!(await tx.categorieCarte.findUnique({ where: { id } })))
           throw new ErreurMetier("Catégorie introuvable.");
         await tx.categorieCarte.update({ where: { id }, data: donnees });
-      } else await tx.categorieCarte.create({ data: donnees });
+      } else {
+        // Nouvelle catégorie en fin de liste ; l'ordre se change ensuite par glisser-déposer.
+        const max = await tx.categorieCarte.aggregate({ _max: { ordre: true } });
+        await tx.categorieCarte.create({ data: { ...donnees, ordre: (max._max.ordre ?? 0) + 1 } });
+      }
       return { details: { nom: donnees.nom }, valeur: undefined };
     },
   );
@@ -153,9 +163,17 @@ export type DonneesCarte = {
   nom: string;
   prix: number;
   stock: number;
-  ordre: number;
   visible: boolean;
 };
+
+/** Ordre d'une carte ajoutée en fin de catégorie. */
+async function ordreEnFin(tx: Tx, categorieId: string) {
+  const max = await tx.carte.aggregate({
+    where: { categorieId, supprimeLe: null },
+    _max: { ordre: true },
+  });
+  return (max._max.ordre ?? 0) + 1;
+}
 
 /**
  * Crée ou modifie une carte. `photo` : nouvelle image, `null` pour revenir au visuel par
@@ -175,7 +193,8 @@ export async function enregistrerCarte(
         throw new ErreurMetier("Catégorie introuvable.");
       const data = { ...donnees, ...(photo !== undefined && { photo: cle }) };
       if (!id) {
-        const cree = await tx.carte.create({ data });
+        const ordre = await ordreEnFin(tx, donnees.categorieId);
+        const cree = await tx.carte.create({ data: { ...data, ordre } });
         return { details: { nom: cree.nom, stock: cree.stock }, valeur: undefined };
       }
       // Verrou : une vente simultanée ne peut pas croiser une correction du stock.
@@ -183,7 +202,12 @@ export async function enregistrerCarte(
       const avant = await tx.carte.findFirst({ where: { id, supprimeLe: null } });
       if (!avant) throw new ErreurMetier("Carte introuvable.");
       if (photo !== undefined) ancienne = avant.photo;
-      await tx.carte.update({ where: { id }, data });
+      // Changement de catégorie : la carte va en fin de sa nouvelle catégorie.
+      const ordre =
+        avant.categorieId === donnees.categorieId
+          ? avant.ordre
+          : await ordreEnFin(tx, donnees.categorieId);
+      await tx.carte.update({ where: { id }, data: { ...data, ordre } });
       if (avant.stock !== donnees.stock)
         await journaliser(tx, {
           compteId: acteur.id,
@@ -198,6 +222,73 @@ export async function enregistrerCarte(
     throw e;
   }
   if (ancienne && ancienne !== cle) await supprimerFichier(ancienne);
+}
+
+/** Ordre des catégories après un glisser-déposer : toutes les catégories, dans le nouvel ordre. */
+export function ordonnerCategories(acteur: CompteConnecte, ids: readonly string[]) {
+  return ecrire(acteur, "cards.ordre", "CategorieCarte", async (tx) => {
+    const existantes = await tx.categorieCarte.findMany({ select: { id: true } });
+    verifierNouvelOrdre(
+      existantes.map((c) => c.id),
+      ids,
+    );
+    for (const [i, id] of ids.entries())
+      await tx.categorieCarte.update({ where: { id }, data: { ordre: i + 1 } });
+    return { details: { categories: ids.length }, valeur: undefined };
+  });
+}
+
+/** Ordre des cartes d'une catégorie après un glisser-déposer. */
+export function ordonnerCartes(
+  acteur: CompteConnecte,
+  categorieId: string,
+  ids: readonly string[],
+) {
+  return ecrire(acteur, "cards.ordre", `CategorieCarte:${categorieId}`, async (tx) => {
+    const cat = await tx.categorieCarte.findUnique({ where: { id: categorieId } });
+    if (!cat) throw new ErreurMetier("Catégorie introuvable.");
+    const existantes = await tx.carte.findMany({
+      where: { categorieId, supprimeLe: null },
+      select: { id: true },
+    });
+    verifierNouvelOrdre(
+      existantes.map((c) => c.id),
+      ids,
+    );
+    for (const [i, id] of ids.entries())
+      await tx.carte.update({ where: { id }, data: { ordre: i + 1 } });
+    return { details: { categorie: cat.nom, cartes: ids.length }, valeur: undefined };
+  });
+}
+
+/** Carte déposée sur une autre catégorie : elle passe en fin de cette catégorie. */
+export function deplacerCarte(acteur: CompteConnecte, carteId: string, categorieId: string) {
+  return ecrire(acteur, "cards.deplacer", `Carte:${carteId}`, async (tx) => {
+    const [c, cat] = await Promise.all([
+      tx.carte.findFirst({ where: { id: carteId, supprimeLe: null } }),
+      tx.categorieCarte.findUnique({ where: { id: categorieId } }),
+    ]);
+    if (!c) throw new ErreurMetier("Carte introuvable.");
+    if (!cat) throw new ErreurMetier("Catégorie introuvable.");
+    if (c.categorieId === categorieId) return { valeur: undefined };
+    await tx.carte.update({
+      where: { id: carteId },
+      data: { categorieId, ordre: await ordreEnFin(tx, categorieId) },
+    });
+    return { details: { carte: c.nom, categorie: cat.nom }, valeur: undefined };
+  });
+}
+
+/** Ajustement rapide du stock (+ / −), journalisé comme une correction. */
+export function ajusterStockCarte(acteur: CompteConnecte, carteId: string, delta: number) {
+  return ecrire(acteur, "cards.stock", `Carte:${carteId}`, async (tx) => {
+    await tx.$queryRaw`SELECT id FROM "Carte" WHERE id = ${carteId} FOR UPDATE`;
+    const c = await tx.carte.findFirst({ where: { id: carteId, supprimeLe: null } });
+    if (!c) throw new ErreurMetier("Carte introuvable.");
+    const stock = ajusterStock(c.stock, delta);
+    await tx.carte.update({ where: { id: carteId }, data: { stock } });
+    return { details: { carte: c.nom, avant: c.stock, apres: stock }, valeur: stock };
+  });
 }
 
 /** Retrait logique : la carte disparaît du site et du panel, ses ventes restent lisibles. */

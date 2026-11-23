@@ -15,7 +15,13 @@ async function Contenu() {
     <>
       <EnTetePanel titre="Cartes" fil={[{ libelle: "Cards" }, { libelle: "Cartes" }]} />
       <GestionCards
-        categories={categories}
+        categories={categories.map((c) => ({
+          id: c.id,
+          nom: c.nom,
+          ordre: c.ordre,
+          // Cartes actives seulement (les cartes retirées ne s'affichent plus).
+          cartes: cartes.filter((x) => x.categorieId === c.id).length,
+        }))}
         cartes={cartes.map((c) => ({
           id: c.id,
           categorieId: c.categorieId,

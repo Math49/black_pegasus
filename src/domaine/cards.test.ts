@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
 import {
+  ajusterStock,
   correspondRecherche,
   etatCarte,
+  filtrerCatalogue,
+  filtresActifs,
+  FILTRES_PAR_DEFAUT,
+  verifierNouvelOrdre,
+  type FiltresCatalogue,
   montantVente,
   motifVente,
   regrouperCartes,
@@ -80,5 +86,41 @@ describe("catalogue", () => {
     expect(correspondRecherche("Dragon Écarlate", "ecar")).toBe(true);
     expect(correspondRecherche("Dragon Écarlate", "  ")).toBe(true);
     expect(correspondRecherche("Dragon Écarlate", "loup")).toBe(false);
+  });
+});
+
+describe("catalogue à gros volume (R-3)", () => {
+  it("nouvel ordre : mêmes éléments, sans doublon", () => {
+    expect(() => verifierNouvelOrdre(["a", "b", "c"], ["c", "a", "b"])).not.toThrow();
+    expect(() => verifierNouvelOrdre(["a", "b"], ["a", "a"])).toThrow("rechargez");
+    expect(() => verifierNouvelOrdre(["a", "b"], ["a"])).toThrow("rechargez");
+    expect(() => verifierNouvelOrdre(["a", "b"], ["a", "x"])).toThrow("rechargez");
+  });
+
+  it("ajustement du stock", () => {
+    expect(ajusterStock(2, 1)).toBe(3);
+    expect(ajusterStock(1, -1)).toBe(0);
+    expect(() => ajusterStock(0, -1)).toThrow("négatif");
+    expect(() => ajusterStock(100_000, 1)).toThrow("maximum");
+    expect(() => ajusterStock(3, 0)).toThrow("invalide");
+    expect(() => ajusterStock(3, 0.5)).toThrow("invalide");
+  });
+
+  it("filtres de l'écran Cartes", () => {
+    const cartes = [
+      { nom: "Pégase d'ébène", visible: true, stock: 1 },
+      { nom: "Dragon", visible: false, stock: 0 },
+      { nom: "Pegase blanc", visible: true, stock: 0 },
+    ];
+    const f = (p: Partial<FiltresCatalogue>) =>
+      filtrerCatalogue(cartes, { ...FILTRES_PAR_DEFAUT, ...p }).map((c) => c.nom);
+    expect(f({})).toHaveLength(3);
+    expect(f({ q: "pegase" })).toEqual(["Pégase d'ébène", "Pegase blanc"]);
+    expect(f({ visibilite: "masquees" })).toEqual(["Dragon"]);
+    expect(f({ stock: "enStock" })).toEqual(["Pégase d'ébène"]);
+    expect(f({ stock: "epuisees", visibilite: "visibles" })).toEqual(["Pegase blanc"]);
+    expect(filtresActifs(FILTRES_PAR_DEFAUT)).toBe(false);
+    expect(filtresActifs({ ...FILTRES_PAR_DEFAUT, q: " " })).toBe(false);
+    expect(filtresActifs({ ...FILTRES_PAR_DEFAUT, stock: "epuisees" })).toBe(true);
   });
 });

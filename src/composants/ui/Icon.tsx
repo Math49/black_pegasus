@@ -145,6 +145,7 @@ const TRACES = {
     </>
   ),
   plus: <path d="M12 5v14M5 12h14" />,
+  moins: <path d="M5 12h14" />,
   fermer: <path d="M6 6l12 12M18 6L6 18" />,
   valider: <path d="M5 12l5 5 9-10" />,
   alerte: (
@@ -204,6 +205,8 @@ const TRACES = {
       <path d="M3 13l9 5 9-5" />
     </>
   ),
+  /** Poignée de glisser-déposer (six points). */
+  poignee: <path d="M9 5h.01M15 5h.01M9 12h.01M15 12h.01M9 19h.01M15 19h.01" strokeWidth={3} />,
   diplome: (
     <>
       <path d="M10 16H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-1" />

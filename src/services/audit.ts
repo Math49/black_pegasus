@@ -30,6 +30,8 @@ export const LIBELLES_ACTIONS: Record<string, string> = {
   "cards.carte": "Carte enregistrée",
   "cards.carte.supprimer": "Carte retirée du catalogue",
   "cards.stock": "Stock de carte corrigé",
+  "cards.ordre": "Ordre du catalogue modifié",
+  "cards.deplacer": "Carte changée de catégorie",
   "vente.creer": "Vente de cartes saisie",
   "vente.annuler": "Vente de cartes annulée",
   "compte.ajouter": "Compte ajouté",

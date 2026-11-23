@@ -13,6 +13,8 @@ const PHOTO = "public/images/vehicule-placeholder.jpg";
 let compteurVentes: number | null = null;
 let compteursSemaines: { id: string; compteurOperations: number }[] = [];
 let stocks: { id: string; stock: number }[] = [];
+let ordres: { id: string; ordre: number; categorieId: string }[] = [];
+let ordresCategories: { id: string; ordre: number }[] = [];
 
 async function nettoyer() {
   const ventes = (
@@ -57,6 +59,8 @@ test.describe("Black Pégasus Cards", () => {
         ?.valeur ?? null;
     compteursSemaines = await sql(`SELECT id, "compteurOperations" FROM "Semaine"`);
     stocks = await sql(`SELECT id, stock FROM "Carte"`);
+    ordres = await sql(`SELECT id, ordre, "categorieId" FROM "Carte"`);
+    ordresCategories = await sql(`SELECT id, ordre FROM "CategorieCarte"`);
   });
   test.afterAll(async () => {
     await nettoyer();
@@ -69,6 +73,14 @@ test.describe("Black Pégasus Cards", () => {
       ]);
     for (const c of stocks)
       await sql(`UPDATE "Carte" SET stock = $2 WHERE id = $1`, [c.id, c.stock]);
+    for (const c of ordres)
+      await sql(`UPDATE "Carte" SET ordre = $2, "categorieId" = $3 WHERE id = $1`, [
+        c.id,
+        c.ordre,
+        c.categorieId,
+      ]);
+    for (const c of ordresCategories)
+      await sql(`UPDATE "CategorieCarte" SET ordre = $2 WHERE id = $1`, [c.id, c.ordre]);
   });
 
   test("catalogue public : catégories, recherche, carte épuisée, axe", async ({ page }) => {
@@ -189,6 +201,12 @@ test.describe("Black Pégasus Cards", () => {
     await expect(ajout).toBeHidden();
     expect(await stockDe(CARTE_E2E)).toBe(3);
 
+    // La carte est dans « Rares » : on ouvre cette catégorie (ajoutée en fin de liste).
+    await page.getByRole("button", { name: /^Rares/ }).click();
+    await expect(page.getByRole("heading", { level: 2, name: "Rares" })).toBeVisible();
+    await expect(
+      page.getByRole("list", { name: "Cartes", exact: true }).getByRole("listitem").last(),
+    ).toHaveAccessibleName(CARTE_E2E);
     await page.getByRole("button", { name: `Modifier ${CARTE_E2E}` }).click();
     const edition = page.getByRole("dialog", { name: `Modifier ${CARTE_E2E}` });
     await edition.getByLabel("Exemplaires en stock").fill("0");
@@ -205,14 +223,86 @@ test.describe("Black Pégasus Cards", () => {
     ).toContainText("Épuisée");
 
     await page.goto("/admin/cards");
+    await page.getByLabel("Rechercher dans tout le catalogue").fill(CARTE_E2E);
     await page.getByRole("button", { name: `Retirer ${CARTE_E2E}` }).click();
     await page
       .getByRole("dialog", { name: "Retirer la carte" })
       .getByRole("button", { name: "Retirer la carte" })
       .click();
-    await expect(page.getByRole("heading", { name: CARTE_E2E })).toHaveCount(0);
+    await expect(page.getByRole("list", { name: "Cartes", exact: true })).toHaveCount(0);
     await page.goto("/cards");
     await expect(page.getByRole("heading", { name: CARTE_E2E })).toHaveCount(0);
+  });
+
+  test("gros volume : ordre au clavier, déplacement vers une catégorie, stock + / −", async ({
+    page,
+  }) => {
+    test.setTimeout(60_000);
+    const ordreLegendaires = async () =>
+      (
+        await sql<{ nom: string }>(
+          `SELECT c.nom FROM "Carte" c JOIN "CategorieCarte" k ON k.id = c."categorieId"
+           WHERE k.nom = 'Légendaires' AND c."supprimeLe" IS NULL ORDER BY c.ordre, c.nom`,
+        )
+      ).map((c) => c.nom);
+    await connexion(page, "Lena Castillo");
+    await page.goto("/admin/cards");
+    await page.waitForLoadState("networkidle"); // glisser-déposer actif après hydratation
+    const grille = page.getByRole("list", { name: "Cartes", exact: true });
+    const avant = await ordreLegendaires();
+
+    // Clavier : la première carte passe en deuxième position.
+    await page.getByRole("button", { name: `Déplacer ${avant[0]}` }).focus();
+    // Les annonces au lecteur d'écran rythment les étapes (dnd-kit mesure entre deux touches).
+    const annonce = (texte: string) =>
+      expect(page.getByRole("status").filter({ hasText: texte })).toHaveCount(1);
+    await page.keyboard.press("Space");
+    await annonce(`${avant[0]} au-dessus de ${avant[0]}.`);
+    // dnd-kit mesure les zones de dépôt juste après la saisie.
+    await page.waitForTimeout(400);
+    await page.keyboard.press("ArrowRight");
+    await annonce(`${avant[0]} au-dessus de ${avant[1]}.`);
+    await page.keyboard.press("Space");
+    await expect(page.getByText("Ordre des cartes enregistré.")).toBeVisible();
+    await expect.poll(ordreLegendaires).toEqual([avant[1], avant[0], ...avant.slice(2)]);
+    await expect(grille.getByRole("listitem").first()).toHaveAccessibleName(avant[1]);
+
+    // Souris : la carte déposée sur « Communes » y passe, en fin de liste.
+    const poignee = page.getByRole("button", { name: `Déplacer ${avant[0]}` });
+    const cible = page.getByRole("button", { name: /^Communes/ });
+    const a = (await poignee.boundingBox())!;
+    const b = (await cible.boundingBox())!;
+    await page.mouse.move(a.x + a.width / 2, a.y + a.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(a.x + a.width / 2 - 40, a.y + a.height / 2, { steps: 5 });
+    await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2, { steps: 15 });
+    await page.mouse.up();
+    await expect(page.getByText(`« ${avant[0]} » déplacée dans Communes.`)).toBeVisible();
+    const [deplacee] = await sql<{ categorie: string }>(
+      `SELECT k.nom AS categorie FROM "Carte" c JOIN "CategorieCarte" k ON k.id = c."categorieId" WHERE c.nom = $1`,
+      [avant[0]],
+    );
+    expect(deplacee.categorie).toBe("Communes");
+    await expect(grille).not.toContainText(avant[0]);
+
+    // Stock rapide, journalisé.
+    const nom = avant[1];
+    const stock = await stockDe(nom);
+    await page.getByRole("button", { name: `Ajouter un exemplaire de ${nom}` }).click();
+    await expect.poll(() => stockDe(nom)).toBe(stock + 1);
+    await page.getByRole("button", { name: `Retirer un exemplaire de ${nom}` }).click();
+    await expect.poll(() => stockDe(nom)).toBe(stock);
+    const journal = await sql<{ details: { avant: number; apres: number } }>(
+      `SELECT details FROM "JournalAudit" WHERE action = 'cards.stock' ORDER BY date`,
+    );
+    expect(journal.at(-1)?.details).toMatchObject({ avant: stock + 1, apres: stock });
+
+    // Un filtre désactive le glisser-déposer.
+    await page
+      .getByRole("combobox", { name: "Stock", exact: true })
+      .selectOption({ label: "Épuisées" });
+    await expect(page.getByText("Le glisser-déposer est désactivé")).toBeVisible();
+    await expect(grille.getByRole("button", { name: /^Déplacer / })).toHaveCount(0);
   });
 
   test("photo : filigranée sur le site, original réservé au panel, image protégée", async ({

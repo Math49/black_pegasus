@@ -7,8 +7,12 @@ import { exigerRole } from "@/lib/garde";
 import { exigerQuotaEnvoi } from "@/lib/limites";
 import { executer } from "@/lib/resultat";
 import {
+  ajusterStockCarte,
   annulerVente,
   creerVente,
+  deplacerCarte,
+  ordonnerCartes,
+  ordonnerCategories,
   enregistrerCarte,
   enregistrerCategorie,
   supprimerCarte,
@@ -28,14 +32,14 @@ const entier = (libelle: string, max: number) =>
     .min(0, `${libelle} : minimum 0.`)
     .max(max, `${libelle} : maximum ${max.toLocaleString("fr-FR")}.`);
 
-const schemaCategorie = z.object({ nom, ordre: entier("Ordre", 1000) });
+const schemaCategorie = z.object({ nom });
+const listeIds = z.array(id).max(5000);
 
 const schemaCarte = z.object({
   categorieId: id,
   nom,
   prix: entier("Prix", 10_000_000),
   stock: entier("Stock", 100_000),
-  ordre: entier("Ordre", 1000),
   visible: z.enum(["0", "1"]).transform((v) => v === "1"),
 });
 
@@ -94,6 +98,34 @@ export async function actionEnregistrerCarte(formulaire: FormData) {
 
 export async function actionSupprimerCarte(cible: unknown) {
   return executer(async () => supprimerCarte(await exigerRole("cards.gerer"), id.parse(cible)));
+}
+
+export async function actionOrdonnerCategories(ids: unknown) {
+  return executer(async () =>
+    ordonnerCategories(await exigerRole("cards.gerer"), listeIds.parse(ids)),
+  );
+}
+
+export async function actionOrdonnerCartes(categorieId: unknown, ids: unknown) {
+  return executer(async () =>
+    ordonnerCartes(await exigerRole("cards.gerer"), id.parse(categorieId), listeIds.parse(ids)),
+  );
+}
+
+export async function actionDeplacerCarte(carteId: unknown, categorieId: unknown) {
+  return executer(async () =>
+    deplacerCarte(await exigerRole("cards.gerer"), id.parse(carteId), id.parse(categorieId)),
+  );
+}
+
+export async function actionAjusterStock(carteId: unknown, delta: unknown) {
+  return executer(async () =>
+    ajusterStockCarte(
+      await exigerRole("cards.gerer"),
+      id.parse(carteId),
+      z.number().int().min(-1000).max(1000).parse(delta),
+    ),
+  );
 }
 
 export async function actionCreerVente(donnees: unknown) {

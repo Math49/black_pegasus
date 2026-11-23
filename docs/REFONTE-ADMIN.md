@@ -7,8 +7,8 @@
 | Phase | Contenu | État |
 |---|---|---|
 | **R-1** | Navigation par filiale, icônes, tableau de bord du groupe | Terminée (`7ed1add`) |
-| **R-2** | Comptabilité : nature par le sens, impôt sur les recettes, catégories de mouvements personnalisables | Terminée, à valider |
-| **R-3** | Gestion des cartes à gros volume, glisser-déposer | À faire |
+| **R-2** | Comptabilité : nature par le sens, impôt sur les recettes, catégories de mouvements personnalisables | Terminée (`a0a50d9`) |
+| **R-3** | Gestion des cartes à gros volume, glisser-déposer | Terminée, à valider |
 | **R-4** | Ventes de plusieurs cartes, montant encaissé modifiable | À faire |
 | **R-5** | Enchères (panel et site public) | À faire |
 
@@ -56,6 +56,8 @@
 - Ajustement rapide du stock (+ / −) ; édition complète dans un panneau.
 - La gestion des catégories de cartes quitte les Paramètres pour cet écran.
 - Glisser-déposer accessible au clavier (bibliothèque à proposer au début de R-3).
+
+- **Livré en R-3** : bibliothèque `@dnd-kit` (glisser-déposer à la souris et au clavier : Espace, flèches, Espace ; annonces en français). Le champ « Ordre » disparaît des formulaires : une carte ou une catégorie créée va en fin de liste, une carte qui change de catégorie aussi. Ajustement du stock (+ / −) journalisé comme une correction. Recherche, filtre de visibilité et de stock ; le glisser-déposer des cartes est désactivé pendant un filtre. Capture : `docs/validations/r3/`.
 
 ## 4. Ventes (R-4)
 

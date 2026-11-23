@@ -69,3 +69,51 @@ export function correspondRecherche(nom: string, recherche: string): boolean {
   const q = normaliser(recherche);
   return q === "" || normaliser(nom).includes(q);
 }
+
+// ── Gestion du catalogue à gros volume (REFONTE-ADMIN § 3) ──────────────────
+
+/**
+ * Vérifie qu'un nouvel ordre (glisser-déposer) contient exactement les éléments attendus :
+ * ni doublon, ni élément manquant ou étranger.
+ */
+export function verifierNouvelOrdre(attendus: readonly string[], recus: readonly string[]): void {
+  const a = new Set(attendus);
+  const r = new Set(recus);
+  if (r.size !== recus.length || a.size !== r.size || [...r].some((id) => !a.has(id)))
+    throw new ErreurMetier("L’ordre reçu ne correspond plus au catalogue : rechargez la page.");
+}
+
+/** Ajustement rapide du stock (+ / −) ; jamais en dessous de zéro. */
+export function ajusterStock(stock: number, delta: number): number {
+  if (!Number.isSafeInteger(delta) || delta === 0)
+    throw new ErreurMetier("Ajustement de stock invalide.");
+  const nouveau = stock + delta;
+  if (nouveau < 0) throw new ErreurMetier("Le stock ne peut pas être négatif.");
+  if (nouveau > 100_000) throw new ErreurMetier("Stock : maximum 100 000.");
+  return nouveau;
+}
+
+export type FiltresCatalogue = {
+  q: string;
+  visibilite: "toutes" | "visibles" | "masquees";
+  stock: "tous" | "enStock" | "epuisees";
+};
+
+export const FILTRES_PAR_DEFAUT: FiltresCatalogue = { q: "", visibilite: "toutes", stock: "tous" };
+
+/** Le glisser-déposer n'a de sens que sur la liste complète d'une catégorie. */
+export const filtresActifs = (f: FiltresCatalogue) =>
+  f.q.trim() !== "" || f.visibilite !== "toutes" || f.stock !== "tous";
+
+/** Filtres de l'écran Cartes du panel (recherche sur toutes les catégories). */
+export function filtrerCatalogue<C extends { nom: string; visible: boolean; stock: number }>(
+  cartes: readonly C[],
+  f: FiltresCatalogue,
+): C[] {
+  return cartes.filter(
+    (c) =>
+      correspondRecherche(c.nom, f.q) &&
+      (f.visibilite === "toutes" || c.visible === (f.visibilite === "visibles")) &&
+      (f.stock === "tous" || c.stock > 0 === (f.stock === "enStock")),
+  );
+}
