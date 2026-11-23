@@ -3,6 +3,7 @@ import {
   champsModifiables,
   montantSigne,
   preparerContrePassation,
+  regleDe,
   synthese,
 } from "@/domaine/comptabilite";
 import { numeroJustificatif } from "@/domaine/numerotation";
@@ -20,6 +21,7 @@ import { maintenant } from "@/lib/horloge";
 import { prisma } from "@/lib/prisma";
 import { enTransaction } from "@/lib/transaction";
 import { journaliser } from "./audit";
+import { lireDefinitionCategorie } from "./categories";
 import { inscrireMouvement, lireRegles } from "./mouvements";
 import { enregistrerFichier, supprimerFichier } from "./stockage";
 
@@ -53,7 +55,7 @@ async function soldeActuel() {
 /** Données du haut de page : solde, semaine en cours, cautions détenues, semaines connues. */
 export async function lireSyntheseSolde(instant: Date, fuseau: string) {
   const courante = semaineDe(instant, fuseau);
-  const [solde, enBase, mouvements, cautions, semaines] = await Promise.all([
+  const [solde, enBase, mouvements, cautions, p, semaines] = await Promise.all([
     soldeActuel(),
     prisma.semaine.findUnique({ where: { id: courante.id } }),
     prisma.mouvement.findMany({
@@ -65,10 +67,12 @@ export async function lireSyntheseSolde(instant: Date, fuseau: string) {
         categorie: true,
         montant: true,
         filiale: true,
+        annuleMouvementId: true,
       },
       orderBy: { date: "asc" },
     }),
     prisma.contrat.aggregate({ where: { statut: "EN_COURS" }, _sum: { caution: true } }),
+    prisma.parametres.findUniqueOrThrow({ where: { id: 1 }, select: { tauxImpot: true } }),
     prisma.semaine.findMany({
       orderBy: { debut: "desc" },
       select: { id: true, numero: true, debut: true, fin: true, statut: true },
@@ -81,7 +85,10 @@ export async function lireSyntheseSolde(instant: Date, fuseau: string) {
     solde,
     soldeOuverture,
     mouvements,
-    synthese: synthese(mouvements, soldeOuverture),
+    synthese: synthese(mouvements, soldeOuverture, {
+      regle: regleDe(enBase?.regleComptable),
+      tauxImpot: enBase?.tauxImpot ?? p.tauxImpot,
+    }),
     cautionsDetenues: cautions._sum.caution ?? 0,
     semaines,
   };
@@ -131,7 +138,11 @@ export async function creerMouvement(
   d: SaisieMouvementManuel,
   image: ImageEnvoyee | null,
 ) {
-  verifierSaisieMouvement({ ...d, avecJustificatif: image !== null }, await maintenant());
+  const categorie = await lireDefinitionCategorie(prisma, d.categorie);
+  verifierSaisieMouvement(
+    { ...d, categorie, avecJustificatif: image !== null },
+    await maintenant(),
+  );
   const cle = image
     ? await enregistrerFichier("justificatifs", image.octets, image.extension)
     : null;
@@ -260,6 +271,7 @@ export function lireMouvementsDesSemaines(ids: readonly string[]) {
     where: { id: { in: [...ids] } },
     select: {
       id: true,
+      regleComptable: true,
       mouvements: {
         select: {
           numero: true,

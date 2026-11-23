@@ -24,18 +24,16 @@ import {
 import { formaterHeureServeurIso, versHeureServeur } from "@/domaine/dates";
 import { numeroOperationAffiche } from "@/domaine/numerotation";
 import { peut } from "@/domaine/permissions";
+import { exigeJustificatif, nomCategorie } from "@/domaine/categories";
 import {
-  CATEGORIES,
   courbeSemaine,
   evolutionSolde,
-  exigeJustificatif,
   filtrerHistorique,
-  LIBELLES_CATEGORIE,
   mentionReport,
   paginer,
 } from "@/domaine/solde";
-import type { CategorieMouvement } from "@/domaine/types";
 import { exigerPermission } from "@/lib/garde";
+import { lireCategoriesMouvement } from "@/services/categories";
 import { lireDonneesPanel } from "@/services/panel";
 import {
   lireContratsLiables,
@@ -86,10 +84,12 @@ async function Contenu({
   const peutModifier = peut(compte.role, "mouvement.modifier");
   const params = await searchParams;
   const d = await lireDonneesPanel();
-  const [s, contrats] = await Promise.all([
+  const [s, contrats, categories] = await Promise.all([
     lireSyntheseSolde(d.maintenant, d.fuseau),
     lireContratsLiables(),
+    lireCategoriesMouvement(),
   ]);
+  const libelles = Object.fromEntries(categories.map((c) => [c.id, c.nom]));
   const { courante, synthese: syn } = s;
 
   // Filtres de l'historique (URL) : période = id de semaine ou « tout ».
@@ -107,8 +107,8 @@ async function Contenu({
   const periode = periodes.some((p) => p.valeur === params.periode)
     ? String(params.periode)
     : courante.id;
-  const categorie = CATEGORIES.includes(params.categorie as CategorieMouvement)
-    ? (params.categorie as CategorieMouvement)
+  const categorie = categories.some((c) => c.id === params.categorie)
+    ? String(params.categorie)
     : null;
   const q = String(params.q ?? "");
   const filtreFiliale = lireFiltreFiliale(params.filiale);
@@ -123,7 +123,7 @@ async function Contenu({
         saisiPar: nomCompte(m.saisiPar),
         compte: m.saisiPar,
       })),
-      { q, categorie },
+      { q, categorie, libelles },
     ),
     Number(params.page ?? 1),
     TAILLE_PAGE,
@@ -142,7 +142,7 @@ async function Contenu({
       numero: numeroOperationAffiche(m.numero),
       date: format(versHeureServeur(m.date, d.fuseau), "EEE dd/MM '·' HH:mm", { locale: fr }),
       sens: m.sens,
-      categorie: LIBELLES_CATEGORIE[m.categorie],
+      categorie: nomCategorie(categories, m.categorie),
       filiale: libelleFiliale(m.filiale),
       filialeSlug: m.filiale ? SLUGS_FILIALE[m.filiale] : undefined,
       montant: formaterDollars(montantSigne(m), { signe: true }),
@@ -163,7 +163,12 @@ async function Contenu({
               url: m.justificatif ? `/api/fichiers/${m.justificatif}` : null,
             }
           : null,
-      exigeJustificatif: exigeJustificatif(m.sens, m.categorie),
+      exigeJustificatif:
+        !m.annuleMouvementId &&
+        exigeJustificatif(
+          m.sens,
+          categories.find((c) => c.id === m.categorie),
+        ),
       mentions: [
         m.annuleMouvement &&
           `Contre-passation de ${numeroOperationAffiche(m.annuleMouvement.numero)}`,
@@ -249,7 +254,7 @@ async function Contenu({
         ]}
         categories={[
           { valeur: "", libelle: "Toutes les catégories" },
-          ...CATEGORIES.map((c) => ({ valeur: c, libelle: LIBELLES_CATEGORIE[c] })),
+          ...categories.map((c) => ({ valeur: c.id, libelle: c.nom })),
         ]}
         periodes={periodes}
         nouveau={
@@ -262,6 +267,7 @@ async function Contenu({
                   numero: c.numero,
                   clientNom: c.clientNom,
                 })),
+                categories,
                 acteur: { nom: nomCompte(compte), avatarUrl: compte.avatarUrl },
               }
             : null

@@ -3,8 +3,10 @@ import {
   champsModifiables,
   confirmationClotureValide,
   controlesAvantCloture,
+  calculerImpot,
   montantSigne,
   natureMouvement,
+  regleDe,
   preparerContrePassation,
   synthese,
   texteConfirmationCloture,
@@ -24,13 +26,38 @@ const op = (m: Omit<MouvementComptable, "numero"> & { numero?: string }): Mouvem
 });
 
 describe("natures et signes", () => {
-  it("classe les catégories", () => {
-    expect(natureMouvement("LOCATION")).toBe("RECETTE");
-    expect(natureMouvement("PENALITE")).toBe("RECETTE");
-    expect(natureMouvement("DIVERS")).toBe("DEPENSE");
-    expect(natureMouvement("IMPOTS")).toBe("DEPENSE");
-    expect(natureMouvement("CAUTION_RENDUE")).toBe("CAUTION");
-    expect(natureMouvement("APPORT")).toBe("APPORT");
+  const n = (categorie: string, sens: "ENTREE" | "SORTIE", regle: 1 | 2 = 2, annule?: string) =>
+    natureMouvement({ categorie, sens, annuleMouvementId: annule }, regle);
+
+  it("règle 1 : la catégorie fixe la nature (semaines clôturées avant la refonte)", () => {
+    expect(n("LOCATION", "ENTREE", 1)).toBe("RECETTE");
+    expect(n("PENALITE", "ENTREE", 1)).toBe("RECETTE");
+    expect(n("DIVERS", "SORTIE", 1)).toBe("DEPENSE");
+    expect(n("IMPOTS", "SORTIE", 1)).toBe("DEPENSE");
+    expect(n("CAUTION_RENDUE", "SORTIE", 1)).toBe("CAUTION");
+    expect(n("APPORT", "ENTREE", 1)).toBe("APPORT");
+    // Catégorie inconnue de la règle 1 : le sens décide.
+    expect(n("perso", "SORTIE", 1)).toBe("DEPENSE");
+  });
+
+  it("règle 2 : toute entrée est une recette, toute sortie une dépense, sauf les cautions", () => {
+    expect(n("APPORT", "ENTREE")).toBe("RECETTE");
+    expect(n("DIVERS", "ENTREE")).toBe("RECETTE");
+    expect(n("perso", "SORTIE")).toBe("DEPENSE");
+    expect(n("CAUTION_ENCAISSEE", "ENTREE")).toBe("CAUTION");
+    expect(n("CAUTION_RENDUE", "SORTIE")).toBe("CAUTION");
+  });
+
+  it("règle 2 : une contre-passation garde la nature du mouvement annulé", () => {
+    expect(n("LOCATION", "SORTIE", 2, "x")).toBe("RECETTE");
+    expect(n("DIVERS", "ENTREE", 2, "x")).toBe("DEPENSE");
+  });
+
+  it("règle lue en base", () => {
+    expect(regleDe(1)).toBe(1);
+    expect(regleDe(2)).toBe(2);
+    expect(regleDe(null)).toBe(2);
+    expect(regleDe(undefined)).toBe(2);
   });
 
   it("signe du point de vue de la caisse", () => {
@@ -50,26 +77,28 @@ describe("synthese", () => {
     });
   });
 
-  it("cautions et apports exclus du résultat mais comptés dans le solde", () => {
-    const s = synthese(
-      [
-        op({ sens: "ENTREE", categorie: "CAUTION_ENCAISSEE", montant: 5000 }),
-        op({ sens: "ENTREE", categorie: "LOCATION", montant: 2400 }),
-        op({ sens: "ENTREE", categorie: "PENALITE", montant: 900 }),
-        op({ sens: "SORTIE", categorie: "CAUTION_RENDUE", montant: 5000 }),
-        op({ sens: "ENTREE", categorie: "APPORT", montant: 10000 }),
-        op({ sens: "SORTIE", categorie: "ENTRETIEN", montant: 1200 }),
-        op({ sens: "ENTREE", categorie: "CAUTION_ENCAISSEE", montant: 1000 }),
-      ],
-      100,
-    );
+  const semaineMixte = (): MouvementComptable[] => [
+    op({ sens: "ENTREE", categorie: "CAUTION_ENCAISSEE", montant: 5000 }),
+    op({ sens: "ENTREE", categorie: "LOCATION", montant: 2400 }),
+    op({ sens: "ENTREE", categorie: "PENALITE", montant: 900 }),
+    op({ sens: "SORTIE", categorie: "CAUTION_RENDUE", montant: 5000 }),
+    op({ sens: "ENTREE", categorie: "APPORT", montant: 10000 }),
+    op({ sens: "SORTIE", categorie: "ENTRETIEN", montant: 1200 }),
+    op({ sens: "ENTREE", categorie: "CAUTION_ENCAISSEE", montant: 1000 }),
+  ];
+
+  it("règle 1 : cautions et apports exclus du résultat mais comptés dans le solde", () => {
+    const s = synthese(semaineMixte(), 100, { regle: 1, tauxImpot: 20 });
     expect(s).toEqual({
+      regle: 1,
       soldeOuverture: 100,
       entrees: 19300,
       sorties: 6200,
       recettes: 3300,
       depenses: 1200,
-      resultatImposable: 2100,
+      baseImposable: 2100,
+      tauxImpot: null,
+      impotDu: null,
       cautionsEncaissees: 6000,
       cautionsRendues: 5000,
       cautionsDetenues: 1000,
@@ -77,6 +106,32 @@ describe("synthese", () => {
       solde: 13200,
       nombreOperations: 7,
     });
+  });
+
+  it("règle 2 : apports en recettes, impôt sur les recettes, cautions à part", () => {
+    const s = synthese(semaineMixte(), 100, { tauxImpot: 20 });
+    expect(s).toMatchObject({
+      regle: 2,
+      recettes: 13300,
+      depenses: 1200,
+      baseImposable: 13300,
+      tauxImpot: 20,
+      impotDu: 2660,
+      cautionsDetenues: 1000,
+      apports: 0,
+      solde: 13200,
+    });
+    // Sans taux fourni, pas d'impôt calculé.
+    expect(synthese(semaineMixte(), 100).impotDu).toBeNull();
+  });
+
+  it("impôt : arrondi au dollar, jamais négatif, taux entier de 0 à 100", () => {
+    expect(calculerImpot(91400, 20)).toBe(18280);
+    expect(calculerImpot(1003, 20)).toBe(201);
+    expect(calculerImpot(-500, 20)).toBe(0);
+    expect(calculerImpot(1000, 0)).toBe(0);
+    expect(() => calculerImpot(1000, 101)).toThrow("Taux");
+    expect(() => calculerImpot(1000, 12.5)).toThrow("Taux");
   });
 
   it("cautions détenues reportées d'une semaine à l'autre", () => {
@@ -96,24 +151,28 @@ describe("synthese", () => {
     const depense = op({ sens: "SORTIE", categorie: "DIVERS", montant: 850, id: "b" });
     const caution = op({ sens: "ENTREE", categorie: "CAUTION_ENCAISSEE", montant: 5000, id: "c" });
     const base = synthese([], 1000);
-    const avecAnnulations = synthese(
-      [
-        location,
-        op({ ...preparerContrePassation({ ...location, id: "a" }, false) }),
-        depense,
-        op({ ...preparerContrePassation({ ...depense, id: "b" }, false) }),
-        caution,
-        op({ ...preparerContrePassation({ ...caution, id: "c" }, false) }),
-      ],
-      1000,
-    );
-    expect(avecAnnulations).toMatchObject({
-      recettes: base.recettes,
-      depenses: base.depenses,
-      resultatImposable: 0,
-      cautionsDetenues: 0,
-      solde: base.solde,
-    });
+    const avecAnnulations = (regle: 1 | 2) =>
+      synthese(
+        [
+          location,
+          op({ ...preparerContrePassation({ ...location, id: "a" }, false) }),
+          depense,
+          op({ ...preparerContrePassation({ ...depense, id: "b" }, false) }),
+          caution,
+          op({ ...preparerContrePassation({ ...caution, id: "c" }, false) }),
+        ],
+        1000,
+        { regle, tauxImpot: 20 },
+      );
+    for (const regle of [1, 2] as const) {
+      expect(avecAnnulations(regle)).toMatchObject({
+        recettes: base.recettes,
+        depenses: base.depenses,
+        baseImposable: 0,
+        cautionsDetenues: 0,
+        solde: base.solde,
+      });
+    }
   });
 
   it("refuse un montant invalide", () => {
@@ -132,6 +191,7 @@ describe("controlesAvantCloture", () => {
       categorie: "IMPOTS",
       montant: 100,
       justificatifNumero: "JUST-43-01",
+      justificatifRequis: true,
     },
     { numero: "OP-43-002", sens: "ENTREE", categorie: "LOCATION", montant: 300 },
     {
@@ -140,6 +200,7 @@ describe("controlesAvantCloture", () => {
       categorie: "ENTRETIEN",
       montant: 50,
       justificatifNumero: "JUST-43-02",
+      justificatifRequis: true,
     },
   ];
   const base = {
@@ -170,7 +231,13 @@ describe("controlesAvantCloture", () => {
       ...base,
       mouvements: [
         ...mouvements,
-        { numero: "OP-43-004", sens: "SORTIE", categorie: "DIVERS", montant: 50 },
+        {
+          numero: "OP-43-004",
+          sens: "SORTIE",
+          categorie: "DIVERS",
+          montant: 50,
+          justificatifRequis: true,
+        },
       ],
       soldeConstate: 1100,
     });
@@ -180,6 +247,32 @@ describe("controlesAvantCloture", () => {
       niveau: "bloquant",
       message: "2 / 3 dépenses justifiées : OP-43-004 sans justificatif",
     });
+  });
+
+  it("règle 2 : une catégorie sans justificatif obligatoire n'en demande pas", () => {
+    const r = controlesAvantCloture({
+      ...base,
+      mouvements: [
+        ...mouvements,
+        { numero: "OP-43-004", sens: "SORTIE", categorie: "perso", montant: 50 },
+      ],
+      soldeConstate: 1100,
+    });
+    expect(r.cloturable).toBe(true);
+    expect(r.controles[0].message).toBe("2 / 2 dépenses justifiées");
+  });
+
+  it("règle 1 : toute dépense doit être justifiée", () => {
+    const r = controlesAvantCloture({
+      ...base,
+      regle: 1,
+      mouvements: [
+        ...mouvements,
+        { numero: "OP-43-004", sens: "SORTIE", categorie: "DIVERS", montant: 50 },
+      ],
+      soldeConstate: 1100,
+    });
+    expect(r.controles[0].niveau).toBe("bloquant");
   });
 
   it("une contre-passation de dépense ne demande pas de justificatif", () => {
@@ -292,6 +385,7 @@ describe("controlesAvantCloture", () => {
           categorie: "IMPOTS",
           montant: 100,
           justificatifNumero: "J",
+          justificatifRequis: true,
         },
       ],
       soldeConstate: 900,

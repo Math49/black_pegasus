@@ -82,7 +82,7 @@ test.describe("solde et mouvements", () => {
     await modale.getByLabel("Motif").fill(MOTIF);
     await modale.getByLabel("Date et heure").fill("2026-10-24T21:30");
     await modale.getByRole("button", { name: "Enregistrer le mouvement" }).click();
-    await expect(modale.getByRole("alert")).toContainText("exigée pour une dépense");
+    await expect(modale.getByRole("alert")).toContainText("cette catégorie l’exige");
 
     await modale.locator('input[type="file"]').setInputFiles(PHOTO);
     await expect(modale.getByRole("img", { name: "Aperçu du justificatif" })).toBeVisible();

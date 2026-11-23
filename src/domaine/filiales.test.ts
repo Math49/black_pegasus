@@ -10,7 +10,6 @@ import {
   verifierFilialeMouvement,
 } from "./filiales";
 import type { CategorieMouvement, CodeFiliale } from "./types";
-import { exigeJustificatif, categoriesDuSens } from "./solde";
 import {
   colonneRegistre,
   pieceAbregee,
@@ -28,13 +27,16 @@ describe("filiales", () => {
   });
 
   it("filiale proposée selon la catégorie", () => {
-    expect(filialeParDefaut("LOCATION")).toBe("BPL");
-    expect(filialeParDefaut("ENTRETIEN")).toBe("BPL");
-    expect(filialeParDefaut("FORMATION")).toBe("BPF");
-    expect(filialeParDefaut("VENTE_CARTES")).toBe("BPC");
-    expect(filialeParDefaut("ACHAT_STOCK")).toBe("BPC");
-    expect(filialeParDefaut("IMPOTS")).toBeNull();
-    expect(filialeParDefaut("DIVERS")).toBeNull();
+    const c = (id: string, filiale: CodeFiliale | null = null) => filialeParDefaut({ id, filiale });
+    // Imposée par une catégorie système, même si la définition dit autre chose.
+    expect(c("LOCATION", "BPC")).toBe("BPL");
+    expect(c("FORMATION")).toBe("BPF");
+    expect(c("VENTE_CARTES")).toBe("BPC");
+    // Sinon, celle de la catégorie (Paramètres).
+    expect(c("ENTRETIEN", "BPL")).toBe("BPL");
+    expect(c("ACHAT_STOCK", "BPC")).toBe("BPC");
+    expect(c("IMPOTS")).toBeNull();
+    expect(filialeImposee("ACHAT_STOCK")).toBeNull();
   });
 
   it("filiale imposée par certaines catégories", () => {
@@ -48,11 +50,6 @@ describe("filiales", () => {
   });
 
   it("nouvelles catégories : recettes Formation et Vente de cartes, dépense Achat de stock", () => {
-    expect(categoriesDuSens("ENTREE")).toEqual(
-      expect.arrayContaining(["FORMATION", "VENTE_CARTES"]),
-    );
-    expect(categoriesDuSens("SORTIE")).toContain("ACHAT_STOCK");
-    expect(exigeJustificatif("SORTIE", "ACHAT_STOCK")).toBe(true);
     const m = [
       { numero: "1", sens: "ENTREE" as const, categorie: "FORMATION" as const, montant: 5000 },
       { numero: "2", sens: "ENTREE" as const, categorie: "VENTE_CARTES" as const, montant: 1200 },
@@ -61,9 +58,13 @@ describe("filiales", () => {
     expect(synthese(m, 0)).toMatchObject({
       recettes: 6200,
       depenses: 700,
-      resultatImposable: 5500,
+      baseImposable: 6200,
     });
-    expect(ventilation(m)).toMatchObject({ formation: 5000, ventesCartes: 1200, achatsStock: 700 });
+    expect(ventilation(m)).toEqual([
+      { categorie: "FORMATION", nature: "RECETTE", montant: 5000 },
+      { categorie: "VENTE_CARTES", nature: "RECETTE", montant: 1200 },
+      { categorie: "ACHAT_STOCK", nature: "DEPENSE", montant: 700 },
+    ]);
     expect(colonneRegistre(m[2])).toEqual({ colonne: "depense", montant: 700 });
   });
 
@@ -81,7 +82,8 @@ describe("ventilation par filiale (F-5)", () => {
     categorie: CategorieMouvement,
     montant: number,
     filiale: CodeFiliale | null,
-  ) => ({ numero, sens, categorie, montant, filiale });
+    annuleMouvementId: string | null = null,
+  ) => ({ numero, sens, categorie, montant, filiale, annuleMouvementId });
   const mouvements = [
     m("1", "ENTREE", "LOCATION", 4000, "BPL"),
     m("2", "ENTREE", "PENALITE", 300, "BPL"),
@@ -90,7 +92,7 @@ describe("ventilation par filiale (F-5)", () => {
     m("5", "ENTREE", "FORMATION", 4000, "BPF"),
     m("6", "ENTREE", "VENTE_CARTES", 1200, "BPC"),
     m("7", "SORTIE", "ACHAT_STOCK", 700, "BPC"),
-    m("8", "SORTIE", "VENTE_CARTES", 1200, "BPC"),
+    m("8", "SORTIE", "VENTE_CARTES", 1200, "BPC", "6"),
     m("9", "SORTIE", "IMPOTS", 1500, null),
     m("10", "ENTREE", "APPORT", 10000, null),
   ];
@@ -100,7 +102,8 @@ describe("ventilation par filiale (F-5)", () => {
       { filiale: "BPL", recettes: 4300, depenses: 900, resultat: 3400, nombreOperations: 4 },
       { filiale: "BPF", recettes: 4000, depenses: 0, resultat: 4000, nombreOperations: 1 },
       { filiale: "BPC", recettes: 0, depenses: 700, resultat: -700, nombreOperations: 3 },
-      { filiale: null, recettes: 0, depenses: 1500, resultat: -1500, nombreOperations: 2 },
+      // Règle 2 : l'apport du Groupe est une recette.
+      { filiale: null, recettes: 10000, depenses: 1500, resultat: 8500, nombreOperations: 2 },
     ]);
   });
 
@@ -111,7 +114,7 @@ describe("ventilation par filiale (F-5)", () => {
       lignes.reduce((t, l) => t + l[cle], 0);
     expect(somme("recettes")).toBe(groupe.recettes);
     expect(somme("depenses")).toBe(groupe.depenses);
-    expect(somme("resultat")).toBe(groupe.resultatImposable);
+    expect(somme("resultat")).toBe(groupe.recettes - groupe.depenses);
     expect(somme("nombreOperations")).toBe(groupe.nombreOperations);
   });
 

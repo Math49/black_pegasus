@@ -15,6 +15,7 @@ import { semaineDe } from "../src/domaine/semaine";
 import { urlBase } from "../src/lib/urlBase";
 import {
   categoriesInitiales,
+  categoriesMouvementInitiales,
   filialesInitiales,
   formationInitiale,
   reglement,
@@ -102,6 +103,13 @@ async function main() {
           update: {},
         });
       }
+    }
+    for (const [ordre, c] of categoriesMouvementInitiales.entries()) {
+      await prisma.categorieMouvement.upsert({
+        where: { id: c.id },
+        create: { ...c, ordre: ordre + 1 },
+        update: {},
+      });
     }
     console.log("✓ Catégories présentes.");
 

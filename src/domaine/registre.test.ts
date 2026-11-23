@@ -4,6 +4,7 @@ import demo from "../../docs/handoff/data/demo-semaine-43.json";
 import {
   colonneRegistre,
   compteursOnglets,
+  contratsLoues,
   filtrerRegistre,
   pieceAbregee,
   registreCsv,
@@ -46,28 +47,35 @@ describe("registre de la semaine 43", () => {
         montant: -1000,
       },
     );
-    expect(colonneRegistre({ sens: "SORTIE", categorie: "LOCATION", montant: 300 })).toEqual({
+    expect(
+      colonneRegistre({
+        sens: "SORTIE",
+        categorie: "LOCATION",
+        montant: 300,
+        annuleMouvementId: "x",
+      }),
+    ).toEqual({
       colonne: "recette",
       montant: -300,
     });
-    expect(colonneRegistre({ sens: "ENTREE", categorie: "APPORT", montant: 500 }).colonne).toBe(
+    expect(colonneRegistre({ sens: "ENTREE", categorie: "APPORT", montant: 500 }, 1).colonne).toBe(
       "apport",
+    );
+    // Règle 2 : un apport est une recette.
+    expect(colonneRegistre({ sens: "ENTREE", categorie: "APPORT", montant: 500 }).colonne).toBe(
+      "recette",
     );
   });
 
   it("ventilation de la synthèse (maquette 31)", () => {
-    expect(ventilation(s43)).toEqual({
-      locations: 90000,
-      contratsLoues: 11,
-      penalites: 1400,
-      impots: 12600,
-      entretien: 4700,
-      achats: 0,
-      divers: 6850,
-      formation: 0,
-      ventesCartes: 0,
-      achatsStock: 0,
-    });
+    expect(ventilation(s43)).toEqual([
+      { categorie: "LOCATION", nature: "RECETTE", montant: 90000 },
+      { categorie: "PENALITE", nature: "RECETTE", montant: 1400 },
+      { categorie: "IMPOTS", nature: "DEPENSE", montant: 12600 },
+      { categorie: "DIVERS", nature: "DEPENSE", montant: 6850 },
+      { categorie: "ENTRETIEN", nature: "DEPENSE", montant: 4700 },
+    ]);
+    expect(contratsLoues(s43)).toBe(11);
   });
 
   it("pièce abrégée", () => {

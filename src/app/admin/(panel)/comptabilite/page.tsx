@@ -18,6 +18,7 @@ import {
   colonneRegistre,
   compteursOnglets,
   filtrerRegistre,
+  impotsReglees,
   syntheseParFiliale,
   totauxRegistre,
   ventilation,
@@ -38,10 +39,12 @@ import { versHeureServeur } from "@/domaine/dates";
 import { numeroDeclaration, numeroOperationAffiche } from "@/domaine/numerotation";
 import { peut } from "@/domaine/permissions";
 import { semaineDe, semaineParId, semainePrecedente, semaineSuivante } from "@/domaine/semaine";
-import { LIBELLES_CATEGORIE, mentionReport } from "@/domaine/solde";
+import { nomCategorie } from "@/domaine/categories";
+import { mentionReport } from "@/domaine/solde";
 import { cx } from "@/lib/classes";
 import { exigerPermission } from "@/lib/garde";
 import { lireBornesSemaines, lireEtatSemaine } from "@/services/comptabilite";
+import { lireCategoriesMouvement } from "@/services/categories";
 import { lireDonneesPanel } from "@/services/panel";
 
 export const metadata: Metadata = { title: "Comptabilité" };
@@ -158,13 +161,25 @@ async function Contenu({
   const quand = (date: Date, motif: string) =>
     format(versHeureServeur(date, d.fuseau), motif, { locale: fr });
   const dimanche = new Date(semaine.fin.getTime() - 1);
-  const v = ventilation(mouvements);
-  const parFiliale = syntheseParFiliale(mouvements);
+  const { regle } = etat;
+  const categories = await lireCategoriesMouvement();
+  const v = ventilation(mouvements, regle);
+  const principales = v
+    .filter((l) => l.nature === "RECETTE" && l.montant !== 0)
+    .slice(0, 2)
+    .map((l) => `${nomCategorie(categories, l.categorie)} ${formaterDollars(l.montant)}`)
+    .join(" · ");
+  const impots = impotsReglees(mouvements);
+  const parFiliale = syntheseParFiliale(mouvements, regle);
   const duFiltre = filtrerParFiliale(mouvements, filtreFiliale);
-  const compteurs = compteursOnglets(duFiltre);
-  const lignes = filtrerRegistre(duFiltre, onglet);
-  const totaux = totauxRegistre(lignes);
-  const avecApports = mouvements.some((m) => m.categorie === "APPORT");
+  const compteurs = compteursOnglets(duFiltre, regle);
+  const lignes = filtrerRegistre(duFiltre, onglet, regle);
+  const totaux = totauxRegistre(lignes, regle);
+  // Colonne « Apport » : règle 1 seulement (en règle 2, un apport est une recette).
+  const avecApports = regle === 1 && mouvements.some((m) => m.categorie === "APPORT");
+  const avecImpot = syn.impotDu !== null;
+  const libelleResultat = avecImpot ? `Impôt dû · ${syn.tauxImpot} %` : "Résultat imposable";
+  const valeurResultat = formaterDollars(avecImpot ? syn.impotDu! : syn.baseImposable);
   const retards = etat.contratsEnCours.filter((c) => c.finPrevue < d.maintenant);
   const majuscule = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
 
@@ -273,7 +288,8 @@ async function Contenu({
                 recettes: formaterDollars(syn.recettes),
                 depenses: formaterDollars(syn.depenses),
                 cautions: formaterDollars(syn.cautionsDetenues),
-                resultat: formaterDollars(syn.resultatImposable),
+                resultat: valeurResultat,
+                libelleResultat,
               }}
               avertissement={
                 etat.contratsEnCours.length > 0 ? (
@@ -323,22 +339,26 @@ async function Contenu({
           libelle="Total des recettes"
           ton="or"
           valeur={formaterDollars(syn.recettes)}
-          detail={`Locations ${formaterDollars(v.locations)} · pénalités ${formaterDollars(v.penalites)}`}
+          detail={principales || "Aucune recette"}
         />
         <Carte
           libelle="Total des dépenses"
           valeur={formaterDollars(syn.depenses)}
           detail={
-            v.impots > 0
-              ? `Dont impôt S${semaine.numero - 1} : ${formaterDollars(v.impots)}`
+            impots > 0
+              ? `Dont impôt S${semaine.numero - 1} : ${formaterDollars(impots)}`
               : "Aucun impôt réglé"
           }
         />
         <Carte
-          libelle="Résultat imposable"
+          libelle={libelleResultat}
           ton="resultat"
-          valeur={formaterDollars(syn.resultatImposable)}
-          detail="Recettes − dépenses"
+          valeur={valeurResultat}
+          detail={
+            avecImpot
+              ? `${syn.tauxImpot} % des recettes (${formaterDollars(syn.baseImposable)})`
+              : "Recettes − dépenses"
+          }
         />
         <Carte
           libelle="Cautions détenues"
@@ -368,7 +388,9 @@ async function Contenu({
             Par filiale
           </h2>
           <span className="text-[13px] text-texte-attenue">
-            Recettes et dépenses de chaque filiale ; le résultat imposable reste celui du groupe.
+            {avecImpot
+              ? "Recettes et dépenses de chaque filiale ; l’impôt se calcule sur les recettes du groupe."
+              : "Recettes et dépenses de chaque filiale ; le résultat imposable reste celui du groupe."}
           </span>
         </div>
         <div
@@ -421,7 +443,7 @@ async function Contenu({
                   depenses: montant(syn.depenses, "depense"),
                   resultat: (
                     <span className="font-extrabold chiffres">
-                      {formaterDollars(syn.resultatImposable)}
+                      {formaterDollars(syn.recettes - syn.depenses)}
                     </span>
                   ),
                 },
@@ -529,7 +551,7 @@ async function Contenu({
             ]}
             lignes={[
               ...lignes.map((m) => {
-                const c = colonneRegistre(m);
+                const c = colonneRegistre(m, regle);
                 const barre = m.annuleMouvementId !== null || m.annulePar !== null;
                 const mentions = [
                   m.annulePar && `Annulé par ${numeroOperationAffiche(m.annulePar.numero)}`,
@@ -548,7 +570,7 @@ async function Contenu({
                       {majuscule(quand(m.date, "EEE dd/MM HH:mm"))}
                     </span>
                   ),
-                  categorie: <span className="bp-tag">{LIBELLES_CATEGORIE[m.categorie]}</span>,
+                  categorie: <span className="bp-tag">{m.categorieMouvement.nom}</span>,
                   filiale: <TagFiliale filiale={m.filiale} />,
                   libelle: (
                     <span className="flex flex-col gap-0.5">

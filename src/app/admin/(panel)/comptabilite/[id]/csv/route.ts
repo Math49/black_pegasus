@@ -4,7 +4,6 @@ import { registreCsv } from "@/domaine/comptabilite";
 import { versHeureServeur } from "@/domaine/dates";
 import { libelleSemaine, numeroOperationAffiche } from "@/domaine/numerotation";
 import { peut } from "@/domaine/permissions";
-import { LIBELLES_CATEGORIE } from "@/domaine/solde";
 import { lireCompteConnecte } from "@/lib/garde";
 import { maintenant } from "@/lib/horloge";
 import { prisma } from "@/lib/prisma";
@@ -27,19 +26,21 @@ export async function GET(_requete: Request, { params }: { params: Promise<{ id:
     etat.mouvements.map((m) => ({
       numero: numeroOperationAffiche(m.numero),
       date: format(versHeureServeur(m.date, fuseau), "yyyy-MM-dd HH:mm"),
-      categorie: LIBELLES_CATEGORIE[m.categorie],
+      categorie: m.categorieMouvement.nom,
       filiale: libelleFiliale(m.filiale),
       libelle: m.motif,
       piece: m.justificatifNumero ?? m.contrat?.numero ?? m.venteCarte?.numero ?? "",
       sens: m.sens,
       categorieCode: m.categorie,
       montant: m.montant,
+      annuleMouvementId: m.annuleMouvementId,
       mention: m.annulePar
         ? `Annulé par ${numeroOperationAffiche(m.annulePar.numero)}`
         : m.annuleMouvement
           ? `Contre-passation de ${numeroOperationAffiche(m.annuleMouvement.numero)}`
           : "",
     })),
+    etat.regle,
   );
   return new Response(csv, {
     headers: {

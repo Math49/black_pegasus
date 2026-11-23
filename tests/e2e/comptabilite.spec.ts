@@ -25,9 +25,10 @@ test.describe("comptabilité hebdomadaire", () => {
     await connexion(page, "Lena Castillo");
     await page.goto("/admin/comptabilite");
     const synthese = page.getByRole("region", { name: "Synthèse de la semaine" });
-    for (const t of ["$412", "$91", "$24", "$67", "$35", "$514"])
+    for (const t of ["$412", "$91", "$24", "$18", "$35", "$514"])
       await expect(synthese).toContainText(t);
-    await expect(synthese).toContainText(`$67${NBSP}250`);
+    // Impôt dû : 20 % des $91 400 de recettes (REFONTE-ADMIN § 2).
+    await expect(synthese).toContainText(`$18${NBSP}280`);
     await expect(page.getByText("5 / 5 dépenses justifiées")).toBeVisible();
     await expect(page.getByText("35 opérations numérotées, sans trou")).toBeVisible();
     await expect(page.getByText(`Solde rapproché : $514${NBSP}630`)).toBeVisible();
@@ -69,7 +70,8 @@ test.describe("comptabilité hebdomadaire", () => {
     await page.goto("/admin/comptabilite");
     await page.getByRole("button", { name: "Clôturer la semaine" }).click();
     const modale = page.getByRole("dialog", { name: "Clôturer la semaine 43 ?" });
-    await expect(modale).toContainText(`$67${NBSP}250`);
+    await expect(modale).toContainText("Impôt dû · 20 %");
+    await expect(modale).toContainText(`$18${NBSP}280`);
     await expect(modale).toContainText("dont CTR-2026-0039 en retard");
     const valider = modale.getByRole("button", { name: "Clôturer et générer la déclaration" });
     await modale.getByLabel(/Pour confirmer/).fill("CLOTURER S43");
@@ -85,10 +87,12 @@ test.describe("comptabilité hebdomadaire", () => {
       soldeOuverture: number;
       soldeCloture: number | null;
       declarationSha256: string | null;
+      tauxImpot: number | null;
     }>(
-      `SELECT id, statut, "soldeOuverture", "soldeCloture", "declarationSha256" FROM "Semaine" WHERE id IN ('2026-S43', '2026-S44') ORDER BY id`,
+      `SELECT id, statut, "soldeOuverture", "soldeCloture", "declarationSha256", "tauxImpot" FROM "Semaine" WHERE id IN ('2026-S43', '2026-S44') ORDER BY id`,
     );
-    expect(semaines[0]).toMatchObject({ statut: "CLOTUREE", soldeCloture: 514630 });
+    // Le taux d'impôt est figé à la clôture.
+    expect(semaines[0]).toMatchObject({ statut: "CLOTUREE", soldeCloture: 514630, tauxImpot: 20 });
     expect(semaines[0].declarationSha256).toMatch(/^[0-9a-f]{64}$/);
     expect(semaines[1]).toMatchObject({ statut: "OUVERTE", soldeOuverture: 514630 });
 

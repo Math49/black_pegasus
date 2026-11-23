@@ -20,10 +20,18 @@ test.describe("tableau de bord", () => {
       `+8,0${NBSP}% vs S42`,
       `$24${NBSP}150`,
       `dont impôts S42 : $12${NBSP}600`,
-      "1 en retard",
+      `Impôt estimé`,
+      `$18${NBSP}280`,
       `$35${NBSP}000`,
     ])
       await expect(kpi).toContainText(texte);
+
+    // Blocs par filiale (refonte R-1) : les retards sont dans le bloc Location.
+    await expect(page.getByRole("region", { name: "Location" })).toContainText("1 en retard");
+    await expect(page.getByRole("region", { name: "Formation" })).toContainText(
+      "Nouvelles demandes",
+    );
+    await expect(page.getByRole("region", { name: "Cards" })).toContainText("Cartes épuisées");
 
     const contrats = page.getByRole("table", { name: "Contrats en cours" });
     await expect(contrats.getByRole("row")).toHaveCount(6);

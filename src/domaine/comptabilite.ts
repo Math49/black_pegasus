@@ -14,7 +14,7 @@ import {
   type StatutSemaine,
 } from "./types";
 
-// HANDOFF § 7.6 et CONCEPTION § 6.5–6.6.
+// HANDOFF § 7.6 et CONCEPTION § 6.5–6.6, modifiés par REFONTE-ADMIN § 2.
 
 export type MouvementComptable = {
   id?: string;
@@ -25,12 +25,30 @@ export type MouvementComptable = {
   justificatifNumero?: string | null;
   /** Renseigné sur une contre-passation : id du mouvement annulé. */
   annuleMouvementId?: string | null;
+  /** Règle 2 : la catégorie exige un justificatif pour une sortie. */
+  justificatifRequis?: boolean;
   automatique?: boolean;
 };
 
 export type Nature = "RECETTE" | "DEPENSE" | "CAUTION" | "APPORT";
 
-const NATURES: Record<CategorieMouvement, Nature> = {
+/**
+ * Règle de calcul d'une semaine. 1 : HANDOFF § 7.6 (nature fixée par la catégorie, résultat
+ * imposable = recettes − dépenses), conservée pour les semaines clôturées avant la refonte.
+ * 2 : REFONTE-ADMIN § 2 (nature donnée par le sens, impôt = taux × recettes).
+ */
+export type RegleComptable = 1 | 2;
+export const REGLE_ACTUELLE: RegleComptable = 2;
+
+/** Règle lue en base (`Semaine.regleComptable`) ; une semaine pas encore créée suit l'actuelle. */
+export const regleDe = (valeur: number | null | undefined): RegleComptable =>
+  valeur === 1 ? 1 : REGLE_ACTUELLE;
+
+/** Catégories système des cautions : hors recettes et hors dépenses dans les deux règles. */
+export const estCaution = (categorie: CategorieMouvement) =>
+  categorie === "CAUTION_ENCAISSEE" || categorie === "CAUTION_RENDUE";
+
+const NATURES_REGLE_1: Partial<Record<CategorieMouvement, Nature>> = {
   LOCATION: "RECETTE",
   PENALITE: "RECETTE",
   FORMATION: "RECETTE",
@@ -40,28 +58,53 @@ const NATURES: Record<CategorieMouvement, Nature> = {
   IMPOTS: "DEPENSE",
   ACHAT_VEHICULE: "DEPENSE",
   DIVERS: "DEPENSE",
-  CAUTION_ENCAISSEE: "CAUTION",
-  CAUTION_RENDUE: "CAUTION",
   APPORT: "APPORT",
 };
 
-export const natureMouvement = (c: CategorieMouvement): Nature => NATURES[c];
+type LigneNature = Pick<MouvementComptable, "categorie" | "sens" | "annuleMouvementId">;
+
+/**
+ * Nature d'un mouvement. Règle 2 : toute entrée est une recette, toute sortie une dépense,
+ * sauf les cautions. Une contre-passation garde la nature du mouvement qu'elle annule.
+ */
+export function natureMouvement(m: LigneNature, regle: RegleComptable = REGLE_ACTUELLE): Nature {
+  if (estCaution(m.categorie)) return "CAUTION";
+  const fixee = regle === 1 ? NATURES_REGLE_1[m.categorie] : undefined;
+  if (fixee) return fixee;
+  const sensOrigine = m.annuleMouvementId ? (m.sens === "ENTREE" ? "SORTIE" : "ENTREE") : m.sens;
+  return sensOrigine === "ENTREE" ? "RECETTE" : "DEPENSE";
+}
+
+/** Impôt dû : taux (en %) appliqué à la base, arrondi au dollar ; jamais négatif. */
+export function calculerImpot(base: number, tauxPourcent: number): number {
+  if (!Number.isInteger(tauxPourcent) || tauxPourcent < 0 || tauxPourcent > 100) {
+    throw new ErreurMetier("Taux d’impôt : nombre entier entre 0 et 100.");
+  }
+  return Math.round((Math.max(0, base) * tauxPourcent) / 100);
+}
 
 /** Montant signé du point de vue de la caisse : + entrée, − sortie. */
 export const montantSigne = (m: Pick<MouvementComptable, "sens" | "montant">) =>
   m.sens === "ENTREE" ? m.montant : -m.montant;
 
 export type Synthese = {
+  regle: RegleComptable;
   soldeOuverture: number;
   entrees: number;
   sorties: number;
   recettes: number;
   depenses: number;
-  resultatImposable: number;
+  /** Règle 2 : les recettes ; règle 1 : le résultat imposable (recettes − dépenses). */
+  baseImposable: number;
+  /** Taux appliqué (en %) ; null en règle 1 ou sans taux fourni. */
+  tauxImpot: number | null;
+  /** Impôt dû sur la base ; null en règle 1 ou sans taux fourni. */
+  impotDu: number | null;
   cautionsEncaissees: number;
   cautionsRendues: number;
   /** Cautions détenues en fin de période (hors résultat). */
   cautionsDetenues: number;
+  /** Règle 1 seulement : en règle 2, un apport est une recette. */
   apports: number;
   solde: number;
   nombreOperations: number;
@@ -75,8 +118,14 @@ export type Synthese = {
 export function synthese(
   mouvements: readonly MouvementComptable[],
   soldeOuverture: number,
-  options: { cautionsDetenuesOuverture?: number } = {},
+  options: {
+    cautionsDetenuesOuverture?: number;
+    regle?: RegleComptable;
+    /** Taux d'impôt en % (règle 2). */
+    tauxImpot?: number | null;
+  } = {},
 ): Synthese {
+  const regle = options.regle ?? REGLE_ACTUELLE;
   let entrees = 0;
   let sorties = 0;
   let recettes = 0;
@@ -93,25 +142,16 @@ export function synthese(
     if (m.sens === "ENTREE") entrees += m.montant;
     else sorties += m.montant;
 
-    switch (m.categorie) {
-      case "LOCATION":
-      case "PENALITE":
-      case "FORMATION":
-      case "VENTE_CARTES":
+    switch (natureMouvement(m, regle)) {
+      case "RECETTE":
         recettes += signe;
         break;
-      case "ENTRETIEN":
-      case "IMPOTS":
-      case "ACHAT_VEHICULE":
-      case "DIVERS":
-      case "ACHAT_STOCK":
+      case "DEPENSE":
         depenses -= signe;
         break;
-      case "CAUTION_ENCAISSEE":
-        cautionsEncaissees += signe;
-        break;
-      case "CAUTION_RENDUE":
-        cautionsRendues -= signe;
+      case "CAUTION":
+        if (m.categorie === "CAUTION_ENCAISSEE") cautionsEncaissees += signe;
+        else cautionsRendues -= signe;
         break;
       case "APPORT":
         apports += signe;
@@ -119,13 +159,18 @@ export function synthese(
     }
   }
 
+  const baseImposable = regle === 1 ? recettes - depenses : recettes;
+  const taux = regle === 2 ? (options.tauxImpot ?? null) : null;
   return {
+    regle,
     soldeOuverture,
     entrees,
     sorties,
     recettes,
     depenses,
-    resultatImposable: recettes - depenses,
+    baseImposable,
+    tauxImpot: taux,
+    impotDu: taux === null ? null : calculerImpot(baseImposable, taux),
     cautionsEncaissees,
     cautionsRendues,
     cautionsDetenues:
@@ -149,22 +194,24 @@ export type LigneFiliale = {
 
 /**
  * Recettes, dépenses et résultat de chaque filiale, puis du Groupe (mouvements sans
- * filiale). La somme des lignes est exactement la synthèse du groupe : le résultat
- * imposable reste celui du groupe.
+ * filiale). La somme des lignes est exactement la synthèse du groupe ; l'impôt reste
+ * calculé sur le groupe.
  */
 export function syntheseParFiliale(
   mouvements: readonly (MouvementComptable & { filiale: CodeFiliale | null })[],
+  regle: RegleComptable = REGLE_ACTUELLE,
 ): LigneFiliale[] {
   return [...CODES_FILIALE, null].map((filiale) => {
     const s = synthese(
       mouvements.filter((m) => m.filiale === filiale),
       0,
+      { regle },
     );
     return {
       filiale,
       recettes: s.recettes,
       depenses: s.depenses,
-      resultat: s.resultatImposable,
+      resultat: s.recettes - s.depenses,
       nombreOperations: s.nombreOperations,
     };
   });
@@ -188,9 +235,14 @@ export type Controle = {
 
 const pluriel = (n: number, mot: string) => `${n} ${mot}${n > 1 ? "s" : ""}`;
 
-/** Dépenses à justifier : sorties de nature dépense, hors contre-passations. */
-const estDepenseAJustifier = (m: MouvementComptable) =>
-  natureMouvement(m.categorie) === "DEPENSE" && m.sens === "SORTIE" && !m.annuleMouvementId;
+/**
+ * Dépenses à justifier, hors contre-passations. Règle 2 : sorties dont la catégorie exige
+ * un justificatif ; règle 1 : toute sortie de nature dépense.
+ */
+const estDepenseAJustifier = (m: MouvementComptable, regle: RegleComptable) =>
+  m.sens === "SORTIE" &&
+  !m.annuleMouvementId &&
+  (regle === 1 ? natureMouvement(m, 1) === "DEPENSE" : m.justificatifRequis === true);
 
 function controleNumerotation(
   mouvements: readonly MouvementComptable[],
@@ -240,9 +292,11 @@ export function controlesAvantCloture(p: {
   fuseau: string;
   /** Décision D4 : la clôture ouvre ce nombre d'heures avant la fin de semaine (24 = dimanche 00:00). */
   heuresAvantFinCloture: number;
+  regle?: RegleComptable;
 }): { controles: Controle[]; cloturable: boolean } {
   const controles: Controle[] = [];
   const { semaine, fuseau } = p;
+  const regle = p.regle ?? REGLE_ACTUELLE;
 
   if (semaine.statut === "CLOTUREE") {
     controles.push({ cle: "statut", niveau: "bloquant", message: "Semaine déjà clôturée" });
@@ -267,7 +321,7 @@ export function controlesAvantCloture(p: {
     });
   }
 
-  const depenses = p.mouvements.filter(estDepenseAJustifier);
+  const depenses = p.mouvements.filter((m) => estDepenseAJustifier(m, regle));
   const sansJustificatif = depenses.filter((m) => !m.justificatifNumero);
   const justifiees = depenses.length - sansJustificatif.length;
   controles.push(
@@ -286,7 +340,7 @@ export function controlesAvantCloture(p: {
 
   controles.push(controleNumerotation(p.mouvements, semaine.numero));
 
-  const { solde } = synthese(p.mouvements, p.soldeOuverture);
+  const { solde } = synthese(p.mouvements, p.soldeOuverture, { regle });
   controles.push(
     solde === p.soldeConstate
       ? { cle: "solde", niveau: "ok", message: `Solde rapproché : ${formaterDollars(solde)}` }
@@ -369,20 +423,29 @@ export type RecetteSemaine = {
 };
 
 /**
- * Recettes (toutes filiales, hors cautions) des `nombre` dernières semaines jusqu'à
- * la semaine courante incluse ; une semaine sans registre compte pour zéro.
+ * Recettes (toutes filiales, hors cautions) des semaines de la fenêtre, chacune selon sa
+ * règle de calcul ; une semaine sans registre compte pour zéro.
  */
 export function recettesParSemaine(
-  semaines: readonly { id: string; mouvements: readonly MouvementComptable[] }[],
+  semaines: readonly {
+    id: string;
+    mouvements: readonly MouvementComptable[];
+    regleComptable?: number;
+  }[],
   fenetre: readonly { id: string; numero: number }[],
 ): RecetteSemaine[] {
-  const parId = new Map(semaines.map((s) => [s.id, s.mouvements]));
-  return fenetre.map((s, i) => ({
-    numero: s.numero,
-    libelle: libelleSemaine(s.numero),
-    recettes: synthese(parId.get(s.id) ?? [], 0).recettes,
-    courante: i === fenetre.length - 1,
-  }));
+  const parId = new Map(semaines.map((s) => [s.id, s]));
+  return fenetre.map((s, i) => {
+    const registre = parId.get(s.id);
+    return {
+      numero: s.numero,
+      libelle: libelleSemaine(s.numero),
+      recettes: synthese(registre?.mouvements ?? [], 0, {
+        regle: regleDe(registre?.regleComptable),
+      }).recettes,
+      courante: i === fenetre.length - 1,
+    };
+  });
 }
 
 /** Impôts réglés pendant la semaine (contre-passations déduites). */
@@ -399,20 +462,24 @@ const NATURE_ONGLET: Record<Exclude<OngletRegistre, "toutes">, Nature> = {
   cautions: "CAUTION",
 };
 
-export function filtrerRegistre<M extends Pick<MouvementComptable, "categorie">>(
+export function filtrerRegistre<M extends LigneNature>(
   mouvements: readonly M[],
   onglet: OngletRegistre,
+  regle: RegleComptable = REGLE_ACTUELLE,
 ): M[] {
   if (onglet === "toutes") return [...mouvements];
-  return mouvements.filter((m) => natureMouvement(m.categorie) === NATURE_ONGLET[onglet]);
+  return mouvements.filter((m) => natureMouvement(m, regle) === NATURE_ONGLET[onglet]);
 }
 
-export function compteursOnglets(mouvements: readonly Pick<MouvementComptable, "categorie">[]) {
+export function compteursOnglets(
+  mouvements: readonly LigneNature[],
+  regle: RegleComptable = REGLE_ACTUELLE,
+) {
   return {
     toutes: mouvements.length,
-    recettes: filtrerRegistre(mouvements, "recettes").length,
-    depenses: filtrerRegistre(mouvements, "depenses").length,
-    cautions: filtrerRegistre(mouvements, "cautions").length,
+    recettes: filtrerRegistre(mouvements, "recettes", regle).length,
+    depenses: filtrerRegistre(mouvements, "depenses", regle).length,
+    cautions: filtrerRegistre(mouvements, "cautions", regle).length,
   };
 }
 
@@ -420,12 +487,15 @@ export function compteursOnglets(mouvements: readonly Pick<MouvementComptable, "
  * Colonne et montant d'une ligne du registre : recette (+), dépense (montant payé) ou caution
  * (signée). Une contre-passation apparaît en négatif dans la colonne de la ligne annulée.
  */
-export function colonneRegistre(m: Pick<MouvementComptable, "sens" | "categorie" | "montant">): {
+export function colonneRegistre(
+  m: LigneNature & Pick<MouvementComptable, "montant">,
+  regle: RegleComptable = REGLE_ACTUELLE,
+): {
   colonne: "recette" | "depense" | "caution" | "apport";
   montant: number;
 } {
   const s = montantSigne(m);
-  switch (natureMouvement(m.categorie)) {
+  switch (natureMouvement(m, regle)) {
     case "RECETTE":
       return { colonne: "recette", montant: s };
     case "DEPENSE":
@@ -439,40 +509,54 @@ export function colonneRegistre(m: Pick<MouvementComptable, "sens" | "categorie"
 
 /** Totaux des colonnes du registre (lignes affichées). */
 export function totauxRegistre(
-  mouvements: readonly Pick<MouvementComptable, "sens" | "categorie" | "montant">[],
+  mouvements: readonly (LigneNature & Pick<MouvementComptable, "montant">)[],
+  regle: RegleComptable = REGLE_ACTUELLE,
 ) {
   const t = { recette: 0, depense: 0, caution: 0, apport: 0 };
   for (const m of mouvements) {
-    const c = colonneRegistre(m);
+    const c = colonneRegistre(m, regle);
     t[c.colonne] += c.montant;
   }
   return t;
 }
 
-/** Ventilation de la synthèse de la déclaration (maquette 31). */
+export type LigneVentilation = {
+  categorie: CategorieMouvement;
+  nature: "RECETTE" | "DEPENSE" | "APPORT";
+  /** Montant net de la catégorie dans sa nature (contre-passations déduites). */
+  montant: number;
+};
+
+/**
+ * Ventilation par catégorie (synthèse de la déclaration, détail des totaux) : recettes,
+ * apports puis dépenses, chacun par montant décroissant. Les cautions sont exclues.
+ */
 export function ventilation(
-  mouvements: readonly (Pick<MouvementComptable, "sens" | "categorie" | "montant"> & {
-    contratId?: string | null;
-  })[],
-) {
-  const somme = (c: CategorieMouvement, signe = 1) =>
-    mouvements.filter((m) => m.categorie === c).reduce((t, m) => t + signe * montantSigne(m), 0);
-  const contrats = new Set(
-    mouvements.filter((m) => m.categorie === "LOCATION" && m.contratId).map((m) => m.contratId),
+  mouvements: readonly (LigneNature & Pick<MouvementComptable, "montant">)[],
+  regle: RegleComptable = REGLE_ACTUELLE,
+): LigneVentilation[] {
+  const lignes = new Map<string, LigneVentilation>();
+  for (const m of mouvements) {
+    const nature = natureMouvement(m, regle);
+    if (nature === "CAUTION") continue;
+    const cle = `${nature}:${m.categorie}`;
+    const l = lignes.get(cle) ?? { categorie: m.categorie, nature, montant: 0 };
+    l.montant += nature === "DEPENSE" ? -montantSigne(m) : montantSigne(m);
+    lignes.set(cle, l);
+  }
+  const ordre = { RECETTE: 0, APPORT: 1, DEPENSE: 2 };
+  return [...lignes.values()].sort(
+    (a, b) => ordre[a.nature] - ordre[b.nature] || b.montant - a.montant,
   );
-  return {
-    locations: somme("LOCATION"),
-    contratsLoues: contrats.size,
-    penalites: somme("PENALITE"),
-    formation: somme("FORMATION"),
-    ventesCartes: somme("VENTE_CARTES"),
-    achatsStock: somme("ACHAT_STOCK", -1),
-    impots: somme("IMPOTS", -1),
-    entretien: somme("ENTRETIEN", -1),
-    achats: somme("ACHAT_VEHICULE", -1),
-    divers: somme("DIVERS", -1),
-  };
 }
+
+/** Nombre de contrats ayant produit une recette de location dans la période. */
+export const contratsLoues = (
+  mouvements: readonly (Pick<MouvementComptable, "categorie"> & { contratId?: string | null })[],
+) =>
+  new Set(
+    mouvements.filter((m) => m.categorie === "LOCATION" && m.contratId).map((m) => m.contratId),
+  ).size;
 
 /** Pièce abrégée du registre imprimé : « CTR-2026-0031 » → « CTR-0031 ». */
 export const pieceAbregee = (piece: string) => piece.replace(/^(CTR|BP[LFC])-\d{4}-/, "$1-");
@@ -491,6 +575,7 @@ export type LigneCsv = {
   sens: Sens;
   categorieCode: CategorieMouvement;
   montant: number;
+  annuleMouvementId?: string | null;
   mention?: string;
 };
 
@@ -505,7 +590,10 @@ const champCsv = (v: string | number) => {
  * Registre au format CSV (séparateur « ; », montants entiers sans symbole, UTF-8 avec BOM
  * pour l'ouverture directe dans un tableur français).
  */
-export function registreCsv(lignes: readonly LigneCsv[]): string {
+export function registreCsv(
+  lignes: readonly LigneCsv[],
+  regle: RegleComptable = REGLE_ACTUELLE,
+): string {
   const entete = [
     "N°",
     "Date",
@@ -520,7 +608,15 @@ export function registreCsv(lignes: readonly LigneCsv[]): string {
     "Mention",
   ];
   const corps = lignes.map((l) => {
-    const c = colonneRegistre({ sens: l.sens, categorie: l.categorieCode, montant: l.montant });
+    const c = colonneRegistre(
+      {
+        sens: l.sens,
+        categorie: l.categorieCode,
+        montant: l.montant,
+        annuleMouvementId: l.annuleMouvementId,
+      },
+      regle,
+    );
     const col = (nom: typeof c.colonne) => (c.colonne === nom ? c.montant : "");
     return [
       l.numero,
@@ -538,5 +634,5 @@ export function registreCsv(lignes: readonly LigneCsv[]): string {
       .map(champCsv)
       .join(";");
   });
-  return `\uFEFF${[entete.join(";"), ...corps].join("\r\n")}\r\n`;
+  return `﻿${[entete.join(";"), ...corps].join("\r\n")}\r\n`;
 }

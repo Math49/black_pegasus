@@ -1,4 +1,5 @@
 import "server-only";
+import { calculerImpot } from "@/domaine/comptabilite";
 import { revalidatePath } from "next/cache";
 import {
   deplacer,
@@ -196,6 +197,16 @@ export function enregistrerRegles(
     };
     await tx.parametres.update({ where: { id: 1 }, data });
     return data;
+  });
+}
+
+/** Taux de l'impôt hebdomadaire (REFONTE-ADMIN § 2) : s'applique aux semaines ouvertes. */
+export function enregistrerTauxImpot(acteur: CompteConnecte, tauxImpot: number) {
+  calculerImpot(0, tauxImpot); // valide le taux
+  return ecrire(acteur, "parametres.impot", async (tx) => {
+    const avant = await tx.parametres.findUniqueOrThrow({ where: { id: 1 } });
+    await tx.parametres.update({ where: { id: 1 }, data: { tauxImpot } });
+    return { tauxImpot: { avant: avant.tauxImpot, apres: tauxImpot } };
   });
 }
 

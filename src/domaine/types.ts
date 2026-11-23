@@ -6,19 +6,14 @@ export type StatutExemplaire = "DISPONIBLE" | "LOUE" | "MAINTENANCE";
 export type StatutContrat = "EN_COURS" | "TERMINE" | "ANNULE";
 export type TarifApplique = "HORAIRE" | "JOURNALIER";
 export type Sens = "ENTREE" | "SORTIE";
-export type CategorieMouvement =
-  | "LOCATION"
-  | "PENALITE"
-  | "CAUTION_ENCAISSEE"
-  | "CAUTION_RENDUE"
-  | "ACHAT_VEHICULE"
-  | "ENTRETIEN"
-  | "IMPOTS"
-  | "APPORT"
-  | "DIVERS"
-  | "FORMATION"
-  | "VENTE_CARTES"
-  | "ACHAT_STOCK";
+/**
+ * Identifiant d'une catégorie de mouvement (table `CategorieMouvement`). Les catégories
+ * système gardent leur code historique (« LOCATION », « IMPOTS »…) ; celles créées dans les
+ * Paramètres ont un identifiant généré.
+ */
+export type CategorieMouvement = string;
+/** Sens autorisés pour une catégorie. */
+export type SensCategorie = "ENTREE" | "SORTIE" | "LES_DEUX";
 /** Filiales : Location, Formation, Cards. */
 export type CodeFiliale = "BPL" | "BPF" | "BPC";
 export type StatutSemaine = "OUVERTE" | "CLOTUREE";

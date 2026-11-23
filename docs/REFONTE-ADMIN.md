@@ -6,8 +6,8 @@
 
 | Phase | Contenu | État |
 |---|---|---|
-| **R-1** | Navigation par filiale, icônes, tableau de bord du groupe | Terminée, à valider |
-| **R-2** | Comptabilité : nature par le sens, impôt sur les recettes, catégories de mouvements personnalisables | À faire |
+| **R-1** | Navigation par filiale, icônes, tableau de bord du groupe | Terminée (`7ed1add`) |
+| **R-2** | Comptabilité : nature par le sens, impôt sur les recettes, catégories de mouvements personnalisables | Terminée, à valider |
 | **R-3** | Gestion des cartes à gros volume, glisser-déposer | À faire |
 | **R-4** | Ventes de plusieurs cartes, montant encaissé modifiable | À faire |
 | **R-5** | Enchères (panel et site public) | À faire |
@@ -40,6 +40,13 @@
   - nom, sens autorisé (entrée, sortie ou les deux), filiale par défaut facultative, justificatif obligatoire ou non ;
   - catégories utilisées automatiquement (Location, Pénalité, Caution encaissée, Caution rendue, Formation, Vente de cartes) : renommables, non supprimables ;
   - une catégorie déjà utilisée ne se supprime pas, elle s'archive (plus proposée à la saisie).
+
+- **Livré en R-2** :
+  - table `CategorieMouvement` (identifiant = ancien code pour les douze catégories reprises), migration `20261123120000_categories_mouvements` ; onglet **Paramètres → Comptabilité** (taux d'impôt, catégories : création, modification, archivage, suppression si inutilisée) ;
+  - `Semaine.regleComptable` (1 pour les semaines clôturées avant la migration, 2 ensuite) et `Semaine.tauxImpot` figé à la clôture ; `Parametres.tauxImpot` (20 par défaut) ;
+  - « Impôts » est aussi une catégorie système (lue par les calculs : « dont impôt S42 ») ; « Achat de stock » n'impose plus la filiale Cards, il la propose ;
+  - comptabilité, déclaration PDF, CSV et tableau de bord affichent « Impôt dû · 20 % » ; une semaine en règle 1 garde « Résultat imposable » ;
+  - captures : `docs/validations/r2/`.
 
 ## 3. Gestion des cartes (R-3)
 

@@ -248,11 +248,19 @@ async function Contenu() {
           }
         />
         <Kpi
-          libelle={`Résultat imposable · S${courante.numero}`}
+          libelle={
+            syn.impotDu !== null
+              ? `Impôt estimé · S${courante.numero}`
+              : `Résultat imposable · S${courante.numero}`
+          }
           icone="balance"
           iconeOr
-          valeur={formaterDollars(syn.resultatImposable)}
-          contexte="Recettes − dépenses · toutes filiales"
+          valeur={formaterDollars(syn.impotDu ?? syn.baseImposable)}
+          contexte={
+            syn.impotDu !== null
+              ? `${syn.tauxImpot} % des recettes · toutes filiales`
+              : "Recettes − dépenses · toutes filiales"
+          }
         />
         <Kpi
           libelle="Cautions détenues"

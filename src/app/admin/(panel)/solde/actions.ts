@@ -3,7 +3,6 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { depuisHeureServeur } from "@/domaine/dates";
-import { CATEGORIES } from "@/domaine/solde";
 import { lireImageEnvoyee } from "@/lib/fichiers";
 import { exigerRole } from "@/lib/garde";
 import { exigerQuotaEnvoi } from "@/lib/limites";
@@ -21,7 +20,7 @@ const montant = z
 
 const schemaSaisie = z.object({
   sens: z.enum(["ENTREE", "SORTIE"], { message: "Choisissez le sens." }),
-  categorie: z.enum(CATEGORIES as [string, ...string[]], { message: "Catégorie invalide." }),
+  categorie: z.string().min(1, "Choisissez une catégorie.").max(40),
   montant,
   motif: z.string().trim().max(160, "Motif trop long (160 caractères)."),
   date: z.string().min(1, "Indiquez la date et l’heure."),
@@ -47,7 +46,7 @@ export async function actionCreerMouvement(formulaire: FormData) {
       acteur,
       {
         sens: d.sens,
-        categorie: d.categorie as (typeof CATEGORIES)[number],
+        categorie: d.categorie,
         montant: d.montant,
         motif: d.motif,
         date: depuisHeureServeur(d.date, await fuseau()),

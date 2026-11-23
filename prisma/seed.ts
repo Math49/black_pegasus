@@ -6,7 +6,7 @@ import { copyFile, mkdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient, type Prisma } from "../src/generated/prisma/client";
-import { synthese, type MouvementComptable } from "../src/domaine/comptabilite";
+import { regleDe, synthese, type MouvementComptable } from "../src/domaine/comptabilite";
 import { depuisHeureServeur } from "../src/domaine/dates";
 import { numeroOperationEnBase } from "../src/domaine/numerotation";
 import { calculerRetard } from "../src/domaine/retard";
@@ -19,6 +19,7 @@ import type {
   TypeVehicule,
 } from "../src/domaine/types";
 import {
+  categoriesMouvementInitiales,
   descriptions,
   filialesInitiales,
   formationInitiale,
@@ -44,10 +45,12 @@ const MOTIFS: Record<string, string> = { "OP-43-027": "Frais de représentation"
 const renommer = (texte: string) => RENOMMAGES.reduce((t, [a, b]) => t.replaceAll(a, b), texte);
 
 // Chiffres des maquettes que le seed doit retrouver.
+// Règle de calcul actuelle (REFONTE-ADMIN § 2) : impôt = 20 % des recettes.
 const ATTENDU_S43 = {
   recettes: 91400,
   depenses: 24150,
-  resultatImposable: 67250,
+  baseImposable: 91400,
+  impotDu: 18280,
   cautionsDetenues: 35000,
   solde: 514630,
 };
@@ -198,6 +201,15 @@ async function main() {
          "Compte", "DomainePermis", "Permis", "DemandeContact", "VenteCarte", "Carte",
          "CategorieCarte" RESTART IDENTITY CASCADE`,
       );
+
+      // ── Catégories de mouvements (créées par la migration ; recréées si besoin) ──
+      for (const [ordre, c] of categoriesMouvementInitiales.entries()) {
+        await tx.categorieMouvement.upsert({
+          where: { id: c.id },
+          create: { ...c, ordre: ordre + 1 },
+          update: {},
+        });
+      }
 
       // ── Paramètres ──
       const p = demo.parametres;
@@ -394,6 +406,8 @@ async function main() {
             debut: s.debut,
             fin: s.fin,
             statut: "CLOTUREE",
+            // Semaines clôturées avant la refonte : ancienne règle de calcul.
+            regleComptable: 1,
             soldeOuverture: ouverture,
             soldeCloture: cloture,
             clotureeLe:
@@ -576,7 +590,7 @@ async function verifierSeed(prisma: PrismaClient) {
   const versComptable = (m: {
     numero: string;
     sens: Sens;
-    categorie: CategorieMouvement;
+    categorie: string;
     montant: number;
     justificatifNumero: string | null;
   }): MouvementComptable => m;
@@ -592,17 +606,25 @@ async function verifierSeed(prisma: PrismaClient) {
   );
   for (let i = 1; i < semaines.length; i++) {
     const prec = semaines[i - 1];
-    const s = synthese(prec.mouvements.map(versComptable), prec.soldeOuverture);
+    const s = synthese(prec.mouvements.map(versComptable), prec.soldeOuverture, {
+      regle: regleDe(prec.regleComptable),
+    });
     verifier(s.solde === prec.soldeCloture, `solde de clôture ${prec.id}`);
     verifier(semaines[i].soldeOuverture === prec.soldeCloture, `ouverture ${semaines[i].id}`);
   }
   verifier(s42.soldeOuverture === 349530, "solde d'ouverture S42 = $349 530");
 
-  const synthese42 = synthese(s42.mouvements.map(versComptable), s42.soldeOuverture);
+  const synthese42 = synthese(s42.mouvements.map(versComptable), s42.soldeOuverture, {
+    regle: regleDe(s42.regleComptable),
+  });
   verifier(synthese42.solde === s42.soldeCloture, "solde de clôture S42");
   verifier(s43.soldeOuverture === s42.soldeCloture, "solde d'ouverture S43 = clôture S42");
 
-  const synthese43 = synthese(s43.mouvements.map(versComptable), s43.soldeOuverture);
+  const { tauxImpot } = await prisma.parametres.findUniqueOrThrow({ where: { id: 1 } });
+  const synthese43 = synthese(s43.mouvements.map(versComptable), s43.soldeOuverture, {
+    regle: regleDe(s43.regleComptable),
+    tauxImpot,
+  });
   for (const [cle, attendu] of Object.entries(ATTENDU_S43)) {
     const obtenu = synthese43[cle as keyof typeof ATTENDU_S43];
     verifier(obtenu === attendu, `S43 ${cle} = ${obtenu}, attendu ${attendu}`);

@@ -215,3 +215,106 @@ export const filialesInitiales = [
     visible: false,
   },
 ] as const;
+
+/**
+ * Catégories de mouvements initiales (REFONTE-ADMIN § 2), identiques à la reprise faite par la
+ * migration `20261123120000_categories_mouvements`. Les sept premières sont des catégories système.
+ */
+export const categoriesMouvementInitiales = [
+  {
+    id: "LOCATION",
+    nom: "Location",
+    sens: "ENTREE",
+    filiale: "BPL",
+    justificatifObligatoire: false,
+    systeme: true,
+  },
+  {
+    id: "PENALITE",
+    nom: "Pénalité",
+    sens: "ENTREE",
+    filiale: "BPL",
+    justificatifObligatoire: false,
+    systeme: true,
+  },
+  {
+    id: "CAUTION_ENCAISSEE",
+    nom: "Caution encaissée",
+    sens: "ENTREE",
+    filiale: "BPL",
+    justificatifObligatoire: false,
+    systeme: true,
+  },
+  {
+    id: "CAUTION_RENDUE",
+    nom: "Caution rendue",
+    sens: "SORTIE",
+    filiale: "BPL",
+    justificatifObligatoire: false,
+    systeme: true,
+  },
+  {
+    id: "FORMATION",
+    nom: "Formation",
+    sens: "ENTREE",
+    filiale: "BPF",
+    justificatifObligatoire: false,
+    systeme: true,
+  },
+  {
+    id: "VENTE_CARTES",
+    nom: "Vente de cartes",
+    sens: "ENTREE",
+    filiale: "BPC",
+    justificatifObligatoire: false,
+    systeme: true,
+  },
+  {
+    id: "IMPOTS",
+    nom: "Impôts",
+    sens: "SORTIE",
+    filiale: null,
+    justificatifObligatoire: true,
+    systeme: true,
+  },
+  {
+    id: "APPORT",
+    nom: "Apport",
+    sens: "ENTREE",
+    filiale: null,
+    justificatifObligatoire: false,
+    systeme: false,
+  },
+  {
+    id: "ACHAT_VEHICULE",
+    nom: "Achat de véhicule",
+    sens: "SORTIE",
+    filiale: "BPL",
+    justificatifObligatoire: true,
+    systeme: false,
+  },
+  {
+    id: "ENTRETIEN",
+    nom: "Entretien",
+    sens: "SORTIE",
+    filiale: "BPL",
+    justificatifObligatoire: true,
+    systeme: false,
+  },
+  {
+    id: "DIVERS",
+    nom: "Divers",
+    sens: "SORTIE",
+    filiale: null,
+    justificatifObligatoire: true,
+    systeme: false,
+  },
+  {
+    id: "ACHAT_STOCK",
+    nom: "Achat de stock",
+    sens: "SORTIE",
+    filiale: "BPC",
+    justificatifObligatoire: true,
+    systeme: false,
+  },
+] as const;

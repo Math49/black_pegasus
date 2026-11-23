@@ -3,14 +3,18 @@
 import { useState, useTransition } from "react";
 import { actionCreerMouvement } from "@/app/admin/(panel)/solde/actions";
 import { SEPARATEUR_MILLIERS } from "@/domaine/argent";
-import { categoriesDuSens, exigeJustificatif, LIBELLES_CATEGORIE } from "@/domaine/solde";
+import {
+  categoriesSaisissables,
+  exigeJustificatif,
+  type DefinitionCategorie,
+} from "@/domaine/categories";
 import {
   CODES_FILIALE,
   filialeImposee,
   filialeParDefaut,
   LIBELLES_FILIALE,
 } from "@/domaine/filiales";
-import type { CategorieMouvement, CodeFiliale, Sens } from "@/domaine/types";
+import type { CodeFiliale, Sens } from "@/domaine/types";
 import { Avatar } from "../../ui/Avatar";
 import { Button } from "../../ui/Button";
 import { Field, Select } from "../../ui/Field";
@@ -36,6 +40,7 @@ export function ModaleNouveauMouvement({
   semaine,
   dateParDefaut,
   contrats,
+  categories,
   acteur,
 }: {
   ouvert: boolean;
@@ -45,38 +50,53 @@ export function ModaleNouveauMouvement({
   /** « 2026-10-24T21:40 » à l'heure du serveur */
   dateParDefaut: string;
   contrats: readonly ContratLiable[];
+  /** Catégories de mouvements (Paramètres), archivées comprises. */
+  categories: readonly DefinitionCategorie[];
   acteur: { nom: string; avatarUrl: string | null };
 }) {
   const [sens, setSens] = useState<Sens>("SORTIE");
-  const [categorie, setCategorie] = useState<CategorieMouvement>("ENTRETIEN");
+  // Par défaut, la première catégorie saisie à la main (les catégories système sont surtout automatiques).
+  const premiere = (s: Sens) => {
+    const possibles = categoriesSaisissables(categories, s);
+    return possibles.find((c) => !c.systeme) ?? possibles[0];
+  };
+  const [categorie, setCategorie] = useState(premiere("SORTIE")?.id ?? "");
   const [montant, setMontant] = useState("");
   const [motif, setMotif] = useState("");
   const [date, setDate] = useState(dateParDefaut);
   const [contratId, setContratId] = useState("");
-  const [filiale, setFiliale] = useState<CodeFiliale | "">(filialeParDefaut("ENTRETIEN") ?? "");
+  const [filiale, setFiliale] = useState<CodeFiliale | "">(
+    premiere("SORTIE") ? (filialeParDefaut(premiere("SORTIE")!) ?? "") : "",
+  );
   const [fichier, setFichier] = useState<File | null>(null);
   const [erreur, setErreur] = useState<string | null>(null);
   const [erreurJustificatif, setErreurJustificatif] = useState<string | null>(null);
   const [enCours, demarrer] = useTransition();
 
-  const exige = exigeJustificatif(sens, categorie);
+  const proposees = categoriesSaisissables(categories, sens);
+  const exige = exigeJustificatif(
+    sens,
+    categories.find((c) => c.id === categorie),
+  );
   // La filiale suit la catégorie : proposée par défaut, verrouillée si la catégorie l'impose.
-  const changerCategorie = (c: CategorieMouvement) => {
-    setCategorie(c);
-    setFiliale(filialeParDefaut(c) ?? "");
+  const changerCategorie = (id: string) => {
+    setCategorie(id);
+    const c = categories.find((x) => x.id === id);
+    setFiliale(c ? (filialeParDefaut(c) ?? "") : "");
   };
   const imposee = filialeImposee(categorie);
 
   const changerSens = (s: Sens) => {
     setSens(s);
-    if (!categoriesDuSens(s).includes(categorie)) changerCategorie(categoriesDuSens(s)[0]);
+    if (!categoriesSaisissables(categories, s).some((c) => c.id === categorie))
+      changerCategorie(premiere(s)?.id ?? "");
   };
 
   const enregistrer = () => {
     setErreur(null);
     setErreurJustificatif(null);
     if (exige && !fichier) {
-      setErreurJustificatif("Joignez la capture d’écran : elle est exigée pour une dépense.");
+      setErreurJustificatif("Joignez la capture d’écran : cette catégorie l’exige.");
       return;
     }
     const f = new FormData();
@@ -183,11 +203,8 @@ export function ModaleNouveauMouvement({
           <Select
             label="Catégorie"
             value={categorie}
-            onChange={(e) => changerCategorie(e.target.value as CategorieMouvement)}
-            options={categoriesDuSens(sens).map((c) => ({
-              valeur: c,
-              libelle: LIBELLES_CATEGORIE[c],
-            }))}
+            onChange={(e) => changerCategorie(e.target.value)}
+            options={proposees.map((c) => ({ valeur: c.id, libelle: c.nom }))}
           />
         </div>
 

@@ -7,6 +7,7 @@ import { Fragment, Suspense } from "react";
 import { formaterDollars, formaterMontant } from "@/domaine/argent";
 import {
   colonneRegistre,
+  contratsLoues,
   pieceAbregee,
   syntheseParFiliale,
   totauxRegistre,
@@ -16,7 +17,6 @@ import { libelleFiliale } from "@/domaine/filiales";
 import { nomCompte } from "@/domaine/comptes";
 import { versHeureServeur } from "@/domaine/dates";
 import { numeroDeclaration, numeroOperationAffiche } from "@/domaine/numerotation";
-import { LIBELLES_CATEGORIE } from "@/domaine/solde";
 import { maintenant } from "@/lib/horloge";
 import { prisma } from "@/lib/prisma";
 import { lireEtatSemaine } from "@/services/comptabilite";
@@ -102,10 +102,17 @@ async function Declaration({
     where: { id: { in: idsContrats } },
     orderBy: { numero: "asc" },
   });
-  const v = ventilation(mouvements);
-  const parFiliale = syntheseParFiliale(mouvements);
-  const totaux = totauxRegistre(mouvements);
-  const avecApports = mouvements.some((m) => m.categorie === "APPORT");
+  const { regle } = etat;
+  const v = ventilation(mouvements, regle);
+  const nomCat = (id: string) =>
+    mouvements.find((m) => m.categorie === id)?.categorieMouvement.nom ?? id;
+  const locations =
+    v.find((l) => l.categorie === "LOCATION" && l.nature === "RECETTE")?.montant ?? 0;
+  const nbContrats = contratsLoues(mouvements);
+  const parFiliale = syntheseParFiliale(mouvements, regle);
+  const totaux = totauxRegistre(mouvements, regle);
+  const avecApports = regle === 1 && mouvements.some((m) => m.categorie === "APPORT");
+  const avecImpot = syn.impotDu !== null;
 
   const ref = numeroDeclaration(s.annee, s.numero);
   const periode = (c: (typeof contrats)[number]) => {
@@ -293,34 +300,46 @@ async function Declaration({
             syn.soldeOuverture,
           )}
           {ligneSynthese("Total des recettes", syn.recettes, { gras: true })}
-          {ligneSynthese(
-            `Locations (${v.contratsLoues} contrat${v.contratsLoues > 1 ? "s" : ""})`,
-            v.locations,
-            { sous: true },
-          )}
-          {ligneSynthese("Pénalités (retard, dégâts)", v.penalites, { sous: true })}
-          {v.formation !== 0 && ligneSynthese("Formations", v.formation, { sous: true })}
-          {v.ventesCartes !== 0 &&
-            ligneSynthese("Ventes de cartes", v.ventesCartes, { sous: true })}
+          {v
+            .filter((l) => l.nature === "RECETTE" && l.montant !== 0)
+            .map((l) => (
+              <Fragment key={`r-${l.categorie}`}>
+                {ligneSynthese(
+                  l.categorie === "LOCATION"
+                    ? `${nomCat(l.categorie)} (${nbContrats} contrat${nbContrats > 1 ? "s" : ""})`
+                    : nomCat(l.categorie),
+                  l.montant,
+                  { sous: true },
+                )}
+              </Fragment>
+            ))}
           {ligneSynthese("Total des dépenses", syn.depenses, { gras: true })}
-          {v.impots > 0 &&
-            ligneSynthese(`Impôts (semaine ${s.numero - 1 || "précédente"})`, v.impots, {
-              sous: true,
+          {v
+            .filter((l) => l.nature === "DEPENSE" && l.montant !== 0)
+            .map((l) => (
+              <Fragment key={`d-${l.categorie}`}>
+                {ligneSynthese(
+                  l.categorie === "IMPOTS"
+                    ? `${nomCat(l.categorie)} (semaine ${s.numero - 1 || "précédente"})`
+                    : nomCat(l.categorie),
+                  l.montant,
+                  { sous: true },
+                )}
+              </Fragment>
+            ))}
+          {avecImpot &&
+            ligneSynthese("Base imposable (recettes de la semaine)", syn.baseImposable, {
+              gras: true,
             })}
-          {v.entretien > 0 && ligneSynthese("Entretien", v.entretien, { sous: true })}
-          {v.achats > 0 && ligneSynthese("Achats de véhicules", v.achats, { sous: true })}
-          {v.divers > 0 && ligneSynthese("Divers (carburant, primes)", v.divers, { sous: true })}
-          {v.achatsStock !== 0 &&
-            ligneSynthese("Achats de stock (cartes)", v.achatsStock, { sous: true })}
           <div
             className="rounded my-1 flex items-baseline justify-between gap-3 px-3 py-2"
             style={{ border: "1.5px solid var(--bp-encre)" }}
           >
             <span className="text-[13px] font-extrabold tracking-[0.08em] uppercase">
-              Résultat imposable
+              {avecImpot ? `Impôt dû (${syn.tauxImpot} % des recettes)` : "Résultat imposable"}
             </span>
             <span className="text-xl font-extrabold tabular-nums">
-              {formaterDollars(syn.resultatImposable)}
+              {formaterDollars(avecImpot ? syn.impotDu! : syn.baseImposable)}
             </span>
           </div>
           {ligneSynthese(
@@ -370,7 +389,7 @@ async function Declaration({
             <span>Groupe · total</span>
             <span className="pdf-d">{formaterDollars(syn.recettes)}</span>
             <span className="pdf-d">{formaterDollars(syn.depenses)}</span>
-            <span className="pdf-d">{formaterDollars(syn.resultatImposable)}</span>
+            <span className="pdf-d">{formaterDollars(syn.recettes - syn.depenses)}</span>
           </div>
         </section>
 
@@ -388,7 +407,7 @@ async function Declaration({
               </span>
               <span />
               <span />
-              <span className="pdf-d">{formaterDollars(v.locations)}</span>
+              <span className="pdf-d">{formaterDollars(locations)}</span>
               <span />
             </div>
           )}
@@ -432,7 +451,7 @@ async function Declaration({
                 <span className="pdf-d">Caution</span>
               </div>
               {bloc.map((m) => {
-                const c = colonneRegistre(m);
+                const c = colonneRegistre(m, regle);
                 const cellule = (col: typeof c.colonne) =>
                   c.colonne === col
                     ? formaterMontant(c.montant, { signe: col === "caution" || col === "apport" })
@@ -441,10 +460,10 @@ async function Declaration({
                   <div key={m.id} className="pdf-rg">
                     <span className="font-bold">{numeroOperationAffiche(m.numero).slice(-3)}</span>
                     <span>{quand(m.date, "dd/MM HH:mm")}</span>
-                    <span>{LIBELLES_CATEGORIE[m.categorie]}</span>
+                    <span>{m.categorieMouvement.nom}</span>
                     <span>
                       {m.motif}
-                      {m.categorie === "APPORT" && ` (apport ${cellule("apport")})`}
+                      {c.colonne === "apport" && ` (apport ${cellule("apport")})`}
                     </span>
                     <span style={{ color: "var(--bp-encre-grise-foncee)" }}>
                       {m.justificatifNumero ??

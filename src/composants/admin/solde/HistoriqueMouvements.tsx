@@ -11,6 +11,7 @@ import { GlassCard } from "../../ui/GlassCard";
 import { Icon } from "../../ui/Icon";
 import { Statut } from "../../ui/Statut";
 import { ModaleMouvement, type MouvementAffiche } from "./ModaleMouvement";
+import type { DefinitionCategorie } from "@/domaine/categories";
 import { ModaleNouveauMouvement, type ContratLiable } from "./ModaleNouveauMouvement";
 
 type Option = { valeur: string; libelle: string };
@@ -36,6 +37,7 @@ export function HistoriqueMouvements({
     semaine: number;
     dateParDefaut: string;
     contrats: ContratLiable[];
+    categories: DefinitionCategorie[];
     acteur: { nom: string; avatarUrl: string | null };
   } | null;
 }) {

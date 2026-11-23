@@ -27,7 +27,9 @@ export function ModaleCloture({
     recettes: string;
     depenses: string;
     cautions: string;
+    /** Chiffre clé de la semaine : impôt dû (règle actuelle) ou résultat imposable. */
     resultat: string;
+    libelleResultat: string;
   };
   /** Contrats en cours : leurs cautions restent détenues. */
   avertissement: React.ReactNode | null;
@@ -113,7 +115,7 @@ export function ModaleCloture({
             ))}
             <div className="mt-1.5 flex items-end justify-between gap-3 border-t border-[var(--bp-trait-8)] pt-4">
               <dt className="libelle text-[10.5px] tracking-[0.2em] text-or-texte">
-                Résultat imposable
+                {resume.libelleResultat}
               </dt>
               <dd className="m-0 texte-or text-[28px] leading-none font-extrabold chiffres">
                 {resume.resultat}

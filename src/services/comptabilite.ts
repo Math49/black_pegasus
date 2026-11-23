@@ -2,8 +2,9 @@ import "server-only";
 import {
   confirmationClotureValide,
   controlesAvantCloture,
+  estCaution,
   montantSigne,
-  natureMouvement,
+  regleDe,
   synthese,
 } from "@/domaine/comptabilite";
 import { semaineParId, semaineSuivante, type SemaineFiscale } from "@/domaine/semaine";
@@ -26,6 +27,7 @@ const MOUVEMENTS = {
     venteCarte: { select: { numero: true, clientNom: true } },
     annulePar: { select: { numero: true } },
     annuleMouvement: { select: { numero: true } },
+    categorieMouvement: { select: { nom: true, justificatifObligatoire: true } },
   },
 };
 
@@ -53,11 +55,17 @@ export async function etatSemaine(db: Lecteur, s: SemaineFiscale, instant: Date)
       orderBy: { finPrevue: "asc" },
     }),
   ]);
-  const mouvements = enBase?.mouvements ?? [];
+  // La règle de calcul est celle de la semaine ; le taux est figé à la clôture.
+  const regle = regleDe(enBase?.regleComptable);
+  const tauxImpot = enBase?.tauxImpot ?? p.tauxImpot;
+  const mouvements = (enBase?.mouvements ?? []).map((m) => ({
+    ...m,
+    justificatifRequis: m.categorieMouvement.justificatifObligatoire,
+  }));
   const soldeAvant = avant.reduce((t, m) => t + montantSigne(m), premiere?.soldeOuverture ?? 0);
   const soldeOuverture = enBase?.soldeOuverture ?? soldeAvant;
   const cautionsDetenuesOuverture = avant
-    .filter((m) => natureMouvement(m.categorie) === "CAUTION")
+    .filter((m) => estCaution(m.categorie))
     .reduce((t, m) => t + montantSigne(m), 0);
   const statut = enBase?.statut ?? "OUVERTE";
   const soldeConstate = soldeAvant + mouvements.reduce((t, m) => t + montantSigne(m), 0);
@@ -72,6 +80,7 @@ export async function etatSemaine(db: Lecteur, s: SemaineFiscale, instant: Date)
     maintenant: instant,
     fuseau: p.fuseauServeur,
     heuresAvantFinCloture: p.ouvertureClotureHeuresAvantFin,
+    regle,
   });
 
   return {
@@ -79,7 +88,12 @@ export async function etatSemaine(db: Lecteur, s: SemaineFiscale, instant: Date)
     enBase,
     statut,
     mouvements,
-    synthese: synthese(mouvements, soldeOuverture, { cautionsDetenuesOuverture }),
+    regle,
+    synthese: synthese(mouvements, soldeOuverture, {
+      cautionsDetenuesOuverture,
+      regle,
+      tauxImpot,
+    }),
     controles,
     cloturable,
     contratsEnCours,
@@ -118,7 +132,14 @@ export async function cloturerSemaine(acteur: CompteConnecte, id: string, confir
     const soldeCloture = etat.synthese.solde;
     const verrou = await tx.semaine.updateMany({
       where: { id, statut: "OUVERTE" },
-      data: { statut: "CLOTUREE", soldeCloture, clotureeLe: instant, clotureeParId: acteur.id },
+      data: {
+        statut: "CLOTUREE",
+        soldeCloture,
+        clotureeLe: instant,
+        clotureeParId: acteur.id,
+        // Taux figé : un changement ultérieur des paramètres ne modifie pas la semaine.
+        tauxImpot: etat.synthese.tauxImpot,
+      },
     });
     if (verrou.count !== 1) throw new ErreurMetier("Semaine déjà clôturée.");
 
@@ -144,7 +165,8 @@ export async function cloturerSemaine(acteur: CompteConnecte, id: string, confir
         soldeCloture,
         recettes: etat.synthese.recettes,
         depenses: etat.synthese.depenses,
-        resultatImposable: etat.synthese.resultatImposable,
+        baseImposable: etat.synthese.baseImposable,
+        impotDu: etat.synthese.impotDu,
         operations: etat.synthese.nombreOperations,
       },
     });

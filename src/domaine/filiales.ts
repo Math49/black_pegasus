@@ -16,8 +16,8 @@ export const libelleFiliale = (code: CodeFiliale | null) =>
   code ? LIBELLES_FILIALE[code] : "Groupe";
 
 /**
- * Filiale imposée par la catégorie : les recettes et cautions de location sont à Location,
- * la formation à Formation, les cartes à Cards. Les autres catégories sont libres.
+ * Filiale imposée par les catégories système : les recettes et cautions de location sont à
+ * Location, la formation à Formation, les cartes à Cards. Les autres catégories sont libres.
  */
 const IMPOSEE: Partial<Record<CategorieMouvement, CodeFiliale>> = {
   LOCATION: "BPL",
@@ -26,18 +26,18 @@ const IMPOSEE: Partial<Record<CategorieMouvement, CodeFiliale>> = {
   CAUTION_RENDUE: "BPL",
   FORMATION: "BPF",
   VENTE_CARTES: "BPC",
-  ACHAT_STOCK: "BPC",
 };
 
 /** Filiale imposée par la catégorie (le choix est alors verrouillé à la saisie). */
 export const filialeImposee = (categorie: CategorieMouvement): CodeFiliale | null =>
   IMPOSEE[categorie] ?? null;
 
-/** Filiale proposée à la saisie d'un mouvement manuel. */
-export function filialeParDefaut(categorie: CategorieMouvement): CodeFiliale | null {
-  if (IMPOSEE[categorie]) return IMPOSEE[categorie]!;
-  if (categorie === "ACHAT_VEHICULE" || categorie === "ENTRETIEN") return "BPL";
-  return null;
+/** Filiale proposée à la saisie : imposée, sinon celle définie sur la catégorie. */
+export function filialeParDefaut(categorie: {
+  id: CategorieMouvement;
+  filiale: CodeFiliale | null;
+}): CodeFiliale | null {
+  return IMPOSEE[categorie.id] ?? categorie.filiale;
 }
 
 /** Refuse une filiale incohérente avec la catégorie (une location rattachée à Cards…). */

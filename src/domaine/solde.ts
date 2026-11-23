@@ -1,6 +1,7 @@
 import { addDays } from "date-fns";
 import { formaterDollars, SEPARATEUR_MILLIERS, SIGNE_MOINS } from "./argent";
-import { montantSigne, natureMouvement } from "./comptabilite";
+import { montantSigne } from "./comptabilite";
+import { exigeJustificatif, sensAutorise, type DefinitionCategorie } from "./categories";
 import { versHeureServeur } from "./dates";
 import { libelleSemaine, numeroOperationAffiche } from "./numerotation";
 import { contientInstant, semaineDe, type SemaineFiscale } from "./semaine";
@@ -8,53 +9,10 @@ import { ErreurMetier, type CategorieMouvement, type Sens } from "./types";
 
 // Page Solde (HANDOFF § 5.3) et saisie manuelle des mouvements (CONCEPTION § 6.3–6.5).
 
-export const LIBELLES_CATEGORIE: Record<CategorieMouvement, string> = {
-  LOCATION: "Location",
-  PENALITE: "Pénalité",
-  CAUTION_ENCAISSEE: "Caution encaissée",
-  CAUTION_RENDUE: "Caution rendue",
-  ACHAT_VEHICULE: "Achat de véhicule",
-  ENTRETIEN: "Entretien",
-  IMPOTS: "Impôts",
-  APPORT: "Apport",
-  DIVERS: "Divers",
-  FORMATION: "Formation",
-  VENTE_CARTES: "Vente de cartes",
-  ACHAT_STOCK: "Achat de stock",
-};
-
-/** Ordre de la maquette (filtres et saisie). */
-export const CATEGORIES = Object.keys(LIBELLES_CATEGORIE) as CategorieMouvement[];
-
-/**
- * Sens de chaque catégorie : la synthèse comptable compte une recette en entrée et une
- * dépense en sortie, la saisie manuelle ne propose donc que les catégories du sens choisi.
- */
-const SENS_CATEGORIE: Record<CategorieMouvement, Sens> = {
-  LOCATION: "ENTREE",
-  PENALITE: "ENTREE",
-  CAUTION_ENCAISSEE: "ENTREE",
-  APPORT: "ENTREE",
-  FORMATION: "ENTREE",
-  VENTE_CARTES: "ENTREE",
-  ACHAT_STOCK: "SORTIE",
-  CAUTION_RENDUE: "SORTIE",
-  ACHAT_VEHICULE: "SORTIE",
-  ENTRETIEN: "SORTIE",
-  IMPOTS: "SORTIE",
-  DIVERS: "SORTIE",
-};
-
-export const categoriesDuSens = (sens: Sens) =>
-  CATEGORIES.filter((c) => SENS_CATEGORIE[c] === sens);
-
-/** Le FISC exige un justificatif pour toute dépense (HANDOFF § 7.6). */
-export const exigeJustificatif = (sens: Sens, categorie: CategorieMouvement) =>
-  sens === "SORTIE" && natureMouvement(categorie) === "DEPENSE";
-
 export type SaisieMouvement = {
   sens: Sens;
-  categorie: CategorieMouvement;
+  /** Définition de la catégorie choisie (table `CategorieMouvement`). */
+  categorie: DefinitionCategorie;
   montant: number;
   motif: string;
   date: Date;
@@ -66,9 +24,12 @@ export function verifierSaisieMouvement(s: SaisieMouvement, maintenant: Date): v
   if (!Number.isSafeInteger(s.montant) || s.montant <= 0) {
     throw new ErreurMetier("Montant : nombre entier de dollars supérieur à zéro.");
   }
-  if (SENS_CATEGORIE[s.categorie] !== s.sens) {
+  if (s.categorie.archivee) {
+    throw new ErreurMetier(`La catégorie « ${s.categorie.nom} » est archivée.`);
+  }
+  if (!sensAutorise(s.categorie, s.sens)) {
     throw new ErreurMetier(
-      `La catégorie « ${LIBELLES_CATEGORIE[s.categorie]} » est une ${s.sens === "ENTREE" ? "sortie" : "entrée"}.`,
+      `La catégorie « ${s.categorie.nom} » est une ${s.sens === "ENTREE" ? "sortie" : "entrée"}.`,
     );
   }
   if (s.motif.trim().length < 3) throw new ErreurMetier("Motif : 3 caractères minimum.");
@@ -76,7 +37,7 @@ export function verifierSaisieMouvement(s: SaisieMouvement, maintenant: Date): v
     throw new ErreurMetier("La date du mouvement ne peut pas être dans le futur.");
   }
   if (exigeJustificatif(s.sens, s.categorie) && !s.avecJustificatif) {
-    throw new ErreurMetier("Justificatif obligatoire pour une dépense.");
+    throw new ErreurMetier("Justificatif obligatoire pour cette dépense.");
   }
 }
 
@@ -184,7 +145,16 @@ const normaliser = (t: string) =>
 /** Recherche « Motif, contrat, nom… » et filtre de catégorie. */
 export function filtrerHistorique<M extends MouvementHistorique>(
   mouvements: readonly M[],
-  { q = "", categorie }: { q?: string; categorie?: CategorieMouvement | null },
+  {
+    q = "",
+    categorie,
+    libelles = {},
+  }: {
+    q?: string;
+    categorie?: CategorieMouvement | null;
+    /** Nom de chaque catégorie, pour la recherche. */
+    libelles?: Readonly<Record<string, string>>;
+  },
 ): M[] {
   const r = normaliser(q.trim());
   return mouvements.filter(
@@ -198,7 +168,7 @@ export function filtrerHistorique<M extends MouvementHistorique>(
           m.clientNom,
           m.saisiPar,
           m.justificatifNumero,
-          LIBELLES_CATEGORIE[m.categorie],
+          libelles[m.categorie],
         ].some((x) => x && normaliser(x).includes(r))),
   );
 }

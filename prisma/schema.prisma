@@ -38,22 +38,28 @@ enum Sens {
   SORTIE
 }
 
-enum CategorieMouvement {
-  LOCATION
-  PENALITE
-  CAUTION_ENCAISSEE
-  CAUTION_RENDUE
-  ACHAT_VEHICULE
-  ENTRETIEN
-  IMPOTS
-  APPORT
-  DIVERS
-  /// Recette de Black Pégasus Formation
-  FORMATION
-  /// Recette de Black Pégasus Cards
-  VENTE_CARTES
-  /// Dépense de Black Pégasus Cards
-  ACHAT_STOCK
+/// Sens autorisés pour une catégorie de mouvement (REFONTE-ADMIN § 2).
+enum SensCategorie {
+  ENTREE
+  SORTIE
+  LES_DEUX
+}
+
+/// Catégories de mouvements, gérées dans les Paramètres. Les catégories système gardent
+/// leur code historique comme identifiant (LOCATION, IMPOTS…).
+model CategorieMouvement {
+  id                      String        @id @default(cuid())
+  nom                     String        @unique
+  sens                    SensCategorie
+  /// Filiale proposée à la saisie (imposée pour les catégories système d'une filiale)
+  filiale                 CodeFiliale?
+  justificatifObligatoire Boolean       @default(false)
+  /// Utilisée par l'application : renommable, jamais supprimée
+  systeme                 Boolean       @default(false)
+  /// Plus proposée à la saisie
+  archivee                Boolean       @default(false)
+  ordre                   Int           @default(0)
+  mouvements              Mouvement[]
 }
 
 /// Filiales du groupe (docs/CONCEPTION-FILIALES.md) : Location, Formation, Cards.
@@ -181,7 +187,9 @@ model Mouvement {
   /// Date réelle de l'opération
   date               DateTime
   sens               Sens
-  categorie          CategorieMouvement
+  /// Identifiant de la catégorie (CategorieMouvement.id)
+  categorie          String
+  categorieMouvement CategorieMouvement @relation(fields: [categorie], references: [id])
   /// Toujours positif : le sens porte le signe.
   montant            Int
   motif              String
@@ -231,6 +239,10 @@ model Semaine {
   declarationSha256     String?
   compteurOperations    Int           @default(0)
   compteurJustificatifs Int           @default(0)
+  /// Règle de calcul : 1 = HANDOFF § 7.6 (semaines clôturées avant la refonte), 2 = REFONTE-ADMIN § 2
+  regleComptable        Int           @default(2)
+  /// Taux d'impôt (%) figé à la clôture ; null tant que la semaine est ouverte
+  tauxImpot             Int?
   mouvements            Mouvement[]
 
   @@unique([annee, numero])
@@ -305,6 +317,8 @@ model Parametres {
   penalitesSurCaution             Boolean @default(false)
   /// Décision D4 : la clôture ouvre ce nombre d'heures avant la fin de semaine (24 = dimanche 00:00).
   ouvertureClotureHeuresAvantFin  Int     @default(24)
+  /// Impôt hebdomadaire : pourcentage des recettes (REFONTE-ADMIN § 2)
+  tauxImpot                       Int     @default(20)
   /// [{ libelle, montant }]
   forfaitsDegats                  Json
   /// Accroche, présentation de la maison, étapes « Comment louer »

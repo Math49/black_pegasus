@@ -15,10 +15,16 @@ import {
   enregistrerRegles,
   enregistrerTextes,
   enregistrerFiliale,
+  enregistrerTauxImpot,
   enregistrerTextesGroupe,
   renommerCategorie,
   supprimerCategorie,
 } from "@/services/parametres";
+import {
+  archiverCategorieMouvement,
+  enregistrerCategorieMouvement,
+  supprimerCategorieMouvement,
+} from "@/services/categories";
 
 // Paramètres du site, administrateur uniquement : exigerRole → Zod → service → journal.
 
@@ -168,4 +174,47 @@ export async function actionPhotoAccueil(formulaire: FormData) {
     if (!image) throw new ErreurMetier("Choisissez une photo (PNG, JPG ou WEBP, 10 Mo maximum).");
     return enregistrerPhotoAccueil(acteur, t, image);
   });
+}
+
+// ── Comptabilité (REFONTE-ADMIN § 2) ─────────────────────────────────────────
+
+export async function actionEnregistrerTauxImpot(d: unknown) {
+  return executer(async () =>
+    enregistrerTauxImpot(
+      await exigerRole("parametres.gerer"),
+      z.object({ tauxImpot: entier("Taux d’impôt", 0, 100) }).parse(d).tauxImpot,
+    ),
+  );
+}
+
+const schemaCategorieMouvement = z.object({
+  id: z.string().min(1).nullable(),
+  nom: texte("Nom", 2, 40),
+  sens: z.enum(["ENTREE", "SORTIE", "LES_DEUX"], { message: "Sens invalide." }),
+  filiale: z.enum(["BPL", "BPF", "BPC"]).nullable(),
+  justificatifObligatoire: z.boolean(),
+});
+
+export async function actionEnregistrerCategorieMouvement(d: unknown) {
+  return executer(async () => {
+    const acteur = await exigerRole("parametres.gerer");
+    const { id, ...saisie } = schemaCategorieMouvement.parse(d);
+    await enregistrerCategorieMouvement(acteur, id, saisie);
+  });
+}
+
+export async function actionArchiverCategorieMouvement(id: string, archivee: boolean) {
+  return executer(async () =>
+    archiverCategorieMouvement(
+      await exigerRole("parametres.gerer"),
+      z.string().min(1).parse(id),
+      z.boolean().parse(archivee),
+    ),
+  );
+}
+
+export async function actionSupprimerCategorieMouvement(id: string) {
+  return executer(async () =>
+    supprimerCategorieMouvement(await exigerRole("parametres.gerer"), z.string().min(1).parse(id)),
+  );
 }

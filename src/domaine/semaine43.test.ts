@@ -22,6 +22,10 @@ const mouvements: MouvementComptable[] = demo.mouvements.map((m) => ({
   categorie: m.categorie as CategorieMouvement,
   montant: m.montant,
   justificatifNumero: m.justificatif,
+  // Catégories qui exigent un justificatif (reprise de la migration R-2).
+  justificatifRequis: ["IMPOTS", "ENTRETIEN", "DIVERS", "ACHAT_VEHICULE", "ACHAT_STOCK"].includes(
+    m.categorie,
+  ),
 }));
 
 const vehiculeDe = (immatriculation: string) => {
@@ -33,13 +37,13 @@ const vehiculeDe = (immatriculation: string) => {
 };
 
 describe("semaine 43 de démonstration", () => {
-  it("synthèse : $91 400 / $24 150 / $67 250 / $35 000 / $514 630", () => {
-    const s = synthese(mouvements, s43.soldeOuverture);
+  it("synthèse : $91 400 / $24 150 / $67 250 / $35 000 / $514 630 (règle 1 des maquettes)", () => {
+    const s = synthese(mouvements, s43.soldeOuverture, { regle: 1 });
     expect(s).toMatchObject({
       soldeOuverture: 412380,
       recettes: 91400,
       depenses: 24150,
-      resultatImposable: 67250,
+      baseImposable: 67250,
       cautionsDetenues: 35000,
       apports: 0,
       solde: 514630,
@@ -48,9 +52,20 @@ describe("semaine 43 de démonstration", () => {
     expect(s).toMatchObject({
       recettes: s43.recettes,
       depenses: s43.depenses,
-      resultatImposable: s43.resultatImposable,
+      baseImposable: s43.resultatImposable,
       cautionsDetenues: s43.cautionsDetenues,
       solde: s43.soldeActuel,
+    });
+  });
+
+  it("règle actuelle : impôt de 20 % sur $91 400 de recettes = $18 280", () => {
+    expect(synthese(mouvements, s43.soldeOuverture, { tauxImpot: 20 })).toMatchObject({
+      recettes: 91400,
+      depenses: 24150,
+      baseImposable: 91400,
+      impotDu: 18280,
+      cautionsDetenues: 35000,
+      solde: 514630,
     });
   });
 

@@ -3,11 +3,10 @@ import demo from "../../docs/handoff/data/demo-semaine-43.json";
 import { synthese } from "./comptabilite";
 import { depuisHeureServeur } from "./dates";
 import { semaineParNumero } from "./semaine";
+import { categoriesSaisissables, exigeJustificatif, type DefinitionCategorie } from "./categories";
 import {
-  categoriesDuSens,
   courbeSemaine,
   evolutionSolde,
-  exigeJustificatif,
   filtrerHistorique,
   formaterMilliers,
   mentionReport,
@@ -86,6 +85,12 @@ describe("page Solde (maquette 12)", () => {
       filtrerHistorique(mouvements, { categorie: "DIVERS" }).every((m) => m.categorie === "DIVERS"),
     ).toBe(true);
     expect(filtrerHistorique(mouvements, {})).toHaveLength(35);
+    // Recherche sur le nom de la catégorie, fourni par la base.
+    expect(
+      filtrerHistorique(mouvements, { q: "frais", libelles: { DIVERS: "Frais généraux" } }).every(
+        (m) => m.categorie === "DIVERS",
+      ),
+    ).toBe(true);
   });
 
   it("pagination « 1–15 sur 35 »", () => {
@@ -105,39 +110,50 @@ describe("page Solde (maquette 12)", () => {
 });
 
 describe("saisie d'un mouvement (maquette 13)", () => {
+  const cat = (
+    id: string,
+    nom: string,
+    sens: DefinitionCategorie["sens"],
+    justificatifObligatoire = false,
+    archivee = false,
+  ): DefinitionCategorie => ({
+    id,
+    nom,
+    sens,
+    filiale: null,
+    justificatifObligatoire,
+    systeme: false,
+    archivee,
+  });
+  const entretien = cat("ENTRETIEN", "Entretien", "SORTIE", true);
+  const cautionRendue = cat("CAUTION_RENDUE", "Caution rendue", "SORTIE");
+  const apport = cat("APPORT", "Apport", "ENTREE");
+  const divers = cat("DIVERS", "Divers", "LES_DEUX", true);
+  const ancienne = cat("x", "Ancienne", "SORTIE", false, true);
+  const toutes = [entretien, cautionRendue, apport, divers, ancienne];
   const base = {
     sens: "SORTIE" as Sens,
-    categorie: "ENTRETIEN" as CategorieMouvement,
+    categorie: entretien,
     montant: 2400,
     motif: "Révision des rotors du SuperVolito Carbon",
     date: h("2026-10-24T21:30"),
     avecJustificatif: true,
   };
 
-  it("catégories proposées selon le sens", () => {
-    expect(categoriesDuSens("ENTREE")).toEqual([
-      "LOCATION",
-      "PENALITE",
-      "CAUTION_ENCAISSEE",
-      "APPORT",
-      "FORMATION",
-      "VENTE_CARTES",
-    ]);
-    expect(categoriesDuSens("SORTIE")).toEqual([
-      "CAUTION_RENDUE",
-      "ACHAT_VEHICULE",
+  it("catégories proposées selon le sens, sans les archivées", () => {
+    expect(categoriesSaisissables(toutes, "ENTREE").map((c) => c.id)).toEqual(["APPORT", "DIVERS"]);
+    expect(categoriesSaisissables(toutes, "SORTIE").map((c) => c.id)).toEqual([
       "ENTRETIEN",
-      "IMPOTS",
+      "CAUTION_RENDUE",
       "DIVERS",
-      "ACHAT_STOCK",
     ]);
   });
 
-  it("justificatif exigé pour toute dépense, pas pour une caution rendue ni un apport", () => {
-    expect(exigeJustificatif("SORTIE", "ENTRETIEN")).toBe(true);
-    expect(exigeJustificatif("SORTIE", "DIVERS")).toBe(true);
-    expect(exigeJustificatif("SORTIE", "CAUTION_RENDUE")).toBe(false);
-    expect(exigeJustificatif("ENTREE", "APPORT")).toBe(false);
+  it("justificatif exigé seulement pour une sortie d'une catégorie qui le demande", () => {
+    expect(exigeJustificatif("SORTIE", entretien)).toBe(true);
+    expect(exigeJustificatif("SORTIE", cautionRendue)).toBe(false);
+    expect(exigeJustificatif("ENTREE", divers)).toBe(false);
+    expect(exigeJustificatif("SORTIE", undefined)).toBe(false);
   });
 
   it("règles de saisie", () => {
@@ -152,11 +168,14 @@ describe("saisie d'un mouvement (maquette 13)", () => {
     expect(() => verifierSaisieMouvement({ ...base, sens: "ENTREE" }, maintenant)).toThrow(
       "« Entretien » est une sortie",
     );
-    expect(() =>
-      verifierSaisieMouvement({ ...base, sens: "ENTREE", categorie: "CAUTION_RENDUE" }, maintenant),
-    ).toThrow("est une sortie");
-    expect(() => verifierSaisieMouvement({ ...base, categorie: "APPORT" }, maintenant)).toThrow(
+    expect(() => verifierSaisieMouvement({ ...base, categorie: apport }, maintenant)).toThrow(
       "est une entrée",
+    );
+    expect(() =>
+      verifierSaisieMouvement({ ...base, sens: "ENTREE", categorie: divers }, maintenant),
+    ).not.toThrow();
+    expect(() => verifierSaisieMouvement({ ...base, categorie: ancienne }, maintenant)).toThrow(
+      "archivée",
     );
     expect(() => verifierSaisieMouvement({ ...base, motif: " a " }, maintenant)).toThrow("Motif");
     expect(() =>

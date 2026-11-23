@@ -5,6 +5,10 @@ import { Suspense } from "react";
 import { EnTetePanel } from "@/composants/admin/EnTetePanel";
 import { GestionCategories } from "@/composants/admin/parametres/GestionCategories";
 import {
+  FormulaireImpot,
+  GestionCategoriesMouvement,
+} from "@/composants/admin/parametres/GestionComptabilite";
+import {
   FormulaireAgence,
   FormulaireRegles,
 } from "@/composants/admin/parametres/FormulairesSimples";
@@ -23,6 +27,7 @@ import { LIBELLES_FILIALE } from "@/domaine/filiales";
 import { majorationEnPourcent } from "@/domaine/parametres";
 import type { CodeFiliale, ForfaitDegats, TypeVehicule } from "@/domaine/types";
 import { exigerPermission } from "@/lib/garde";
+import { lireCategoriesAdmin } from "@/services/categories";
 import { lireParametresAdmin } from "@/services/parametres";
 import {
   schemaPhotosAccueil,
@@ -41,6 +46,7 @@ export const metadata: Metadata = { title: "Paramètres" };
  */
 const ONGLETS = [
   { valeur: "groupe", libelle: "Groupe" },
+  { valeur: "comptabilite", libelle: "Comptabilité" },
   { valeur: "location", libelle: LIBELLES_FILIALE.BPL, code: "BPL" },
   { valeur: "formation", libelle: LIBELLES_FILIALE.BPF, code: "BPF" },
   { valeur: "cards", libelle: LIBELLES_FILIALE.BPC, code: "BPC" },
@@ -98,7 +104,10 @@ async function Contenu({
   const onglet: Onglet = ONGLETS.some((o) => o.valeur === params.onglet)
     ? (params.onglet as Onglet)
     : "groupe";
-  const { p, filiales, categories } = await lireParametresAdmin();
+  const [{ p, filiales, categories }, categoriesMouvement] = await Promise.all([
+    lireParametresAdmin(),
+    lireCategoriesAdmin(),
+  ]);
   const photos = schemaPhotosAccueil.parse(p.photosAccueil);
   const filiale = (code: CodeFiliale) => {
     const f = filiales.find((x) => x.code === code);
@@ -136,6 +145,24 @@ async function Contenu({
             }}
           />
           <FormulaireTextesGroupe initial={schemaTextesGroupe.parse(p.textesGroupe)} />
+        </>
+      )}
+
+      {onglet === "comptabilite" && (
+        <>
+          <FormulaireImpot initial={p.tauxImpot} />
+          <GestionCategoriesMouvement
+            categories={categoriesMouvement.map((c) => ({
+              id: c.id,
+              nom: c.nom,
+              sens: c.sens,
+              filiale: c.filiale,
+              justificatifObligatoire: c.justificatifObligatoire,
+              systeme: c.systeme,
+              archivee: c.archivee,
+              mouvements: c._count.mouvements,
+            }))}
+          />
         </>
       )}
 
