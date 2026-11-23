@@ -1,6 +1,7 @@
 "use server";
 
 import { z } from "zod";
+import { dureeEnHeures } from "@/domaine/encheres";
 import { ErreurMetier } from "@/domaine/types";
 import { lireImageEnvoyee } from "@/lib/fichiers";
 import { exigerRole } from "@/lib/garde";
@@ -43,12 +44,19 @@ const schemaCarte = z.object({
   visible: z.enum(["0", "1"]).transform((v) => v === "1"),
 });
 
-const schemaEnchere = z.object({
-  montantDepart: entier("Montant de départ", 10_000_000),
-  pasMinimum: entier("Pas minimum", 1_000_000),
-  dureeHeures: entier("Durée (heures)", 720),
-  tempsAdditionnelMin: entier("Temps additionnel (minutes)", 1440),
-});
+// Durée saisie en heures ou en jours, enregistrée en heures (30 jours au plus).
+const schemaEnchere = z
+  .object({
+    montantDepart: entier("Montant de départ", 10_000_000),
+    pasMinimum: entier("Pas minimum", 1_000_000),
+    dureeValeur: entier("Durée", 720),
+    dureeUnite: z.enum(["heures", "jours"], { message: "Unité de durée invalide." }),
+    tempsAdditionnelMin: entier("Temps additionnel (minutes)", 1440),
+  })
+  .transform(({ dureeValeur, dureeUnite, ...p }) => ({
+    ...p,
+    dureeHeures: dureeEnHeures(dureeValeur, dureeUnite),
+  }));
 
 const schemaVente = z.object({
   lignes: z

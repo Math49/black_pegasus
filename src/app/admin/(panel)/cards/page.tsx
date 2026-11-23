@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { exigerPermission } from "@/lib/garde";
-import { etatEnchere, meilleureOffre } from "@/domaine/encheres";
+import { etatEnchere, finInitiale, meilleureOffre } from "@/domaine/encheres";
 import { maintenant } from "@/lib/horloge";
 import { lireCardsAdmin } from "@/services/cards";
 import { lireEncheresOuvertes } from "@/services/encheres";
@@ -46,6 +46,7 @@ async function Contenu() {
             return {
               id: e.id,
               fin: e.finPrevue.toISOString(),
+              finDuree: finInitiale(e.debut, e.dureeHeures).toISOString(),
               meilleure: meilleureOffre(e.offres)?.montant ?? null,
               montantDepart: e.montantDepart,
               etat: etatEnchere(e, e.offres, instant),

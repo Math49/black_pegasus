@@ -4,7 +4,7 @@ import Link from "next/link";
 import { correspondRecherche, decouperNomCategorie, regrouperCartes } from "@/domaine/cards";
 import { cx } from "@/lib/classes";
 import { slugifier } from "@/domaine/vehicules";
-import { meilleureOffre } from "@/domaine/encheres";
+import { finInitiale, meilleureOffre } from "@/domaine/encheres";
 import { maintenant } from "@/lib/horloge";
 import { lireCartesPubliques } from "@/services/cards";
 import { lireEncheresOuvertes } from "@/services/encheres";
@@ -207,6 +207,7 @@ async function Cards({ searchParams }: { searchParams: PageProps<"/cards">["sear
                                 montant: m?.montant ?? e.montantDepart,
                                 avecOffre: m !== null,
                                 fin: e.finPrevue.toISOString(),
+                                finDuree: finInitiale(e.debut, e.dureeHeures).toISOString(),
                                 maintenant: instant.toISOString(),
                                 terminee: instant >= e.finPrevue,
                               };

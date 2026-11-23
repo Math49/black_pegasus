@@ -140,15 +140,27 @@ export function FormulaireCarte({
                 max={1_000_000}
                 step={1}
               />
-              <Field
-                label="Durée (heures)"
-                name="dureeHeures"
-                type="number"
-                required
-                min={1}
-                max={720}
-                step={1}
-              />
+              <div className="grid grid-cols-[minmax(0,1fr)_120px] items-end gap-2">
+                <Field
+                  label="Durée"
+                  name="dureeValeur"
+                  type="number"
+                  required
+                  min={1}
+                  max={720}
+                  step={1}
+                  aide="30 jours maximum."
+                />
+                <Select
+                  label="Unité de durée"
+                  name="dureeUnite"
+                  defaultValue="heures"
+                  options={[
+                    { valeur: "heures", libelle: "heures" },
+                    { valeur: "jours", libelle: "jours" },
+                  ]}
+                />
+              </div>
               <Field
                 label="Temps additionnel (minutes)"
                 name="tempsAdditionnelMin"

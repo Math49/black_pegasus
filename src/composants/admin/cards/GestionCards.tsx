@@ -69,6 +69,7 @@ export type CarteAdmin = {
   enchere?: {
     id: string;
     fin: string;
+    finDuree: string;
     meilleure: number | null;
     montantDepart: number;
     etat: EtatEnchere;
@@ -90,7 +91,12 @@ function EncartEnchere({
       <span className="flex items-center justify-between gap-2">
         <span className="font-bold text-or-texte">Enchère</span>
         {enchere.etat === "en_cours" ? (
-          <CompteARebours fin={enchere.fin} maintenant={maintenant} className="chiffres" />
+          <CompteARebours
+            fin={enchere.fin}
+            finDuree={enchere.finDuree}
+            maintenant={maintenant}
+            className="chiffres"
+          />
         ) : (
           <span>{LIBELLES_ETAT_ENCHERE[enchere.etat]}</span>
         )}

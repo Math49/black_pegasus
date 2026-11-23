@@ -14,6 +14,8 @@ export type EnchereCarte = {
   avecOffre: boolean;
   /** ISO 8601 */
   fin: string;
+  /** Fin de la durée choisie, avant un éventuel temps additionnel. */
+  finDuree: string;
   maintenant: string;
   terminee: boolean;
 };
@@ -107,6 +109,7 @@ export function CarteCollection({
                   Fin dans{" "}
                   <CompteARebours
                     fin={enchere.fin}
+                    finDuree={enchere.finDuree}
                     maintenant={enchere.maintenant}
                     className="font-bold chiffres text-texte"
                   />

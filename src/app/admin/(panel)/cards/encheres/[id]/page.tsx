@@ -13,6 +13,8 @@ import { nomCompte } from "@/domaine/comptes";
 import { formaterHeure, formaterJourCourt } from "@/domaine/dates";
 import {
   etatEnchere,
+  finInitiale,
+  formaterDureeEnchere,
   LIBELLES_ETAT_ENCHERE,
   meilleureOffre,
   montantMinimum,
@@ -102,6 +104,7 @@ async function Contenu({ params }: { params: PageProps<"/admin/cards/encheres/[i
                 {etat === "en_cours" ? (
                   <CompteARebours
                     fin={e.finPrevue.toISOString()}
+                    finDuree={finInitiale(e.debut, e.dureeHeures).toISOString()}
                     maintenant={instant.toISOString()}
                   />
                 ) : (
@@ -110,14 +113,21 @@ async function Contenu({ params }: { params: PageProps<"/admin/cards/encheres/[i
               </dd>
             </div>
             <div className="flex flex-col gap-1">
-              <dt className="libelle text-[10.5px] tracking-[0.2em]">Fin prévue</dt>
-              <dd className="m-0 text-base font-bold chiffres">{quand(e.finPrevue)}</dd>
+              <dt className="libelle text-[10.5px] tracking-[0.2em]">Fin de la durée</dt>
+              <dd className="m-0 text-base font-bold chiffres">
+                {quand(finInitiale(e.debut, e.dureeHeures))}
+              </dd>
+              {e.finPrevue > finInitiale(e.debut, e.dureeHeures) && (
+                <dd className="m-0 text-sm text-texte-doux">
+                  Prolongée jusqu’au {quand(e.finPrevue)}
+                </dd>
+              )}
             </div>
           </dl>
           <p className="m-0 text-sm text-texte-doux">
             Départ {formaterDollars(e.montantDepart)} · pas {formaterDollars(e.pasMinimum)} · durée{" "}
-            {e.dureeHeures} h · temps additionnel {e.tempsAdditionnelMin} min · prochaine offre
-            minimale {formaterDollars(montantMinimum(e, e.offres))}. Ouverte par{" "}
+            {formaterDureeEnchere(e.dureeHeures)} · temps additionnel {e.tempsAdditionnelMin} min ·
+            prochaine offre minimale {formaterDollars(montantMinimum(e, e.offres))}. Ouverte par{" "}
             {nomCompte(e.creePar)} le {quand(e.debut)}.
           </p>
           {e.vente && (

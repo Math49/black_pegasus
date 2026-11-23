@@ -33,7 +33,13 @@ export async function lireActiviteCards(semaine: SemaineFiscale, instant: Date) 
     // Enchères en cours, la plus proche de sa fin d'abord.
     prisma.enchere.findMany({
       where: { statut: "OUVERTE", finPrevue: { gt: instant } },
-      select: { id: true, finPrevue: true, carte: { select: { nom: true } } },
+      select: {
+        id: true,
+        debut: true,
+        dureeHeures: true,
+        finPrevue: true,
+        carte: { select: { nom: true } },
+      },
       orderBy: { finPrevue: "asc" },
     }),
   ]);

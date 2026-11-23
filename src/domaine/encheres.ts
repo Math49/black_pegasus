@@ -33,6 +33,8 @@ export function verifierParametresEnchere(p: ParametresEnchere): void {
   for (const cle of Object.keys(BORNES_ENCHERE) as (keyof ParametresEnchere)[]) {
     const { min, max } = BORNES_ENCHERE[cle];
     const v = p[cle];
+    if (cle === "dureeHeures" && (!Number.isSafeInteger(v) || v < min || v > max))
+      throw new ErreurMetier("Durée : entre 1 heure et 30 jours.");
     if (!Number.isSafeInteger(v) || v < min || v > max)
       throw new ErreurMetier(
         `${LIBELLES_PARAMETRES[cle]} : nombre entier entre ${min.toLocaleString("fr-FR")} et ${max.toLocaleString("fr-FR")}.`,
@@ -42,6 +44,38 @@ export function verifierParametresEnchere(p: ParametresEnchere): void {
 
 export const finInitiale = (debut: Date, dureeHeures: number) =>
   new Date(debut.getTime() + dureeHeures * HEURE);
+
+/** Unités proposées pour saisir la durée d'une enchère (stockée en heures). */
+export const UNITES_DUREE = { heures: 1, jours: 24 } as const;
+export type UniteDuree = keyof typeof UNITES_DUREE;
+
+/** Durée saisie (valeur + unité) → heures. */
+export const dureeEnHeures = (valeur: number, unite: UniteDuree) => valeur * UNITES_DUREE[unite];
+
+/** « 10 j », « 36 h » → « 1 j 12 h », « 1 h ». */
+export function formaterDureeEnchere(heures: number): string {
+  const j = Math.floor(heures / 24);
+  const h = heures % 24;
+  if (j === 0) return `${h} h`;
+  return h === 0 ? `${j} j` : `${j} j ${h} h`;
+}
+
+export type PhaseEnchere = { phase: "duree" | "additionnel" | "terminee"; fin: Date };
+
+/**
+ * Phase affichée : d'abord la durée choisie à la création ; si des offres tardives ont
+ * prolongé l'enchère au-delà, le temps additionnel prend le relais jusqu'à la fin prévue.
+ */
+export function phaseEnchere(
+  e: { debut: Date; dureeHeures: number; finPrevue: Date },
+  maintenant: Date,
+): PhaseEnchere {
+  const finDuree = finInitiale(e.debut, e.dureeHeures);
+  const t = maintenant.getTime();
+  if (t < finDuree.getTime()) return { phase: "duree", fin: finDuree };
+  if (t < e.finPrevue.getTime()) return { phase: "additionnel", fin: e.finPrevue };
+  return { phase: "terminee", fin: e.finPrevue };
+}
 
 type Offre = { montant: number; date: Date; invalidee: boolean };
 

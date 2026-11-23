@@ -13,6 +13,7 @@ import { RecettesSemaines } from "@/composants/admin/tableau/RecettesSemaines";
 import { Avatar } from "@/composants/ui/Avatar";
 import { Button } from "@/composants/ui/Button";
 import { CompteARebours } from "@/composants/ui/CompteARebours";
+import { finInitiale } from "@/domaine/encheres";
 import { DataGrid } from "@/composants/ui/DataGrid";
 import { GlassCard } from "@/composants/ui/GlassCard";
 import { Kpi } from "@/composants/ui/Kpi";
@@ -401,6 +402,10 @@ async function Contenu() {
                         {cards.encheres[0].carte.nom} · fin dans{" "}
                         <CompteARebours
                           fin={cards.encheres[0].finPrevue.toISOString()}
+                          finDuree={finInitiale(
+                            cards.encheres[0].debut,
+                            cards.encheres[0].dureeHeures,
+                          ).toISOString()}
                           maintenant={d.maintenant.toISOString()}
                         />
                       </>

@@ -9,7 +9,13 @@ import { Actualisation, CompteARebours } from "@/composants/ui/CompteARebours";
 import { Icon } from "@/composants/ui/Icon";
 import { formaterDollars } from "@/domaine/argent";
 import { formaterHeure, formaterJourCourt } from "@/domaine/dates";
-import { etatEnchere, meilleureOffre, montantMinimum } from "@/domaine/encheres";
+import {
+  etatEnchere,
+  finInitiale,
+  formaterDureeEnchere,
+  meilleureOffre,
+  montantMinimum,
+} from "@/domaine/encheres";
 import { maintenant } from "@/lib/horloge";
 import { lireEncherePublique } from "@/services/encheres";
 import { lireFiliale, lireParametresSite } from "@/services/site";
@@ -98,13 +104,19 @@ async function Enchere({ params }: { params: PageProps<"/cards/encheres/[id]">["
                   {etat === "en_cours" ? (
                     <CompteARebours
                       fin={e.finPrevue.toISOString()}
+                      finDuree={finInitiale(e.debut, e.dureeHeures).toISOString()}
                       maintenant={instant.toISOString()}
                     />
                   ) : (
                     "Terminée"
                   )}
                 </dd>
-                <dd className="m-0 text-sm text-texte-doux">Fin prévue le {quand(e.finPrevue)}</dd>
+                <dd className="m-0 text-sm text-texte-doux">
+                  Durée {formaterDureeEnchere(e.dureeHeures)} · fin le{" "}
+                  {quand(finInitiale(e.debut, e.dureeHeures))}
+                  {e.finPrevue > finInitiale(e.debut, e.dureeHeures) &&
+                    ` · prolongée jusqu’au ${quand(e.finPrevue)}`}
+                </dd>
               </div>
             </dl>
             <p className="m-0 max-w-[620px] text-texte-doux">

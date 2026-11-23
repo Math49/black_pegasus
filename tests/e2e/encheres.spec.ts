@@ -81,7 +81,8 @@ test.describe("enchères", () => {
     await form.getByLabel("Mettre en vente").selectOption("enchere");
     await form.getByLabel("Montant de départ ($)").fill("500");
     await form.getByLabel("Pas minimum entre deux offres ($)").fill("50");
-    await form.getByLabel("Durée (heures)").fill("24");
+    await form.getByLabel("Durée", { exact: true }).fill("1");
+    await form.getByLabel("Unité de durée").selectOption("jours");
     await form.getByLabel("Temps additionnel (minutes)").fill("10");
     await form.getByRole("button", { name: "Enregistrer la carte" }).click();
     await expect(form).toBeHidden();

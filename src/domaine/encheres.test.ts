@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
+  dureeEnHeures,
+  formaterDureeEnchere,
+  phaseEnchere,
   etatEnchere,
   finInitiale,
   formaterTempsRestant,
@@ -34,7 +37,7 @@ describe("enchères", () => {
       "Montant de départ",
     );
     expect(() => verifierParametresEnchere({ ...ok, pasMinimum: 1.5 })).toThrow("Pas minimum");
-    expect(() => verifierParametresEnchere({ ...ok, dureeHeures: 721 })).toThrow("Durée");
+    expect(() => verifierParametresEnchere({ ...ok, dureeHeures: 721 })).toThrow("entre 1 heure et 30 jours");
     expect(finInitiale(t("10:00"), 24).toISOString()).toBe("2026-11-24T10:00:00.000Z");
   });
 
@@ -98,5 +101,24 @@ describe("enchères", () => {
     expect(formaterTempsRestant(3 * 3_600_000 + 12 * 60_000)).toBe("3 h 12 min");
     expect(formaterTempsRestant(2 * 86_400_000 + 5 * 3_600_000)).toBe("2 j 5 h");
     expect(formaterTempsRestant(86_400_000)).toBe("1 j");
+  });
+});
+
+describe("durée et temps additionnel", () => {
+  it("saisie en heures ou en jours, affichage compact", () => {
+    expect(dureeEnHeures(10, "jours")).toBe(240);
+    expect(dureeEnHeures(1, "heures")).toBe(1);
+    expect(formaterDureeEnchere(240)).toBe("10 j");
+    expect(formaterDureeEnchere(36)).toBe("1 j 12 h");
+    expect(formaterDureeEnchere(1)).toBe("1 h");
+  });
+
+  it("la durée d'abord, puis le temps additionnel s'il y a prolongation", () => {
+    const e = { debut: t("18:00"), dureeHeures: 2, finPrevue: t("20:08") };
+    expect(phaseEnchere(e, t("19:00"))).toEqual({ phase: "duree", fin: t("20:00") });
+    expect(phaseEnchere(e, t("20:03"))).toEqual({ phase: "additionnel", fin: t("20:08") });
+    expect(phaseEnchere(e, t("20:08"))).toEqual({ phase: "terminee", fin: t("20:08") });
+    // Sans prolongation, la fin de la durée est la fin de l'enchère.
+    expect(phaseEnchere({ ...e, finPrevue: t("20:00") }, t("20:00")).phase).toBe("terminee");
   });
 });

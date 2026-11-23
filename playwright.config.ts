@@ -21,6 +21,8 @@ export default defineConfig({
     command: process.env.CI ? `npm run start -- -p ${port}` : `npm run dev -- -p ${port}`,
     url: `http://localhost:${port}`,
     reuseExistingServer: !process.env.CI,
+    // Les scénarios supposent l'horloge de démonstration figée.
+    env: { HORLOGE_DEMO_AVANCE: "0" },
     timeout: 120_000,
   },
 });
