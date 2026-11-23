@@ -145,7 +145,7 @@ function verifier(condition: boolean, message: string): asserts condition {
 /** Catalogue fictif de Black Pégasus Cards : [nom, prix, exemplaires]. */
 const CARTES_DEMO: { nom: string; cartes: [string, number, number][] }[] = [
   {
-    nom: "Légendaires",
+    nom: "BP-00 Echoes of the Past",
     cartes: [
       ["Pégase d’ébène", 2500, 1],
       ["Dragon des abysses", 1800, 2],
@@ -154,7 +154,7 @@ const CARTES_DEMO: { nom: string; cartes: [string, number, number][] }[] = [
     ],
   },
   {
-    nom: "Rares",
+    nom: "BP-01 San Andreas Highway Patrol",
     cartes: [
       ["Faucon pèlerin", 450, 4],
       ["Loup des neiges", 400, 3],
@@ -164,7 +164,7 @@ const CARTES_DEMO: { nom: string; cartes: [string, number, number][] }[] = [
     ],
   },
   {
-    nom: "Communes",
+    nom: "BP-02 Gouvernement Of San Andreas",
     cartes: [
       ["Mouette du port", 60, 12],
       ["Docker de Los Santos", 50, 9],
@@ -172,6 +172,17 @@ const CARTES_DEMO: { nom: string; cartes: [string, number, number][] }[] = [
       ["Boussole ancienne", 45, 15],
       ["Carte des vents", 35, 20],
       ["Ancre rouillée", 30, 7],
+    ],
+  },
+  {
+    nom: "BP-04 Jefa Corporation",
+    cartes: [["La Jefa de Cayo Perico", 900, 1]],
+  },
+  {
+    nom: "BP-05 Working Legends",
+    cartes: [
+      ["Mécanicien de Sandy Shores", 150, 4],
+      ["Livreur de Vinewood", 120, 6],
     ],
   },
 ];

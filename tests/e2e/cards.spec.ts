@@ -98,8 +98,8 @@ test.describe("Black Pégasus Cards", () => {
         .filter({ has: page.getByRole("heading", { name: "Pégase d’ébène" }) }),
     ).toContainText("1 exemplaire");
 
-    await page.getByRole("link", { name: /^Rares/ }).click();
-    await expect(page).toHaveURL(/categorie=rares/);
+    await page.getByRole("link", { name: /^BP-01\s*San Andreas Highway Patrol/ }).click();
+    await expect(page).toHaveURL(/categorie=bp-01-san-andreas-highway-patrol/);
     await expect(page.getByRole("heading", { name: "Faucon pèlerin" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Phénix solaire" })).toHaveCount(0);
 
@@ -244,16 +244,18 @@ test.describe("Black Pégasus Cards", () => {
     await page.getByRole("button", { name: "Ajouter une carte" }).click();
     const ajout = page.getByRole("dialog", { name: "Ajouter une carte" });
     await ajout.getByLabel("Nom de la carte").fill(CARTE_E2E);
-    await ajout.getByLabel("Catégorie").selectOption({ label: "Rares" });
+    await ajout.getByLabel("Catégorie").selectOption({ label: "BP-01 San Andreas Highway Patrol" });
     await ajout.getByLabel("Prix ($)").fill("275");
     await ajout.getByLabel("Exemplaires en stock").fill("3");
     await ajout.getByRole("button", { name: "Enregistrer la carte" }).click();
     await expect(ajout).toBeHidden();
     expect(await stockDe(CARTE_E2E)).toBe(3);
 
-    // La carte est dans « Rares » : on ouvre cette catégorie (ajoutée en fin de liste).
-    await page.getByRole("button", { name: /^Rares/ }).click();
-    await expect(page.getByRole("heading", { level: 2, name: "Rares" })).toBeVisible();
+    // La carte est dans « BP-01 » : on ouvre cette catégorie (ajoutée en fin de liste).
+    await page.getByRole("button", { name: /^BP-01 / }).click();
+    await expect(
+      page.getByRole("heading", { level: 2, name: "BP-01 San Andreas Highway Patrol" }),
+    ).toBeVisible();
     await expect(
       page.getByRole("list", { name: "Cartes", exact: true }).getByRole("listitem").last(),
     ).toHaveAccessibleName(CARTE_E2E);
@@ -292,7 +294,7 @@ test.describe("Black Pégasus Cards", () => {
       (
         await sql<{ nom: string }>(
           `SELECT c.nom FROM "Carte" c JOIN "CategorieCarte" k ON k.id = c."categorieId"
-           WHERE k.nom = 'Légendaires' AND c."supprimeLe" IS NULL ORDER BY c.ordre, c.nom`,
+           WHERE k.nom = 'BP-00 Echoes of the Past' AND c."supprimeLe" IS NULL ORDER BY c.ordre, c.nom`,
         )
       ).map((c) => c.nom);
     await connexion(page, "Lena Castillo");
@@ -317,9 +319,9 @@ test.describe("Black Pégasus Cards", () => {
     await expect.poll(ordreLegendaires).toEqual([avant[1], avant[0], ...avant.slice(2)]);
     await expect(grille.getByRole("listitem").first()).toHaveAccessibleName(avant[1]);
 
-    // Souris : la carte déposée sur « Communes » y passe, en fin de liste.
+    // Souris : la carte déposée sur « BP-02 » y passe, en fin de liste.
     const poignee = page.getByRole("button", { name: `Déplacer ${avant[0]}` });
-    const cible = page.getByRole("button", { name: /^Communes/ });
+    const cible = page.getByRole("button", { name: /^BP-02 / });
     const a = (await poignee.boundingBox())!;
     const b = (await cible.boundingBox())!;
     await page.mouse.move(a.x + a.width / 2, a.y + a.height / 2);
@@ -327,12 +329,14 @@ test.describe("Black Pégasus Cards", () => {
     await page.mouse.move(a.x + a.width / 2 - 40, a.y + a.height / 2, { steps: 5 });
     await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2, { steps: 15 });
     await page.mouse.up();
-    await expect(page.getByText(`« ${avant[0]} » déplacée dans Communes.`)).toBeVisible();
+    await expect(
+      page.getByText(`« ${avant[0]} » déplacée dans BP-02 Gouvernement Of San Andreas.`),
+    ).toBeVisible();
     const [deplacee] = await sql<{ categorie: string }>(
       `SELECT k.nom AS categorie FROM "Carte" c JOIN "CategorieCarte" k ON k.id = c."categorieId" WHERE c.nom = $1`,
       [avant[0]],
     );
-    expect(deplacee.categorie).toBe("Communes");
+    expect(deplacee.categorie).toBe("BP-02 Gouvernement Of San Andreas");
     await expect(grille).not.toContainText(avant[0]);
 
     // Stock rapide, journalisé.

@@ -75,7 +75,7 @@ test.describe("enchères", () => {
     await connexion(page, "Lena Castillo");
     await page.goto("/admin/cards");
     await page.waitForLoadState("networkidle");
-    await page.getByRole("button", { name: /^Rares/ }).click();
+    await page.getByRole("button", { name: /^BP-01 / }).click();
     await page.getByRole("button", { name: `Modifier ${CARTE}` }).click();
     const form = page.getByRole("dialog", { name: `Modifier ${CARTE}` });
     await form.getByLabel("Mettre en vente").selectOption("enchere");
