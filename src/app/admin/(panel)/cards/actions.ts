@@ -44,12 +44,23 @@ const schemaCarte = z.object({
 });
 
 const schemaVente = z.object({
-  carteId: id,
-  quantite: z.coerce
-    .number({ error: "Quantité : nombre attendu." })
-    .int("Quantité : nombre entier attendu.")
-    .min(1, "Quantité : minimum 1.")
-    .max(1000, "Quantité : maximum 1 000."),
+  lignes: z
+    .array(
+      z.object({
+        carteId: id,
+        quantite: z
+          .number({ error: "Quantité : nombre attendu." })
+          .int("Quantité : nombre entier attendu.")
+          .min(1, "Quantité : minimum 1.")
+          .max(1000, "Quantité : maximum 1 000."),
+      }),
+    )
+    .min(1, "Ajoutez au moins une carte à la vente.")
+    .max(50, "50 cartes différentes au maximum par vente."),
+  montantEncaisse: z
+    .number({ error: "Montant encaissé : nombre attendu." })
+    .int("Montant encaissé : nombre entier de dollars.")
+    .nullable(),
   clientNom: z
     .string()
     .trim()

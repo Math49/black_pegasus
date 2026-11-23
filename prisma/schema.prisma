@@ -400,7 +400,7 @@ model Carte {
   visible     Boolean        @default(true)
   /// Suppression logique : les ventes restent lisibles.
   supprimeLe  DateTime?
-  ventes      VenteCarte[]
+  lignesVente LigneVente[]
 
   @@index([categorieId, ordre])
 }
@@ -410,26 +410,44 @@ enum StatutVente {
   ANNULEE
 }
 
+/// Vente de cartes (REFONTE-ADMIN § 4) : une ou plusieurs lignes, un seul mouvement.
 model VenteCarte {
-  id              String      @id @default(cuid())
+  id               String       @id @default(cuid())
   /// BPC-2026-0001 (compteur « BPC-2026 »)
-  numero          String      @unique
-  carteId         String
-  carte           Carte       @relation(fields: [carteId], references: [id])
-  // Instantanés figés à la vente.
-  carteNom        String
-  prixUnitaire    Int
-  quantite        Int
-  montant         Int
-  clientNom       String
-  clientTelephone String?
-  date            DateTime
-  statut          StatutVente @default(VALIDEE)
-  saisieParId     String
-  saisiePar       Compte      @relation(fields: [saisieParId], references: [id])
-  mouvements      Mouvement[]
+  numero           String       @unique
+  lignes           LigneVente[]
+  /// Total au prix du catalogue (somme des lignes)
+  montantCatalogue Int
+  /// Remise consentie : montantCatalogue − montant
+  remise           Int          @default(0)
+  /// Montant encaissé, inscrit au registre
+  montant          Int
+  clientNom        String
+  clientTelephone  String?
+  date             DateTime
+  statut           StatutVente  @default(VALIDEE)
+  saisieParId      String
+  saisiePar        Compte       @relation(fields: [saisieParId], references: [id])
+  mouvements       Mouvement[]
 
   @@index([date])
+}
+
+/// Ligne d'une vente ; instantanés figés à la vente.
+model LigneVente {
+  id           String     @id @default(cuid())
+  venteId      String
+  vente        VenteCarte @relation(fields: [venteId], references: [id], onDelete: Cascade)
+  carteId      String
+  carte        Carte      @relation(fields: [carteId], references: [id])
+  carteNom     String
+  prixUnitaire Int
+  quantite     Int
+  /// prixUnitaire × quantite
+  montant      Int
+
+  @@index([venteId])
+  @@index([carteId])
 }
 
 model JournalAudit {

@@ -5,10 +5,10 @@ import { connection } from "next/server";
 import { revalidatePath } from "next/cache";
 import {
   ajusterStock,
-  montantVente,
+  calculerVente,
   motifVente,
   verifierNouvelOrdre,
-  verifierStock,
+  type LigneSaisie,
 } from "@/domaine/cards";
 import { preparerContrePassation } from "@/domaine/comptabilite";
 import { cleCompteurVentes, numeroVente } from "@/domaine/numerotation";
@@ -62,11 +62,14 @@ export const TAILLE_PAGE_VENTES = 30;
 export async function lireVentes(page = 1, q = "") {
   await connection();
   const recherche = q.trim();
+  const contient = { contains: recherche, mode: "insensitive" as const };
   const where = recherche
     ? {
-        OR: (["numero", "carteNom", "clientNom"] as const).map((champ) => ({
-          [champ]: { contains: recherche, mode: "insensitive" as const },
-        })),
+        OR: [
+          { numero: contient },
+          { clientNom: contient },
+          { lignes: { some: { carteNom: contient } } },
+        ],
       }
     : {};
   const total = await prisma.venteCarte.count({ where });
@@ -80,6 +83,7 @@ export async function lireVentes(page = 1, q = "") {
     skip: (pageCourante - 1) * TAILLE_PAGE_VENTES,
     take: TAILLE_PAGE_VENTES,
     include: {
+      lignes: { orderBy: { montant: "desc" } },
       saisiePar: { select: { nomRp: true, nomAffiche: true, pseudo: true, discordId: true } },
       mouvements: { select: { semaine: { select: { statut: true } } } },
     },
@@ -87,10 +91,10 @@ export async function lireVentes(page = 1, q = "") {
   return { ventes, total, pageCourante };
 }
 
-/** Cartes proposées dans la modale « Nouvelle vente » (en stock ou non, non retirées). */
+/** Cartes proposées à la vente : en stock et non retirées (on ne vend pas ce qu'on n'a plus). */
 export async function lireCartesVendables() {
   return prisma.carte.findMany({
-    where: { supprimeLe: null },
+    where: { supprimeLe: null, stock: { gt: 0 } },
     select: { id: true, nom: true, prix: true, stock: true, categorie: { select: { nom: true } } },
     orderBy: [{ categorie: { ordre: "asc" } }, { ordre: "asc" }, { nom: "asc" }],
   });
@@ -305,25 +309,23 @@ export async function supprimerCarte(acteur: CompteConnecte, id: string) {
 // ── Ventes ──────────────────────────────────────────────────────────────────
 
 export type DonneesVente = {
-  carteId: string;
-  quantite: number;
+  lignes: LigneSaisie[];
+  /** Montant encaissé ; null : le total du catalogue. */
+  montantEncaisse: number | null;
   clientNom: string;
   clientTelephone: string | null;
 };
 
-/** Verrou sur la carte, contrôle du stock, numéro BPC, recette inscrite au registre. */
+/** Verrou sur les cartes, contrôle du stock, numéro BPC, recette inscrite au registre. */
 export async function creerVente(acteur: CompteConnecte, d: DonneesVente) {
   const instant = await maintenant();
   const vente = await enTransaction(async (tx) => {
-    // Deux ventes simultanées du dernier exemplaire s'excluent.
-    const verrou = await tx.$queryRaw<{ id: string }[]>`
-      SELECT id FROM "Carte" WHERE id = ${d.carteId} AND "supprimeLe" IS NULL FOR UPDATE`;
-    if (verrou.length === 0) throw new ErreurMetier("Carte introuvable.");
-    const carte = await tx.carte.findUniqueOrThrow({ where: { id: d.carteId } });
-    const restant = verifierStock(carte.stock, d.quantite);
-    // Le montant est toujours recalculé ici, jamais repris du navigateur.
-    const montant = montantVente(carte.prix, d.quantite);
-    if (montant <= 0) throw new ErreurMetier("Cette carte n’a pas de prix : vente impossible.");
+    // Deux ventes simultanées du dernier exemplaire s'excluent ; ordre fixe contre l'interblocage.
+    const ids = [...new Set(d.lignes.map((l) => l.carteId))].sort();
+    await tx.$queryRaw`SELECT id FROM "Carte" WHERE id = ANY(${ids}) ORDER BY id FOR UPDATE`;
+    const cartes = await tx.carte.findMany({ where: { id: { in: ids }, supprimeLe: null } });
+    // Montants toujours recalculés ici, jamais repris du navigateur (sauf l'encaissé, borné).
+    const calcul = calculerVente(cartes, d.lignes, d.montantEncaisse);
 
     const regles = await lireRegles(tx);
     const annee = new TZDate(instant.getTime(), regles.fuseau).getFullYear();
@@ -336,26 +338,34 @@ export async function creerVente(acteur: CompteConnecte, d: DonneesVente) {
     const cree = await tx.venteCarte.create({
       data: {
         numero: numeroVente(annee, compteur.valeur),
-        carteId: carte.id,
-        carteNom: carte.nom,
-        prixUnitaire: carte.prix,
-        quantite: d.quantite,
-        montant,
+        montantCatalogue: calcul.montantCatalogue,
+        remise: calcul.remise,
+        montant: calcul.montant,
         clientNom,
         clientTelephone: d.clientTelephone?.trim() || null,
         date: instant,
         saisieParId: acteur.id,
+        lignes: {
+          create: calcul.lignes.map((l) => ({
+            carteId: l.carteId,
+            carteNom: l.carteNom,
+            prixUnitaire: l.prixUnitaire,
+            quantite: l.quantite,
+            montant: l.montant,
+          })),
+        },
       },
     });
-    await tx.carte.update({ where: { id: carte.id }, data: { stock: restant } });
+    for (const l of calcul.lignes)
+      await tx.carte.update({ where: { id: l.carteId }, data: { stock: l.stockRestant } });
     const mouvement = await inscrireMouvement(
       tx,
       {
         date: instant,
         sens: "ENTREE",
         categorie: "VENTE_CARTES",
-        montant,
-        motif: motifVente({ carteNom: carte.nom, quantite: d.quantite, clientNom }),
+        montant: calcul.montant,
+        motif: motifVente({ lignes: calcul.lignes, clientNom, remise: calcul.remise }),
         automatique: true,
         filiale: "BPC",
         saisiParId: acteur.id,
@@ -367,7 +377,13 @@ export async function creerVente(acteur: CompteConnecte, d: DonneesVente) {
       compteId: acteur.id,
       action: "vente.creer",
       cible: `VenteCarte:${cree.numero}`,
-      details: { carte: carte.nom, quantite: d.quantite, montant, client: clientNom },
+      details: {
+        cartes: calcul.lignes.map((l) => `${l.quantite} × ${l.carteNom}`).join(", "),
+        montantCatalogue: calcul.montantCatalogue,
+        remise: calcul.remise,
+        montant: calcul.montant,
+        client: clientNom,
+      },
     });
     return cree;
   });
@@ -381,7 +397,7 @@ export async function annulerVente(acteur: CompteConnecte, venteId: string) {
   const numero = await enTransaction(async (tx) => {
     const vente = await tx.venteCarte.findUnique({
       where: { id: venteId },
-      include: { mouvements: { include: { semaine: true, annulePar: true } } },
+      include: { lignes: true, mouvements: { include: { semaine: true, annulePar: true } } },
     });
     if (!vente) throw new ErreurMetier("Vente introuvable.");
     if (vente.statut === "ANNULEE") throw new ErreurMetier("Cette vente est déjà annulée.");
@@ -389,7 +405,8 @@ export async function annulerVente(acteur: CompteConnecte, venteId: string) {
       throw new ErreurMetier(
         "Cette vente a un mouvement dans une semaine clôturée : annulation impossible.",
       );
-    await tx.$queryRaw`SELECT id FROM "Carte" WHERE id = ${vente.carteId} FOR UPDATE`;
+    const ids = [...new Set(vente.lignes.map((l) => l.carteId))].sort();
+    await tx.$queryRaw`SELECT id FROM "Carte" WHERE id = ANY(${ids}) ORDER BY id FOR UPDATE`;
     const regles = await lireRegles(tx);
     for (const m of vente.mouvements.filter((x) => !x.annuleMouvementId && !x.annulePar)) {
       const inverse = await inscrireMouvement(
@@ -405,16 +422,21 @@ export async function annulerVente(acteur: CompteConnecte, venteId: string) {
       );
       await tx.mouvement.update({ where: { id: inverse.id }, data: { venteCarteId: vente.id } });
     }
-    await tx.carte.update({
-      where: { id: vente.carteId },
-      data: { stock: { increment: vente.quantite } },
-    });
+    // Stock rendu, ligne par ligne.
+    for (const l of vente.lignes)
+      await tx.carte.update({
+        where: { id: l.carteId },
+        data: { stock: { increment: l.quantite } },
+      });
     await tx.venteCarte.update({ where: { id: venteId }, data: { statut: "ANNULEE" } });
     await journaliser(tx, {
       compteId: acteur.id,
       action: "vente.annuler",
       cible: `VenteCarte:${vente.numero}`,
-      details: { quantite: vente.quantite, montant: vente.montant },
+      details: {
+        exemplaires: vente.lignes.reduce((t, l) => t + l.quantite, 0),
+        montant: vente.montant,
+      },
     });
     return vente.numero;
   });

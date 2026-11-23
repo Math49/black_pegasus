@@ -1,3 +1,4 @@
+import { formaterDollars } from "./argent";
 import { ErreurMetier } from "./types";
 
 // Black Pégasus Cards (CONCEPTION-FILIALES § 6) : montants et stock, en entiers.
@@ -32,9 +33,100 @@ export function etatCarte(stock: number): EtatCarte {
   return { epuisee: false, libelle: `${stock} exemplaire${stock > 1 ? "s" : ""}` };
 }
 
+// ── Vente de plusieurs cartes (REFONTE-ADMIN § 4) ──────────────────────────
+
+export const LIGNES_MAX_VENTE = 50;
+
+export type LigneSaisie = { carteId: string; quantite: number };
+export type CarteAVendre = { id: string; nom: string; prix: number; stock: number };
+export type LigneCalculee = {
+  carteId: string;
+  carteNom: string;
+  prixUnitaire: number;
+  quantite: number;
+  montant: number;
+  stockRestant: number;
+};
+export type CalculVente = {
+  lignes: LigneCalculee[];
+  /** Total au prix du catalogue. */
+  montantCatalogue: number;
+  /** Montant encaissé (inscrit au registre). */
+  montant: number;
+  remise: number;
+};
+
+/**
+ * Calcule une vente à partir des cartes lues en base : montant de chaque ligne, stock restant,
+ * total catalogue et remise. `montantEncaisse` null : le total du catalogue est encaissé.
+ * Le montant encaissé est un entier entre 1 et le total (jamais au-dessus).
+ */
+export function calculerVente(
+  cartes: readonly CarteAVendre[],
+  saisies: readonly LigneSaisie[],
+  montantEncaisse: number | null,
+): CalculVente {
+  if (saisies.length === 0) throw new ErreurMetier("Ajoutez au moins une carte à la vente.");
+  if (saisies.length > LIGNES_MAX_VENTE)
+    throw new ErreurMetier(`${LIGNES_MAX_VENTE} cartes différentes au maximum par vente.`);
+  if (new Set(saisies.map((l) => l.carteId)).size !== saisies.length)
+    throw new ErreurMetier("Une même carte apparaît deux fois : regroupez la quantité.");
+  const lignes = saisies.map((l) => {
+    const carte = cartes.find((c) => c.id === l.carteId);
+    if (!carte) throw new ErreurMetier("Carte introuvable ou plus en vente.");
+    const montant = montantVente(carte.prix, l.quantite);
+    let stockRestant: number;
+    try {
+      stockRestant = verifierStock(carte.stock, l.quantite);
+    } catch (e) {
+      throw new ErreurMetier(`${carte.nom} : ${(e as Error).message}`);
+    }
+    return {
+      carteId: carte.id,
+      carteNom: carte.nom,
+      prixUnitaire: carte.prix,
+      quantite: l.quantite,
+      montant,
+      stockRestant,
+    };
+  });
+  const montantCatalogue = lignes.reduce((t, l) => t + l.montant, 0);
+  if (!Number.isSafeInteger(montantCatalogue)) throw new ErreurMetier("Montant trop élevé.");
+  if (montantCatalogue <= 0)
+    throw new ErreurMetier("Ces cartes n’ont pas de prix : vente impossible.");
+  const montant = montantEncaisse ?? montantCatalogue;
+  if (!Number.isSafeInteger(montant) || montant < 1)
+    throw new ErreurMetier("Montant encaissé : nombre entier d’au moins $1.");
+  if (montant > montantCatalogue)
+    throw new ErreurMetier(
+      `Le montant encaissé ne peut pas dépasser le prix du catalogue (${formaterDollars(montantCatalogue)}).`,
+    );
+  return { lignes, montantCatalogue, montant, remise: montantCatalogue - montant };
+}
+
+/** Remise en pourcentage du catalogue, arrondie à l'unité (affichage). */
+export const remisePourcent = (remise: number, montantCatalogue: number) =>
+  montantCatalogue <= 0 ? 0 : Math.round((remise / montantCatalogue) * 100);
+
+/** Résumé des lignes : « 2 × Dragon, Kraken » ou « 5 cartes (9 exemplaires) » au-delà de trois. */
+export function resumeLignes(lignes: readonly { carteNom: string; quantite: number }[]): string {
+  if (lignes.length > 3) {
+    const exemplaires = lignes.reduce((t, l) => t + l.quantite, 0);
+    return `${lignes.length} cartes (${exemplaires} exemplaires)`;
+  }
+  return lignes
+    .map((l) => (l.quantite > 1 ? `${l.quantite} × ${l.carteNom}` : l.carteNom))
+    .join(", ");
+}
+
 /** Motif de la recette inscrite au registre pour une vente. */
-export const motifVente = (v: { carteNom: string; quantite: number; clientNom: string }) =>
-  `Vente de cartes · ${v.quantite} × ${v.carteNom} · ${v.clientNom}`;
+export const motifVente = (v: {
+  lignes: readonly { carteNom: string; quantite: number }[];
+  clientNom: string;
+  remise?: number;
+}) =>
+  `Vente de cartes · ${resumeLignes(v.lignes)} · ${v.clientNom}` +
+  (v.remise ? ` · remise ${formaterDollars(v.remise)}` : "");
 
 type CarteClassee = {
   nom: string;

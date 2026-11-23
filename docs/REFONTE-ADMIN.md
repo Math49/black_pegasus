@@ -8,8 +8,8 @@
 |---|---|---|
 | **R-1** | Navigation par filiale, icônes, tableau de bord du groupe | Terminée (`7ed1add`) |
 | **R-2** | Comptabilité : nature par le sens, impôt sur les recettes, catégories de mouvements personnalisables | Terminée (`a0a50d9`) |
-| **R-3** | Gestion des cartes à gros volume, glisser-déposer | Terminée, à valider |
-| **R-4** | Ventes de plusieurs cartes, montant encaissé modifiable | À faire |
+| **R-3** | Gestion des cartes à gros volume, glisser-déposer | Terminée (`c136c4a`) |
+| **R-4** | Ventes de plusieurs cartes, montant encaissé modifiable | Terminée, à valider |
 | **R-5** | Enchères (panel et site public) | À faire |
 
 ## 1. Navigation et tableau de bord (R-1)
@@ -65,6 +65,8 @@
 - Sélection par recherche et filtre de catégorie ; seules les cartes **en stock** et **hors enchère** sont proposées ; quantité plafonnée au stock.
 - **Montant encaissé** : proposé au total catalogue (calculé côté serveur), modifiable à la baisse, jamais au-dessus du total. La remise est enregistrée et affichée.
 - L'annulation porte sur toute la vente (stock rendu, contre-passation).
+
+- **Livré en R-4** : table `LigneVente` (migration `20261123140000_ventes_multi_cartes`, reprise de chaque vente existante en une ligne) ; `VenteCarte` porte `montantCatalogue`, `remise` et `montant` (encaissé). Saisie en deux colonnes : cartes en stock filtrables (recherche, catégorie), vente avec quantités ; l'encaissé vide vaut le prix du catalogue. Le motif du registre mentionne la remise. Capture : `docs/validations/r4/`.
 
 ## 5. Enchères (R-5)
 

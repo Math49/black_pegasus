@@ -37,16 +37,15 @@ async function stockDe(nom: string) {
   return (await sql<{ stock: number }>(`SELECT stock FROM "Carte" WHERE nom = $1`, [nom]))[0].stock;
 }
 
-async function vendre(page: Page, carte: string, quantite: number) {
+/** Ouvre la saisie et ajoute les cartes demandées (nom → quantité). */
+async function vendre(page: Page, cartes: Record<string, number>) {
   await page.goto("/admin/cards/ventes");
+  await page.waitForLoadState("networkidle");
   await page.getByRole("button", { name: "Nouvelle vente" }).click();
   const modale = page.getByRole("dialog", { name: "Nouvelle vente" });
-  const valeur = await modale
-    .locator("option", { hasText: `${carte} ·` })
-    .first()
-    .getAttribute("value");
-  await modale.getByLabel("Carte").selectOption(valeur!);
-  await modale.getByLabel("Quantité").fill(String(quantite));
+  for (const [carte, quantite] of Object.entries(cartes))
+    for (let i = 0; i < quantite; i++)
+      await modale.getByRole("button", { name: new RegExp(`^Ajouter ${carte} `) }).click();
   await modale.getByLabel("Nom du client (RP)").fill(CLIENT);
   return modale;
 }
@@ -121,7 +120,7 @@ test.describe("Black Pégasus Cards", () => {
   }) => {
     const avant = await stockDe("Faucon pèlerin");
     await connexion(page, "Vincent Moretti");
-    const modale = await vendre(page, "Faucon pèlerin", 2);
+    const modale = await vendre(page, { "Faucon pèlerin": 2 });
     await expect(modale).toContainText("$900");
     await modale.getByRole("button", { name: "Enregistrer la vente" }).click();
     await expect(modale).toBeHidden();
@@ -159,13 +158,64 @@ test.describe("Black Pégasus Cards", () => {
     expect(mouvements.map((m) => m.sens)).toEqual(["ENTREE", "SORTIE"]);
   });
 
+  test("vente de plusieurs cartes avec remise ; épuisées absentes de la sélection", async ({
+    page,
+  }) => {
+    const avant = {
+      faucon: await stockDe("Faucon pèlerin"),
+      loup: await stockDe("Loup des neiges"),
+    };
+    await connexion(page, "Lena Castillo");
+    const modale = await vendre(page, { "Faucon pèlerin": 2, "Loup des neiges": 1 });
+    // Une carte épuisée n'est pas proposée.
+    await expect(modale.getByRole("button", { name: /^Ajouter Phénix solaire / })).toHaveCount(0);
+    await expect(modale).toContainText("$1 300"); // 2 × 450 + 400
+    await modale.getByLabel("Montant encaissé ($)").fill("1500");
+    await expect(modale.getByText("Au plus $1 300 (prix du catalogue).")).toBeVisible();
+    await expect(modale.getByRole("button", { name: "Enregistrer la vente" })).toBeDisabled();
+    await modale.getByLabel("Montant encaissé ($)").fill("1100");
+    await expect(modale).toContainText("$200 (15 %)");
+    await modale.getByRole("button", { name: "Enregistrer la vente" }).click();
+    await expect(modale).toBeHidden();
+
+    const [vente] = await sql<{
+      id: string;
+      montant: number;
+      montantCatalogue: number;
+      remise: number;
+    }>(
+      `SELECT id, montant, "montantCatalogue", remise FROM "VenteCarte" WHERE "clientNom" = $1 ORDER BY numero DESC LIMIT 1`,
+      [CLIENT],
+    );
+    expect(vente).toMatchObject({ montant: 1100, montantCatalogue: 1300, remise: 200 });
+    const lignes = await sql<{ carteNom: string; quantite: number }>(
+      `SELECT "carteNom", quantite FROM "LigneVente" WHERE "venteId" = $1 ORDER BY "carteNom"`,
+      [vente.id],
+    );
+    expect(lignes).toEqual([
+      { carteNom: "Faucon pèlerin", quantite: 2 },
+      { carteNom: "Loup des neiges", quantite: 1 },
+    ]);
+    expect(await stockDe("Faucon pèlerin")).toBe(avant.faucon - 2);
+    expect(await stockDe("Loup des neiges")).toBe(avant.loup - 1);
+    const [recette] = await sql<{ montant: number; motif: string }>(
+      `SELECT montant, motif FROM "Mouvement" WHERE "venteCarteId" = $1`,
+      [vente.id],
+    );
+    expect(recette.montant).toBe(1100);
+    expect(recette.motif).toContain("remise $200");
+    await expect(
+      page.getByRole("row").filter({ hasText: "2 × Faucon pèlerin, Loup des neiges" }),
+    ).toContainText("remise $200");
+  });
+
   test("deux ventes simultanées du dernier exemplaire : une seule passe", async ({ browser }) => {
     expect(await stockDe("Pégase d’ébène")).toBe(1);
     const pages = await Promise.all(
       ["Vincent Moretti", "Lena Castillo"].map(async (nom) => {
         const page = await (await browser.newContext()).newPage();
         await connexion(page, nom);
-        await vendre(page, "Pégase d’ébène", 1);
+        await vendre(page, { "Pégase d’ébène": 1 });
         return page;
       }),
     );
@@ -174,15 +224,15 @@ test.describe("Black Pégasus Cards", () => {
     );
     await expect
       .poll(async () =>
-        Promise.all(pages.map((p) => p.getByText("Cette carte est épuisée.").isVisible())).then(
-          (r) => r.filter(Boolean).length,
-        ),
+        Promise.all(
+          pages.map((p) => p.getByText("Pégase d’ébène : Cette carte est épuisée.").isVisible()),
+        ).then((r) => r.filter(Boolean).length),
       )
       .toBe(1);
     expect(await stockDe("Pégase d’ébène")).toBe(0);
     expect(
       await sql(
-        `SELECT id FROM "VenteCarte" WHERE "clientNom" = $1 AND "carteNom" = 'Pégase d’ébène'`,
+        `SELECT v.id FROM "VenteCarte" v JOIN "LigneVente" l ON l."venteId" = v.id WHERE v."clientNom" = $1 AND l."carteNom" = 'Pégase d’ébène'`,
         [CLIENT],
       ),
     ).toHaveLength(1);
@@ -357,7 +407,7 @@ test.describe("Black Pégasus Cards", () => {
 
   test("droits : gestionnaire sans annulation, FISC en consultation", async ({ page }) => {
     await connexion(page, "Lena Castillo");
-    const modale = await vendre(page, "Mouette du port", 1);
+    const modale = await vendre(page, { "Mouette du port": 1 });
     await modale.getByRole("button", { name: "Enregistrer la vente" }).click();
     await expect(modale).toBeHidden();
     await expect(page.getByRole("button", { name: /^Annuler la vente/ })).toHaveCount(0);
@@ -384,6 +434,8 @@ test.describe("Black Pégasus Cards", () => {
     }
     await page.getByRole("button", { name: "Nouvelle vente" }).click();
     const { violations } = await new AxeBuilder({ page }).analyze();
-    expect(violations.map((v) => v.id)).toEqual([]);
+    expect(violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(" | ")}`)).toEqual(
+      [],
+    );
   });
 });

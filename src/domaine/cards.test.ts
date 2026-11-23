@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   ajusterStock,
+  calculerVente,
+  remisePourcent,
+  resumeLignes,
   correspondRecherche,
   etatCarte,
   filtrerCatalogue,
@@ -49,9 +52,9 @@ describe("ventes de cartes", () => {
     expect(pieceAbregee(numeroVente(2026, 7))).toBe("BPC-0007");
   });
   it("motif du registre", () => {
-    expect(motifVente({ carteNom: "Dragon d’or", quantite: 2, clientNom: "Ada" })).toBe(
-      "Vente de cartes · 2 × Dragon d’or · Ada",
-    );
+    expect(
+      motifVente({ lignes: [{ carteNom: "Dragon d’or", quantite: 2 }], clientNom: "Ada" }),
+    ).toBe("Vente de cartes · 2 × Dragon d’or · Ada");
   });
 });
 
@@ -122,5 +125,85 @@ describe("catalogue à gros volume (R-3)", () => {
     expect(filtresActifs(FILTRES_PAR_DEFAUT)).toBe(false);
     expect(filtresActifs({ ...FILTRES_PAR_DEFAUT, q: " " })).toBe(false);
     expect(filtresActifs({ ...FILTRES_PAR_DEFAUT, stock: "epuisees" })).toBe(true);
+  });
+});
+
+describe("vente de plusieurs cartes (R-4)", () => {
+  const cartes = [
+    { id: "a", nom: "Dragon", prix: 1800, stock: 2 },
+    { id: "b", nom: "Kraken", prix: 1200, stock: 1 },
+    { id: "c", nom: "Mouette", prix: 0, stock: 5 },
+  ];
+
+  it("lignes, total du catalogue et stock restant", () => {
+    const v = calculerVente(
+      cartes,
+      [
+        { carteId: "a", quantite: 2 },
+        { carteId: "b", quantite: 1 },
+      ],
+      null,
+    );
+    expect(v).toMatchObject({ montantCatalogue: 4800, montant: 4800, remise: 0 });
+    expect(v.lignes.map((l) => [l.carteNom, l.montant, l.stockRestant])).toEqual([
+      ["Dragon", 3600, 0],
+      ["Kraken", 1200, 0],
+    ]);
+  });
+
+  it("montant encaissé : remise possible, jamais au-dessus du catalogue", () => {
+    const une = [{ carteId: "a", quantite: 1 }];
+    expect(calculerVente(cartes, une, 1500)).toMatchObject({ montant: 1500, remise: 300 });
+    expect(calculerVente(cartes, une, 1800).remise).toBe(0);
+    expect(() => calculerVente(cartes, une, 1801)).toThrow("ne peut pas dépasser");
+    expect(() => calculerVente(cartes, une, 0)).toThrow("au moins $1");
+    expect(() => calculerVente(cartes, une, 99.5)).toThrow("entier");
+  });
+
+  it("refus : vide, doublon, carte inconnue, stock insuffisant, sans prix", () => {
+    expect(() => calculerVente(cartes, [], null)).toThrow("au moins une carte");
+    expect(() =>
+      calculerVente(
+        cartes,
+        [
+          { carteId: "a", quantite: 1 },
+          { carteId: "a", quantite: 1 },
+        ],
+        null,
+      ),
+    ).toThrow("deux fois");
+    expect(() => calculerVente(cartes, [{ carteId: "x", quantite: 1 }], null)).toThrow(
+      "introuvable",
+    );
+    expect(() => calculerVente(cartes, [{ carteId: "b", quantite: 2 }], null)).toThrow(
+      "Kraken : Stock insuffisant",
+    );
+    expect(() => calculerVente(cartes, [{ carteId: "c", quantite: 1 }], null)).toThrow(
+      "pas de prix",
+    );
+    expect(() =>
+      calculerVente(
+        cartes,
+        Array.from({ length: 51 }, (_, i) => ({ carteId: `x${i}`, quantite: 1 })),
+        null,
+      ),
+    ).toThrow("50 cartes");
+  });
+
+  it("résumé, motif et remise en pourcentage", () => {
+    expect(
+      resumeLignes([
+        { carteNom: "Dragon", quantite: 2 },
+        { carteNom: "Kraken", quantite: 1 },
+      ]),
+    ).toBe("2 × Dragon, Kraken");
+    expect(resumeLignes(["A", "B", "C", "D"].map((carteNom) => ({ carteNom, quantite: 2 })))).toBe(
+      "4 cartes (8 exemplaires)",
+    );
+    expect(
+      motifVente({ lignes: [{ carteNom: "Dragon", quantite: 1 }], clientNom: "Ada", remise: 300 }),
+    ).toBe("Vente de cartes · Dragon · Ada · remise $300");
+    expect(remisePourcent(300, 1800)).toBe(17);
+    expect(remisePourcent(0, 0)).toBe(0);
   });
 });

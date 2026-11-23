@@ -3,6 +3,7 @@ import Link from "next/link";
 import { exigerPermission } from "@/lib/garde";
 import { peut } from "@/domaine/permissions";
 import { formaterDollars } from "@/domaine/argent";
+import { resumeLignes } from "@/domaine/cards";
 import { formaterDateLongue } from "@/domaine/dates";
 import { nomCompte } from "@/domaine/comptes";
 import { lireCartesVendables, lireVentes, TAILLE_PAGE_VENTES } from "@/services/cards";
@@ -63,9 +64,9 @@ async function Contenu({
           colonnes={[
             { cle: "numero", titre: "N°", largeur: "126px" },
             { cle: "date", titre: "Date", largeur: "minmax(140px,1fr)" },
-            { cle: "carte", titre: "Carte", largeur: "minmax(130px,1.2fr)" },
-            { cle: "quantite", titre: "Qté", largeur: "52px", alignement: "droite" },
-            { cle: "montant", titre: "Montant", largeur: "96px", alignement: "droite" },
+            { cle: "carte", titre: "Cartes", largeur: "minmax(160px,1.6fr)" },
+            { cle: "quantite", titre: "Ex.", largeur: "52px", alignement: "droite" },
+            { cle: "montant", titre: "Encaissé", largeur: "120px", alignement: "droite" },
             { cle: "client", titre: "Client", largeur: "minmax(120px,1fr)" },
             { cle: "saisie", titre: "Saisie par", largeur: "minmax(110px,1fr)" },
             { cle: "statut", titre: "Statut", largeur: "112px" },
@@ -81,9 +82,20 @@ async function Contenu({
               cellules: {
                 numero: <span className="font-bold chiffres">{v.numero}</span>,
                 date: formaterDateLongue(v.date, p.fuseauServeur),
-                carte: v.carteNom,
-                quantite: <span className="chiffres">{v.quantite}</span>,
-                montant: <span className="font-bold chiffres">{formaterDollars(v.montant)}</span>,
+                carte: resumeLignes(v.lignes),
+                quantite: (
+                  <span className="chiffres">{v.lignes.reduce((t, l) => t + l.quantite, 0)}</span>
+                ),
+                montant: (
+                  <span className="flex flex-col items-end gap-0.5">
+                    <span className="font-bold chiffres">{formaterDollars(v.montant)}</span>
+                    {v.remise > 0 && (
+                      <span className="text-xs chiffres text-texte-attenue">
+                        remise {formaterDollars(v.remise)}
+                      </span>
+                    )}
+                  </span>
+                ),
                 client: (
                   <span className="flex flex-col gap-1">
                     <span>{v.clientNom}</span>
