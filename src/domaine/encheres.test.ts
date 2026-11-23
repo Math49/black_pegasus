@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { formaterTelephoneEnJeu } from "./telephone";
 import {
-  formaterTelephoneEnJeu,
   dureeEnHeures,
   formaterDureeEnchere,
   phaseEnchere,

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { formaterDollars } from "./argent";
+import { schemaTelephoneEnJeu } from "./telephone";
 import { ErreurMetier } from "./types";
 
 // Enchères de cartes (REFONTE-ADMIN § 5). Fonctions pures : montants entiers, dates en UTC.
@@ -128,15 +129,6 @@ export const LIBELLES_ETAT_ENCHERE: Record<EtatEnchere, string> = {
   annulee: "Annulée",
 };
 
-/** Numéro de téléphone en jeu : trois chiffres, un tiret, quatre chiffres (555-0123). */
-export const TELEPHONE_EN_JEU = /^\d{3}-\d{4}$/;
-
-/** Met en forme la saisie d'un numéro : « 5550123 » → « 555-0123 » (chiffres seulement). */
-export function formaterTelephoneEnJeu(saisie: string): string {
-  const chiffres = saisie.replace(/\D/g, "").slice(0, 7);
-  return chiffres.length > 3 ? `${chiffres.slice(0, 3)}-${chiffres.slice(3)}` : chiffres;
-}
-
 /** Schéma d'une offre publique : coordonnées en jeu uniquement. */
 export const schemaOffre = z.object({
   nom: z
@@ -144,10 +136,7 @@ export const schemaOffre = z.object({
     .trim()
     .min(2, "Nom : 2 caractères minimum.")
     .max(60, "Nom : 60 caractères maximum."),
-  telephone: z
-    .string({ error: "Téléphone : obligatoire." })
-    .trim()
-    .regex(TELEPHONE_EN_JEU, "Téléphone : format 000-0000 (ex. 555-0123)."),
+  telephone: schemaTelephoneEnJeu,
   montant: z
     .string({ error: "Montant : obligatoire." })
     .transform((t) => t.replace(/[\s  $]/g, ""))

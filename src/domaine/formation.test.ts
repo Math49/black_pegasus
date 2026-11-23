@@ -10,12 +10,15 @@ const valide = {
 describe("demandes de formation", () => {
   it("normalise les espaces extérieurs et accepte les bornes", () => {
     expect(
-      schemaDemandeFormation.parse({ ...valide, nomRp: "  Lena Castillo  ", telephone: "  123  " })
-        .nomRp,
+      schemaDemandeFormation.parse({
+        ...valide,
+        nomRp: "  Lena Castillo  ",
+        telephone: "  555-0123  ",
+      }).nomRp,
     ).toBe(valide.nomRp);
     for (const nomRp of ["AB", "a".repeat(60)])
       for (const message of ["x".repeat(10), "x".repeat(1000)])
-        for (const telephone of ["123", "1".repeat(15), "5 55.01-02"])
+        for (const telephone of ["555-0123", "000-0000"])
           expect(
             schemaDemandeFormation.safeParse({
               ...valide,
@@ -33,9 +36,11 @@ describe("demandes de formation", () => {
     { message: "court" },
     { message: "x".repeat(1001) },
     { message: "   " },
-    ...["12", "1".repeat(16), "+331234", "abc", "-123", "1/23", "12\n3"].map((telephone) => ({
-      telephone,
-    })),
+    ...["123", "5550123", "555 0123", "555-012", "555-01234", "+33-1234", "abc-defg"].map(
+      (telephone) => ({
+        telephone,
+      }),
+    ),
     { permisId: 1 },
     { permisId: "p".repeat(101) },
   ])("refuse une saisie invalide : %j", (saisie) => {

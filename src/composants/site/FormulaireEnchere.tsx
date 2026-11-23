@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { actionEncherir } from "@/app/(public)/cards/encheres/[id]/actions";
 import { SEPARATEUR_MILLIERS } from "@/domaine/argent";
-import { formaterTelephoneEnJeu } from "@/domaine/encheres";
+import { formaterTelephoneEnJeu } from "@/domaine/telephone";
 import { Button } from "@/composants/ui/Button";
 import { Field } from "@/composants/ui/Field";
 import { Icon } from "@/composants/ui/Icon";

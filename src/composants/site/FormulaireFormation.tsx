@@ -5,6 +5,7 @@ import { actionDemanderFormation } from "@/app/(public)/formation/actions";
 import { Button } from "@/composants/ui/Button";
 import { Field, Select, TextArea } from "@/composants/ui/Field";
 import { Icon } from "@/composants/ui/Icon";
+import { formaterTelephoneEnJeu } from "@/domaine/telephone";
 
 export function FormulaireFormation({
   permis,
@@ -13,6 +14,7 @@ export function FormulaireFormation({
 }) {
   const [enCours, demarrer] = useTransition();
   const [etat, setEtat] = useState<{ ok: boolean; message: string } | null>(null);
+  const [telephone, setTelephone] = useState("");
   return (
     <form
       aria-label="Demande de formation"
@@ -32,7 +34,10 @@ export function FormulaireFormation({
                 }
               : { ok: false, message: r.erreur },
           );
-          if (r.ok) formulaire.reset();
+          if (r.ok) {
+            formulaire.reset();
+            setTelephone("");
+          }
         });
       }}
     >
@@ -51,10 +56,15 @@ export function FormulaireFormation({
           name="telephone"
           variante="site"
           required
-          minLength={3}
-          maxLength={15}
+          pattern="[0-9]{3}-[0-9]{4}"
+          title="Format 000-0000, par exemple 555-0123"
+          placeholder="555-0123"
+          maxLength={8}
           autoComplete="off"
-          inputMode="tel"
+          inputMode="numeric"
+          aide="Format 000-0000."
+          value={telephone}
+          onChange={(e) => setTelephone(formaterTelephoneEnJeu(e.target.value))}
         />
       </div>
       <Select

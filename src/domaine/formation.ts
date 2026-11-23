@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { schemaTelephoneEnJeu } from "./telephone";
 
 /** Coordonnées en jeu uniquement ; aucun courriel ni autre donnée personnelle. */
 export const schemaDemandeFormation = z.object({
@@ -7,10 +8,7 @@ export const schemaDemandeFormation = z.object({
     .trim()
     .min(2, "Nom RP : 2 caractères minimum.")
     .max(60, "Nom RP : 60 caractères maximum."),
-  telephone: z
-    .string()
-    .trim()
-    .regex(/^[0-9][0-9 .-]{2,14}$/, "Téléphone en jeu invalide (3 à 15 caractères)."),
+  telephone: schemaTelephoneEnJeu,
   permisId: z.string().trim().max(100).nullable(),
   message: z
     .string()

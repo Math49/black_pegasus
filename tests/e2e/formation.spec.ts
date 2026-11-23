@@ -149,11 +149,17 @@ test("validations serveur : téléphone, permis retiré et filiale masquée entr
 }) => {
   await page.goto("/formation");
   await remplir(page, `${PREFIXE} Validation`);
-  await page.getByLabel("Téléphone en jeu", { exact: true }).fill("abc");
+  // La saisie est mise en forme côté client : on force une valeur invalide pour tester le serveur.
+  const tel = page.getByLabel("Téléphone en jeu", { exact: true });
+  await tel.evaluate((e: HTMLInputElement) => {
+    e.removeAttribute("pattern");
+    e.removeAttribute("maxlength");
+  });
+  await tel.fill("5550123");
   await page.getByRole("button", { name: "Envoyer ma demande" }).click();
   await expect(
     page.getByRole("form", { name: "Demande de formation" }).getByRole("alert"),
-  ).toContainText("Téléphone en jeu invalide");
+  ).toContainText("format 000-0000");
   await remplir(page, `${PREFIXE} Validation`);
   await sql(`UPDATE "Permis" SET visible=false WHERE id='licence-navigation'`);
   await page.getByRole("button", { name: "Envoyer ma demande" }).click();
