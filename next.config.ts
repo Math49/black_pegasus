@@ -48,6 +48,8 @@ const nextConfig: NextConfig = {
   experimental: {
     // Photos et justificatifs : 10 Mo maximum (CONCEPTION § 7) + marge multipart.
     serverActions: { bodySizeLimit: "11mb" },
+    // Mises à jour de Next.js : canal des correctifs de sécurité.
+    agentUpgrade: "security",
   },
   images: {
     // Photos des véhicules servies par /api/fichiers, visuels fixes dans /public/images.
