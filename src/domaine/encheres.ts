@@ -128,19 +128,28 @@ export const LIBELLES_ETAT_ENCHERE: Record<EtatEnchere, string> = {
   annulee: "Annulée",
 };
 
+/** Numéro de téléphone en jeu : trois chiffres, un tiret, quatre chiffres (555-0123). */
+export const TELEPHONE_EN_JEU = /^\d{3}-\d{4}$/;
+
+/** Met en forme la saisie d'un numéro : « 5550123 » → « 555-0123 » (chiffres seulement). */
+export function formaterTelephoneEnJeu(saisie: string): string {
+  const chiffres = saisie.replace(/\D/g, "").slice(0, 7);
+  return chiffres.length > 3 ? `${chiffres.slice(0, 3)}-${chiffres.slice(3)}` : chiffres;
+}
+
 /** Schéma d'une offre publique : coordonnées en jeu uniquement. */
 export const schemaOffre = z.object({
   nom: z
-    .string()
+    .string({ error: "Nom RP : obligatoire." })
     .trim()
     .min(2, "Nom : 2 caractères minimum.")
     .max(60, "Nom : 60 caractères maximum."),
   telephone: z
-    .string()
+    .string({ error: "Téléphone : obligatoire." })
     .trim()
-    .regex(/^[0-9][0-9 .-]{2,14}$/, "Téléphone en jeu invalide (3 à 15 caractères)."),
+    .regex(TELEPHONE_EN_JEU, "Téléphone : format 000-0000 (ex. 555-0123)."),
   montant: z
-    .string()
+    .string({ error: "Montant : obligatoire." })
     .transform((t) => t.replace(/[\s  $]/g, ""))
     .pipe(z.string().regex(/^\d{1,9}$/, "Montant : nombre entier de dollars."))
     .transform(Number),

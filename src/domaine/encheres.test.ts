@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  formaterTelephoneEnJeu,
   dureeEnHeures,
   formaterDureeEnchere,
   phaseEnchere,
@@ -37,7 +38,9 @@ describe("enchères", () => {
       "Montant de départ",
     );
     expect(() => verifierParametresEnchere({ ...ok, pasMinimum: 1.5 })).toThrow("Pas minimum");
-    expect(() => verifierParametresEnchere({ ...ok, dureeHeures: 721 })).toThrow("entre 1 heure et 30 jours");
+    expect(() => verifierParametresEnchere({ ...ok, dureeHeures: 721 })).toThrow(
+      "entre 1 heure et 30 jours",
+    );
     expect(finInitiale(t("10:00"), 24).toISOString()).toBe("2026-11-24T10:00:00.000Z");
   });
 
@@ -89,7 +92,7 @@ describe("enchères", () => {
     expect(() => schemaOffre.parse({ nom: "Ada", telephone: "abc", montant: "1" })).toThrow(
       "Téléphone",
     );
-    expect(() => schemaOffre.parse({ nom: "Ada", telephone: "555", montant: "12,5" })).toThrow(
+    expect(() => schemaOffre.parse({ nom: "Ada", telephone: "555-0101", montant: "12,5" })).toThrow(
       "Montant",
     );
   });
@@ -120,5 +123,36 @@ describe("durée et temps additionnel", () => {
     expect(phaseEnchere(e, t("20:08"))).toEqual({ phase: "terminee", fin: t("20:08") });
     // Sans prolongation, la fin de la durée est la fin de l'enchère.
     expect(phaseEnchere({ ...e, finPrevue: t("20:00") }, t("20:00")).phase).toBe("terminee");
+  });
+});
+
+describe("téléphone en jeu des enchères", () => {
+  it("format 000-0000 obligatoire", () => {
+    const offre = (telephone: unknown) =>
+      schemaOffre.safeParse({ nom: "Ada", telephone, montant: "100" });
+    expect(offre("555-0123").success).toBe(true);
+    for (const t of ["5550123", "555 0123", "55-50123", "555-012", "555-01234", "abc-defg", ""])
+      expect(offre(t).success, t).toBe(false);
+    expect(offre(null).error?.issues[0].message).toBe("Téléphone : obligatoire.");
+    expect(offre("5550123").error?.issues[0].message).toBe(
+      "Téléphone : format 000-0000 (ex. 555-0123).",
+    );
+  });
+
+  it("champs obligatoires", () => {
+    const r = schemaOffre.safeParse({});
+    expect(r.error?.issues.map((i) => i.message)).toEqual([
+      "Nom RP : obligatoire.",
+      "Téléphone : obligatoire.",
+      "Montant : obligatoire.",
+    ]);
+  });
+
+  it("mise en forme pendant la saisie", () => {
+    expect(formaterTelephoneEnJeu("5550123")).toBe("555-0123");
+    expect(formaterTelephoneEnJeu("555")).toBe("555");
+    expect(formaterTelephoneEnJeu("5550")).toBe("555-0");
+    expect(formaterTelephoneEnJeu("555-01234567")).toBe("555-0123");
+    expect(formaterTelephoneEnJeu("ab5c")).toBe("5");
   });
 });

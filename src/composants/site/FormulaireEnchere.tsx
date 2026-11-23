@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { actionEncherir } from "@/app/(public)/cards/encheres/[id]/actions";
 import { SEPARATEUR_MILLIERS } from "@/domaine/argent";
+import { formaterTelephoneEnJeu } from "@/domaine/encheres";
 import { Button } from "@/composants/ui/Button";
 import { Field } from "@/composants/ui/Field";
 import { Icon } from "@/composants/ui/Icon";
@@ -32,6 +33,7 @@ export function FormulaireEnchere({
   const [enCours, demarrer] = useTransition();
   const [etat, setEtat] = useState<{ ok: boolean; message: string } | null>(null);
   // Montant prérempli au minimum ; remonté si le minimum dépasse la saisie (nouvelle offre).
+  const [telephone, setTelephone] = useState("");
   const [montant, setMontant] = useState(grouper(String(montantMinimum)));
   const [minimumConnu, setMinimumConnu] = useState(montantMinimum);
   if (minimumConnu !== montantMinimum) {
@@ -79,10 +81,15 @@ export function FormulaireEnchere({
           name="telephone"
           variante="site"
           required
-          minLength={3}
-          maxLength={15}
+          pattern="[0-9]{3}-[0-9]{4}"
+          title="Format 000-0000, par exemple 555-0123"
+          placeholder="555-0123"
+          maxLength={8}
           autoComplete="off"
-          inputMode="tel"
+          inputMode="numeric"
+          aide="Format 000-0000."
+          value={telephone}
+          onChange={(e) => setTelephone(formaterTelephoneEnJeu(e.target.value))}
         />
       </div>
       <Field
