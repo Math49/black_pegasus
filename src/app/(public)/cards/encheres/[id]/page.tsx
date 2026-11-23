@@ -129,6 +129,7 @@ async function Enchere({ params }: { params: PageProps<"/cards/encheres/[id]">["
               <FormulaireEnchere
                 enchereId={e.id}
                 minimum={formaterDollars(montantMinimum(e, e.offres))}
+                montantMinimum={montantMinimum(e, e.offres)}
               />
             ) : (
               <p role="status" className="glass-site m-0 p-6 text-texte-doux">
